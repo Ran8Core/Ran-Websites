@@ -3,172 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ran - Personal Portfolio</title>
+    <title>Ran Website - Dashboard</title>
     <style>
-        :root {
-            --bg-color: #0b0b0b;
-            --accent: #007bff;
-            --text-main: #ffffff;
-            --text-dim: #a0a0a0;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #0b0b0b;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 10%;
-            background: rgba(11, 11, 11, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid #1a1a1a;
-        }
-
-        .logo { font-weight: bold; font-size: 1.5rem; letter-spacing: 2px; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 14px; transition: 0.3s; }
-        .nav-links a:hover { color: var(--text-main); }
-
-        .hero {
-            padding: 80px 10%;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            min-height: 80vh;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            animation: fadeInPage 1.5s ease forwards;
         }
 
-        /* Widget Waktu & Tanggal */
-        .time-widget {
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logout Pojok Kanan Atas */
+        .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .btn-logout {
+            padding: 8px 15px;
+            background: #161616;
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #ff4d4d;
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
+        }
+
+        .container { text-align: center; }
+
+        /* Profile Section */
+        .profile-section { margin-bottom: 20px; }
+        #profile-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #007bff;
+            display: none;
+            margin: 0 auto 10px;
+        }
+        #default-icon { font-size: 60px; margin-bottom: 10px; }
+        .upload-label {
+            display: block;
+            font-size: 11px;
+            color: #555;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        #file-input { display: none; }
+
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            margin: 10px 0 5px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 14px;
             margin-bottom: 30px;
         }
 
-        #clock {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--text-main);
-            margin: 0;
-        }
-
-        #date {
-            font-size: 1rem;
-            color: var(--accent);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        .profile-area { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
-        #profile-preview { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); display: none; }
-        #default-icon { font-size: 50px; }
-
-        .greeting { color: var(--accent); font-size: 1.1rem; margin-bottom: 5px; font-weight: 600; }
-        h1 { font-size: 3.5rem; margin: 0; font-weight: 800; line-height: 1.1; max-width: 800px; }
-        .description { color: var(--text-dim); max-width: 550px; margin: 25px 0 40px; font-size: 1.05rem; }
-
-        .btn-main-group { display: flex; gap: 15px; }
-        .btn-primary { background: var(--accent); color: white; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: 0.3s; }
-        .btn-primary:hover { opacity: 0.8; transform: translateY(-2px); }
-        .btn-secondary { border: 1px solid #333; color: white; padding: 12px 25px; border-radius: 6px; text-decoration: none; transition: 0.3s; }
-        .btn-secondary:hover { background: #1a1a1a; }
-
-        .logout-link { margin-top: 60px; font-size: 12px; color: #444; cursor: pointer; transition: 0.3s; }
-        .logout-link:hover { color: #ff4d4d; }
-    </style>
-</head>
-<body>
-
-    <nav>
-        <div class="logo">RAN.</div>
-        <div class="nav-links">
-            <a href="#">Beranda</a>
-            <a href="aboutme.html">Tentang</a>
-            <a href="projects.html">Projek Saya</a>
-        </div>
-    </nav>
-
-    <section class="hero">
-        <div class="time-widget">
-            <p id="date">Memuat Tanggal...</p>
-            <p id="clock">00:00:00</p>
-        </div>
-        
-        <div class="profile-area">
-            <img id="profile-preview" src="#" alt="Profile">
-            <div id="default-icon">👤</div>
-            <input type="file" id="file-input" style="display:none" onchange="previewImage(event)">
-            <label for="file-input" style="font-size: 11px; color: var(--text-dim); cursor: pointer; text-decoration: underline;">Change Photo</label>
-        </div>
-
-        <div class="greeting">Halo, Saya <span id="user-display">USER</span></div>
-        <h1>Saya membangun infrastruktur jaringan dan sistem web.</h1>
-        
-        <p class="description">
-            Siswa <b>TJKT</b> yang mendalami konfigurasi server, keamanan jaringan, dan antarmuka web yang modern.
-        </p>
-
-        <div class="btn-main-group">
-            <a href="projects.html" class="btn-primary">Lihat Projek</a>
-            <a href="aboutme.html" class="btn-secondary">Tentang Saya</a>
-        </div>
-
-        <div class="logout-link" onclick="logout()">Log out dari sistem →</div>
-    </section>
-
-    <script>
-        function updateTime() {
-            const now = new Date();
-            
-            // Format Jam
-            const timeString = now.toLocaleTimeString('en-GB');
-            document.getElementById("clock").innerText = timeString;
-
-            // Format Hari dan Tanggal (Bahasa Indonesia)
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const dateString = now.toLocaleDateString('id-ID', options);
-            document.getElementById("date").innerText = dateString;
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        window.onload = function() {
-            const user = localStorage.getItem("activeUser") || "RAN";
-            document.getElementById("user-display").innerText = user.toUpperCase();
-
-            const savedPic = localStorage.getItem("profilePic");
-            if(savedPic) {
-                const img = document.getElementById('profile-preview');
-                img.src = savedPic;
-                img.style.display = 'block';
-                document.getElementById('default-icon').style.display = 'none';
-            }
-        }
-
-        function previewImage(event) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                const output = document.getElementById('profile-preview');
-                output.src = reader.result;
-                output.style.display = 'block';
-                document.getElementById('default-icon').style.display = 'none';
-                localStorage.setItem("profilePic", reader.result);
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        }
-
-        function logout() {
-            localStorage.removeItem("activeUser");
-            window.location.href = "index.html";
-        }
-    </script>
-</body>
-</html>
+        /* Widget Hari & Jam Sejajar */
+        .time-box {
+            font-size:
