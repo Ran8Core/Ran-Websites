@@ -1,0 +1,68 @@
+<html>
+<head>
+    <title>Dashboard Ran - SMK IT</title>
+    <style>
+        /* Efek biar tombolnya bercahaya pas dideketin */
+        .btn-glow:hover {
+            box-shadow: 0 0 15px #58a6ff;
+            background-color: #30363d !important;
+            transform: translateY(-3px);
+            transition: 0.3s;
+        }
+        /* Biar jamnya kelihatan lebih modern */
+        #clock {
+            text-shadow: 0 0 10px #58a6ff;
+        }
+    </style>
+</head>
+<body bgcolor="#0d1117" style="color: #c9d1d9; font-family: 'Segoe UI', sans-serif;">
+<center>
+    <br><br>
+    <table width="600" style="border: 1px solid #30363d; border-radius: 20px; padding: 30px; background-color: #161b22;">
+        <tr>
+            <td align="center">
+                <font size="6" color="#58a6ff"><b>WELCOME, RAN</b></font><br>
+                <font size="2" color="#8b949e">TJKT Student @Tester Website</font>
+                <hr color="#30363d" width="80%">
+                
+                <div id="clock" style="font-size: 55px; font-weight: bold; color: #58a6ff; padding: 25px;">00:00:00</div>
+                
+                <br>
+                <table width="100%" cellspacing="15">
+                    <tr>
+                        <td align="center" width="50%">
+                            <a href="aboutme.html" style="text-decoration: none;">
+                                <div class="btn-glow" style="background: #21262d; border: 1px solid #58a6ff; border-radius: 12px; padding: 20px;">
+                                    <font color="#58a6ff" size="4"><b>👤 ABOUT ME</b></font>
+                                </div>
+                            </a>
+                        </td>
+                        <td align="center" width="50%">
+                            <a href="projects.html" style="text-decoration: none;">
+                                <div class="btn-glow" style="background: #21262d; border: 1px solid #58a6ff; border-radius: 12px; padding: 20px;">
+                                    <font color="#58a6ff" size="4"><b>🚀 PROJECTS</b></font>
+                                </div>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+                <br>
+                <font size="1" color="#484f58">Network Status: <font color="#238636">Connected</font></font>
+            </td>
+        </tr>
+    </table>
+</center>
+
+<script>
+    function updateClock() {
+        var now = new Date();
+        var h = now.getHours().toString().padStart(2, '0');
+        var m = now.getMinutes().toString().padStart(2, '0');
+        var s = now.getSeconds().toString().padStart(2, '0');
+        document.getElementById('clock').innerHTML = h + ":" + m + ":" + s;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+</body>
+</html>
