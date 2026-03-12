@@ -5,70 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Restricted Access</title>
     <style>
-        /* CSS biar tampilannya modern & dark mode */
         body {
-            background-color: #121212;
+            background-color: #0b0b0b; /* Warna gelap deep */
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
-        /* CSS yang benar */
-.login-box {
-    opacity: 1; /* Pastikan ini 1 atau jangan ditulis sama sekali */
-    transition: opacity 0.6s ease;
-}
 
-.fade-out {
-    opacity: 0;
-}
-            background: #1e1e1e;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .login-box {
+            background: #161616; /* Box muncul kembali dengan warna ini */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
             text-align: center;
-            width: 320px;
-            border: 1px solid #333;
+            width: 350px;
+            border: 1px solid #222;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            opacity: 1;
         }
+
+        /* Ini class yang bikin hilang pas login sukses */
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.9); /* Sedikit mengecil pas hilang biar keren */
+            pointer-events: none;
+        }
+
+        h2 { margin-bottom: 5px; letter-spacing: 1px; }
+        p { color: #777; font-size: 14px; margin-bottom: 25px; }
+
         input {
             width: 100%;
             padding: 12px;
             margin: 10px 0;
-            background: #2d2d2d;
-            border: 1px solid #444;
-            border-radius: 6px;
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
             color: white;
-            box-sizing: border-box; /* Biar input gak offside */
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
         }
+
+        input:focus { border-color: #007bff; background: #2a2a2a; }
+
         button {
             width: 100%;
             padding: 12px;
             background: #007bff;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             color: white;
             font-weight: bold;
             cursor: pointer;
+            margin-top: 15px;
             transition: 0.3s;
         }
-        button:hover { background: #0056b3; }
-        #message { color: #ff4d4d; font-size: 14px; margin-top: 10px; }
+
+        button:hover { background: #0056b3; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+
+        #message { color: #ff4d4d; font-size: 13px; margin-top: 15px; min-height: 18px; }
     </style>
 </head>
 <body>
 
     <div class="login-box">
         <h2>Locked Access</h2>
-        <p style="color: #888;">Enter credentials to enter</p>
+        <p>Enter credentials to enter</p>
         
-        <input type="text" id="username" placeholder="Username">
+        <input type="text" id="username" placeholder="Username" autocomplete="off">
         <input type="password" id="password" placeholder="Password">
         
         <button onclick="handleLogin()">Login</button>
-        <p id="message"></p>
+        <div id="message"></div>
     </div>
 
     <script>
@@ -76,8 +91,9 @@
             const userIn = document.getElementById('username').value;
             const passIn = document.getElementById('password').value;
             const msg = document.getElementById('message');
+            const box = document.querySelector('.login-box');
 
-            // Data 3 User kamu
+            // Data 4 User kamu
             const users = [
                 { user: "admin", pass: "123" },
                 { user: "guest", pass: "tamu" },
@@ -87,17 +103,21 @@
 
             const validUser = users.find(u => u.user === userIn && u.pass === passIn);
 
-           if (validUser) {
-    // Jalankan animasi HANYA jika password benar
-    document.querySelector('.login-box').classList.add('fade-out');
-    
-    setTimeout(function() {
-        window.location.href = "home.html"; 
-    }, 600); 
-} else {
-    // Kalau salah, jangan kasih fade-out, tapi kasih pesan error/shake
-    msg.innerText = "Akses ditolak!";
-}
+            if (validUser) {
+                // Jalankan animasi fade-out
+                box.classList.add('fade-out');
+                
+                // Tunggu animasi selesai baru pindah
+                setTimeout(function() {
+                    window.location.href = "home.html"; 
+                }, 600); 
+            } else {
+                msg.innerText = "Akses ditolak! kalo salah lagi GAY.";
+                // Efek getar dikit kalau salah
+                box.style.transform = "translateX(10px)";
+                setTimeout(() => box.style.transform = "translateX(-10px)", 100);
+                setTimeout(() => box.style.transform = "translateX(0)", 200);
+            }
         }
     </script>
 </body>
