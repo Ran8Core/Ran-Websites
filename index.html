@@ -88,16 +88,16 @@
             const validUser = users.find(u => u.user === userIn && u.pass === passIn);
 
            if (validUser) {
-    // 1. Tambahkan class fade-out ke kotak login
+    // Jalankan animasi HANYA jika password benar
     document.querySelector('.login-box').classList.add('fade-out');
     
-    // 2. Tunggu sebentar (600ms) baru pindah halaman
     setTimeout(function() {
         window.location.href = "home.html"; 
     }, 600); 
 } else {
-                msg.innerText = "Akses ditolak! kalo salah lagi GAY.";
-            }
+    // Kalau salah, jangan kasih fade-out, tapi kasih pesan error/shake
+    msg.innerText = "Akses ditolak!";
+}
         }
     </script>
 </body>
