@@ -16,13 +16,15 @@
             height: 100vh;
             margin: 0;
         }
-        .login-box {
-            /* Efek memudar */
+        /* CSS yang benar */
+.login-box {
+    opacity: 1; /* Pastikan ini 1 atau jangan ditulis sama sekali */
+    transition: opacity 0.6s ease;
+}
+
 .fade-out {
     opacity: 0;
-    transition: opacity 0.6s ease; /* Durasi 0.6 detik */
-    pointer-events: none; /* Biar tombol nggak bisa diklik dua kali */
-
+}
             background: #1e1e1e;
             padding: 30px;
             border-radius: 12px;
