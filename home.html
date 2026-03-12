@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ran Website - Dashboard</title>
     <style>
-        /* CSS Utama */
         body {
             background-color: #0b0b0b;
             color: white;
@@ -17,7 +16,6 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            /* Efek Fade In saat halaman terbuka */
             animation: fadeInPage 1.5s ease forwards;
         }
 
@@ -26,24 +24,77 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .container {
-            text-align: center;
+        /* Logout Position */
+        .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
+
+        .btn-logout {
+            padding: 8px 15px;
+            background: #161616;
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #ff4d4d;
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
+        }
+
+        .container { text-align: center; }
+
+        /* Profile Section */
+        .profile-section {
+            margin-bottom: 20px;
+        }
+
+        #profile-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #007bff;
+            display: none;
+            margin: 0 auto 10px;
+        }
+
+        #default-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .upload-label {
+            display: block;
+            font-size: 11px;
+            color: #555;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 5px;
+        }
+
+        #file-input { display: none; }
 
         h1 {
             font-size: 2.5rem;
             letter-spacing: 3px;
-            margin-bottom: 5px;
+            margin: 10px 0 5px;
             text-transform: uppercase;
         }
 
         .subtitle {
             color: #888;
             font-size: 14px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
-        /* Styling Jam Digital */
         #clock {
             font-size: 5rem;
             font-weight: bold;
@@ -53,7 +104,6 @@
             margin-bottom: 40px;
         }
 
-        /* Tombol-tombol */
         .btn-group {
             display: flex;
             gap: 20px;
@@ -81,7 +131,6 @@
             box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
         }
 
-        /* Status di bawah */
         .status {
             margin-top: 50px;
             font-size: 12px;
@@ -97,39 +146,23 @@
             width: 8px;
             background-color: #28a745;
             border-radius: 50%;
-            display: inline-block;
         }
-        .logout-container {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-}
-
-.btn-logout {
-    padding: 8px 15px;
-    background: #161616;
-    border: 1px solid #ff4d4d;
-    color: #ff4d4d;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.btn-logout:hover {
-    background: #ff4d4d;
-    color: white;
-    box-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
-}
     </style>
 </head>
 <body>
-    
-   <div class="logout-container">
-    <a href="#" class="btn-logout" onclick="logout()">LOGOUT</a>
-</div>
+
+    <div class="logout-container">
+        <a href="#" class="btn-logout" onclick="logout()">LOGOUT</a>
+    </div>
+
     <div class="container">
+        <div class="profile-section">
+            <img id="profile-preview" src="#" alt="Profile">
+            <div id="default-icon">👤</div>
+            <label for="file-input" class="upload-label">Change Photo</label>
+            <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
+        </div>
+
         <h1 id="user-display">WELCOME, RAN</h1>
         <p class="subtitle">TXT Student & Tester Website</p>
 
@@ -146,38 +179,54 @@
     </div>
 
     <script>
-        // 1. LOGIKA JAM DIGITAL
+        // 1. Jam Digital
         function updateClock() {
             const now = new Date();
-            let h = now.getHours();
-            let m = now.getMinutes();
-            let s = now.getSeconds();
-
-            h = h < 10 ? "0" + h : h;
-            m = m < 10 ? "0" + m : m;
-            s = s < 10 ? "0" + s : s;
-
-            document.getElementById("clock").innerText = h + ":" + m + ":" + s;
+            let h = String(now.getHours()).padStart(2, '0');
+            let m = String(now.getMinutes()).padStart(2, '0');
+            let s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById("clock").innerText = `${h}:${m}:${s}`;
         }
         setInterval(updateClock, 1000);
-        updateClock(); // Jalankan langsung
+        updateClock();
 
-        // 2. LOGIKA GANTI NAMA (DYNAMIC GREETING)
-        // Ambil nama dari memori login tadi
-        const namaUser = localStorage.getItem("activeUser") || "RAN";
-        
-        // Ganti teks Welcome
-        const display = document.getElementById("user-display");
-        if(display) {
-            display.innerText = "WELCOME, " + namaUser.toUpperCase();
+        // 2. Greeting & Load Profile
+        window.onload = function() {
+            // Nama User
+            const namaUser = localStorage.getItem("activeUser") || "RAN";
+            document.getElementById("user-display").innerText = "WELCOME, " + namaUser.toUpperCase();
+
+            // Foto Profil
+            const savedPic = localStorage.getItem("profilePic");
+            if(savedPic) {
+                const img = document.getElementById('profile-preview');
+                img.src = savedPic;
+                img.style.display = 'block';
+                document.getElementById('default-icon').style.display = 'none';
+            }
         }
+
+        // 3. Upload Foto
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const output = document.getElementById('profile-preview');
+                const icon = document.getElementById('default-icon');
+                output.src = reader.result;
+                output.style.display = 'block';
+                icon.style.display = 'none';
+                localStorage.setItem("profilePic", reader.result);
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        // 4. Logout
         function logout() {
-    // Hapus data user dari memori browser
-    localStorage.removeItem("activeUser");
-    // Pindah kembali ke halaman login
-    window.location.href = "index.html";
-}
+            localStorage.removeItem("activeUser");
+            // Kalau mau foto ikut kehapus pas logout, buka komen di bawah:
+            // localStorage.removeItem("profilePic");
+            window.location.href = "index.html";
+        }
     </script>
 </body>
 </html>
-
