@@ -99,10 +99,36 @@
             border-radius: 50%;
             display: inline-block;
         }
+        .logout-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.btn-logout {
+    padding: 8px 15px;
+    background: #161616;
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-logout:hover {
+    background: #ff4d4d;
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
+}
     </style>
 </head>
 <body>
-
+    
+   <div class="logout-container">
+    <a href="#" class="btn-logout" onclick="logout()">LOGOUT</a>
+</div>
     <div class="container">
         <h1 id="user-display">WELCOME, RAN</h1>
         <p class="subtitle">TXT Student & Tester Website</p>
@@ -145,6 +171,13 @@
         if(display) {
             display.innerText = "WELCOME, " + namaUser.toUpperCase();
         }
+        function logout() {
+    // Hapus data user dari memori browser
+    localStorage.removeItem("activeUser");
+    // Pindah kembali ke halaman login
+    window.location.href = "index.html";
+}
     </script>
 </body>
 </html>
+
