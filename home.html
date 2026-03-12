@@ -223,6 +223,7 @@
         // 4. Logout
         function logout() {
             localStorage.removeItem("activeUser");
+            localStorage.removeItem("profilePic")
             // Kalau mau foto ikut kehapus pas logout, buka komen di bawah:
             // localStorage.removeItem("profilePic");
             window.location.href = "index.html";
@@ -230,4 +231,5 @@
     </script>
 </body>
 </html>
+
 
