@@ -85,10 +85,15 @@
 
             const validUser = users.find(u => u.user === userIn && u.pass === passIn);
 
-            if (validUser) {
-                // ARAHKAN KE HALAMAN INDEX KAMU
-                window.location.href = "home.html"; 
-            } else {
+           if (validUser) {
+    // 1. Tambahkan class fade-out ke kotak login
+    document.querySelector('.login-box').classList.add('fade-out');
+    
+    // 2. Tunggu sebentar (600ms) baru pindah halaman
+    setTimeout(function() {
+        window.location.href = "home.html"; 
+    }, 600); 
+} else {
                 msg.innerText = "Akses ditolak! kalo salah lagi GAY.";
             }
         }
