@@ -79,10 +79,17 @@ body {
     }
     setInterval(updateClock, 1000);
     updateClock();
+    // Ambil nama user dari memori login
+const loggedInUser = localStorage.getItem("activeUser") || "RAN";
+
+// Ganti teks Welcome (pastikan ID di h1 kamu adalah 'user-display')
+// Contoh: <h1 id="user-display">WELCOME, RAN</h1>
+document.getElementById("user-display").innerText = "WELCOME, " + loggedInUser.toUpperCase();
 </script>
 </body>
 
 </html>
+
 
 
 
