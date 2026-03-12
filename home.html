@@ -14,7 +14,21 @@
         /* Biar jamnya kelihatan lebih modern */
         #clock {
             text-shadow: 0 0 10px #58a6ff;
-        }
+        } /* Animasi muncul dari transparan */
+body {
+    animation: fadeInAnimation ease 1.5s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
     </style>
 </head>
 <body bgcolor="#0d1117" style="color: #c9d1d9; font-family: 'Segoe UI', sans-serif;">
@@ -69,6 +83,7 @@
 </body>
 
 </html>
+
 
 
 
