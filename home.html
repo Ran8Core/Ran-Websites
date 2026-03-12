@@ -8,7 +8,7 @@
         body {
             background-color: #0b0b0b;
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -16,21 +16,15 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            animation: fadeInPage 1.5s ease forwards;
+            animation: fadeInPage 1.2s ease forwards;
         }
 
         @keyframes fadeInPage {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Logout Pojok Kanan Atas */
-        .logout-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-
+        .logout-container { position: absolute; top: 20px; right: 20px; }
         .btn-logout {
             padding: 8px 15px;
             background: #161616;
@@ -42,49 +36,128 @@
             font-weight: bold;
             transition: 0.3s;
         }
+        .btn-logout:hover { background: #ff4d4d; color: white; }
 
-        .btn-logout:hover {
-            background: #ff4d4d;
-            color: white;
-            box-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
-        }
-
-        .container { text-align: center; }
-
-        /* Profile Section */
-        .profile-section { margin-bottom: 20px; }
+        .profile-section { margin-bottom: 20px; text-align: center; }
         #profile-preview {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #007bff;
-            display: none;
-            margin: 0 auto 10px;
+            width: 100px; height: 100px;
+            border-radius: 50%; object-fit: cover;
+            border: 2px solid #007bff; display: none; margin: 0 auto 10px;
         }
         #default-icon { font-size: 60px; margin-bottom: 10px; }
-        .upload-label {
-            display: block;
-            font-size: 11px;
-            color: #555;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        #file-input { display: none; }
+        .upload-label { font-size: 11px; color: #555; cursor: pointer; text-decoration: underline; }
 
-        h1 {
-            font-size: 2.5rem;
-            letter-spacing: 3px;
-            margin: 10px 0 5px;
-            text-transform: uppercase;
-        }
-
-        .subtitle {
-            color: #888;
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
+        h1 { font-size: 2.5rem; letter-spacing: 3px; margin: 10px 0 5px; text-transform: uppercase; }
+        .subtitle { color: #888; font-size: 14px; margin-bottom: 30px; }
 
         /* Widget Hari & Jam Sejajar */
         .time-box {
-            font-size:
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(to bottom, #fff, #444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: baseline;
+        }
+        #day-label {
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #007bff;
+            -webkit-text-fill-color: #007bff;
+        }
+
+        .btn-group { display: flex; gap: 20px; }
+        .btn {
+            padding: 15px 30px; border: 1px solid #333; border-radius: 8px;
+            background: #161616; color: white; text-decoration: none;
+            font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+        }
+        .btn:hover { border-color: #007bff; transform: translateY(-3px); }
+
+        .status { margin-top: 50px; font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }
+        .dot { height: 8px; width: 8px; background-color: #28a745; border-radius: 50%; }
+    </style>
+</head>
+<body>
+
+    <div class="logout-container">
+        <a href="#" class="btn-logout" onclick="logout()">LOGOUT</a>
+    </div>
+
+    <div class="container">
+        <div class="profile-section">
+            <img id="profile-preview" src="#" alt="Profile">
+            <div id="default-icon">👤</div>
+            <label for="file-input" class="upload-label">Change Photo</label>
+            <input type="file" id="file-input" style="display:none" accept="image/*" onchange="previewImage(event)">
+        </div>
+
+        <h1 id="user-display">WELCOME</h1>
+        <p class="subtitle">TJKT Student & Network Enthusiast</p>
+
+        <div class="time-box">
+            <span id="day-label">DAY</span>
+            <span id="clock">00:00:00</span>
+        </div>
+
+        <div class="btn-group">
+            <a href="aboutme.html" class="btn">👤 ABOUT ME</a>
+            <a href="projects.html" class="btn">🚀 PROJECTS</a>
+        </div>
+
+        <div class="status">
+            <span class="dot"></span> Network Status: Connected
+        </div>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById("clock").innerText = `${h}:${m}:${s}`;
+
+            const days = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+            document.getElementById("day-label").innerText = days[now.getDay()];
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        window.onload = function() {
+            const user = localStorage.getItem("activeUser") || "RAN";
+            document.getElementById("user-display").innerText = "WELCOME, " + user.toUpperCase();
+
+            const savedPic = localStorage.getItem("profilePic");
+            if(savedPic) {
+                const img = document.getElementById('profile-preview');
+                img.src = savedPic;
+                img.style.display = 'block';
+                document.getElementById('default-icon').style.display = 'none';
+            }
+        }
+
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const output = document.getElementById('profile-preview');
+                output.src = reader.result;
+                output.style.display = 'block';
+                document.getElementById('default-icon').style.display = 'none';
+                localStorage.setItem("profilePic", reader.result);
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function logout() {
+            localStorage.removeItem("activeUser");
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
