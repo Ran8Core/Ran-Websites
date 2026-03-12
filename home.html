@@ -1,96 +1,150 @@
-<html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>🥷 Ran Website - Silent work</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥷</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ran Website - Dashboard</title>
     <style>
-        /* Efek biar tombolnya bercahaya pas dideketin */
-        .btn-glow:hover {
-            box-shadow: 0 0 15px #58a6ff;
-            background-color: #30363d !important;
-            transform: translateY(-3px);
-            transition: 0.3s;
+        /* CSS Utama */
+        body {
+            background-color: #0b0b0b;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            /* Efek Fade In saat halaman terbuka */
+            animation: fadeInPage 1.5s ease forwards;
         }
-        /* Biar jamnya kelihatan lebih modern */
-        #clock {
-            text-shadow: 0 0 10px #58a6ff;
-        } /* Animasi muncul dari transparan */
-body {
-    animation: fadeInAnimation ease 1.5s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-}
 
-@keyframes fadeInAnimation {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+
+        /* Styling Jam Digital */
+        #clock {
+            font-size: 5rem;
+            font-weight: bold;
+            background: linear-gradient(to bottom, #fff, #444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+        }
+
+        /* Tombol-tombol */
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #161616;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            background: #222;
+            border-color: #007bff;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+        }
+
+        /* Status di bawah */
+        .status {
+            margin-top: 50px;
+            font-size: 12px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .dot {
+            height: 8px;
+            width: 8px;
+            background-color: #28a745;
+            border-radius: 50%;
+            display: inline-block;
+        }
     </style>
 </head>
-<body bgcolor="#0d1117" style="color: #c9d1d9; font-family: 'Segoe UI', sans-serif;">
-<center>
-    <br><br>
-    <table width="600" style="border: 1px solid #30363d; border-radius: 20px; padding: 30px; background-color: #161b22;">
-        <tr>
-            <td align="center">
-                <font size="6" color="#58a6ff"><b>WELCOME, RAN</b></font><br>
-                <font size="2" color="#8b949e">TJKT Student @Tester Website</font>
-                <hr color="#30363d" width="80%">
-                
-                <div id="clock" style="font-size: 55px; font-weight: bold; color: #58a6ff; padding: 25px;">00:00:00</div>
-                
-                <br>
-                <table width="100%" cellspacing="15">
-                    <tr>
-                        <td align="center" width="50%">
-                            <a href="aboutme.html" style="text-decoration: none;">
-                                <div class="btn-glow" style="background: #21262d; border: 1px solid #58a6ff; border-radius: 12px; padding: 20px;">
-                                    <font color="#58a6ff" size="4"><b>👤 ABOUT ME</b></font>
-                                </div>
-                            </a>
-                        </td>
-                        <td align="center" width="50%">
-                            <a href="projects.html" style="text-decoration: none;">
-                                <div class="btn-glow" style="background: #21262d; border: 1px solid #58a6ff; border-radius: 12px; padding: 20px;">
-                                    <font color="#58a6ff" size="4"><b>🚀 PROJECTS</b></font>
-                                </div>
-                            </a>
-                        </td>
-                    </tr>
-                </table>
-                <br>
-                <font size="1" color="#484f58">Network Status: <font color="#238636">Connected</font></font>
-            </td>
-        </tr>
-    </table>
-</center>
+<body>
 
-<script>
-    function updateClock() {
-        var now = new Date();
-        var h = now.getHours().toString().padStart(2, '0');
-        var m = now.getMinutes().toString().padStart(2, '0');
-        var s = now.getSeconds().toString().padStart(2, '0');
-        document.getElementById('clock').innerHTML = h + ":" + m + ":" + s;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-    // Ambil nama user dari memori login
-const loggedInUser = localStorage.getItem("activeUser") || "RAN";
+    <div class="container">
+        <h1 id="user-display">WELCOME, RAN</h1>
+        <p class="subtitle">TXT Student & Tester Website</p>
 
-// Ganti teks Welcome (pastikan ID di h1 kamu adalah 'user-display')
-// Contoh: <h1 id="user-display">WELCOME, RAN</h1>
-document.getElementById("user-display").innerText = "WELCOME, " + loggedInUser.toUpperCase();
-</script>
+        <div id="clock">00:00:00</div>
+
+        <div class="btn-group">
+            <a href="aboutme.html" class="btn">👤 ABOUT ME</a>
+            <a href="projects.html" class="btn">🚀 PROJECTS</a>
+        </div>
+
+        <div class="status">
+            <span class="dot"></span> Network Status: Connected
+        </div>
+    </div>
+
+    <script>
+        // 1. LOGIKA JAM DIGITAL
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours();
+            let m = now.getMinutes();
+            let s = now.getSeconds();
+
+            h = h < 10 ? "0" + h : h;
+            m = m < 10 ? "0" + m : m;
+            s = s < 10 ? "0" + s : s;
+
+            document.getElementById("clock").innerText = h + ":" + m + ":" + s;
+        }
+        setInterval(updateClock, 1000);
+        updateClock(); // Jalankan langsung
+
+        // 2. LOGIKA GANTI NAMA (DYNAMIC GREETING)
+        // Ambil nama dari memori login tadi
+        const namaUser = localStorage.getItem("activeUser") || "RAN";
+        
+        // Ganti teks Welcome
+        const display = document.getElementById("user-display");
+        if(display) {
+            display.innerText = "WELCOME, " + namaUser.toUpperCase();
+        }
+    </script>
 </body>
-
 </html>
-
-
-
-
-
