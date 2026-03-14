@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Clicker V3.2 - Stein Cloud</title>
+    <title>Core Clicker V3.2 - Stable Cloud</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: #0b0b0b; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
@@ -16,8 +16,8 @@
         #score-val { font-size: 5.5rem; font-weight: 900; margin: 10px 0; }
         .leaderboard { margin-top: 25px; background: #0a0a0a; padding: 15px; border-radius: 15px; border: 1px solid #1a1a1a; }
         .leaderboard h3 { font-size: 11px; color: #555; letter-spacing: 3px; margin-bottom: 12px; text-transform: uppercase; }
-        .entry { display: flex; justify-content: space-between; font-size: 13px; padding: 10px 0; border-bottom: 1px solid #1a1a1a; color: #aaa; }
-        .rank-1 { color: #ffcc00; font-weight: bold; }
+        .entry { display: flex; justify-content: space-between; font-size: 13px; padding: 10px 15px; border-bottom: 1px solid #1a1a1a; color: #aaa; text-align: left; }
+        .rank-1 { color: #ffcc00 !important; font-weight: bold; text-shadow: 0 0 10px rgba(255, 204, 0, 0.3); border-left: 3px solid #ffcc00; }
         .main-btn { width: 100%; padding: 20px; background: #1a1a1a; color: white; border: 1px solid #333; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; box-shadow: 0 6px 0 #000; }
         .main-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #000; }
         .back-link { margin-top: 25px; display: block; color: #444; text-decoration: none; font-size: 12px; }
@@ -36,15 +36,15 @@
         <button class="main-btn" onclick="tap()">Execute Process</button>
         <div class="leaderboard">
             <h3>Global Top Players</h3>
-            <div id="l-list">Connecting Stein...</div>
+            <div id="l-list">Syncing Cloud...</div>
         </div>
         <a href="home.html" class="back-link">← TERMINATE SESSION</a>
         <button onclick="changeIdentity()" style="background:none; border:none; color:#222; font-size:9px; cursor:pointer; margin-top:15px;">[ RESET IDENTITY ]</button>
     </div>
 
     <script>
+        // LINK API TERBARU KAMU
         const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
-        const SHEET_NAME = "Sheet1"; // Pastikan nama Sheet di Google Sheets kamu 'Sheet1'
         
         let score = 0;
         let playerName = localStorage.getItem('ran_name');
@@ -73,7 +73,7 @@
                 document.getElementById('hs').innerText = highScore;
             }
 
-            // Stein lebih stabil, kita kirim tiap 20 klik biar nggak spam
+            // Kirim tiap 20 klik
             if(score % 20 === 0) updateDB();
         }
 
@@ -87,8 +87,7 @@
         }
 
         function updateDB() {
-            // PUT untuk update data yang sudah ada
-            fetch(`${API_URL}/${SHEET_NAME}`, {
+            fetch(API_URL, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -96,9 +95,8 @@
                     set: { score: score }
                 })
             }).then(res => res.json()).then(result => {
-                // Jika belum ada datanya, POST baru
                 if (result.updatedRows === 0) {
-                    fetch(`${API_URL}/${SHEET_NAME}`, {
+                    fetch(API_URL, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify([{ name: playerName, score: score }])
@@ -108,30 +106,35 @@
         }
 
         function getLeaderboard() {
-            fetch(`${API_URL}/${SHEET_NAME}`)
-            .then(res => res.json())
+            fetch(API_URL)
+            .then(res => {
+                if(!res.ok) throw new Error();
+                return res.json();
+            })
             .then(data => {
                 if(data.length > 0) {
-                    // Sort manual dari skor terbesar
-                    data.sort((a, b) => parseInt(b.score) - parseInt(a.score));
+                    // Filter null/kosong & Sortir
+                    let cleanData = data.filter(p => p.name && p.name !== "null");
+                    cleanData.sort((a, b) => parseInt(b.score || 0) - parseInt(a.score || 0));
                     
                     let html = '';
-                    data.slice(0, 3).forEach((p, i) => {
+                    cleanData.slice(0, 3).forEach((p, i) => {
                         html += `<div class="entry ${i===0?'rank-1':''}">
                                     <span>${i+1}. ${p.name}</span>
                                     <span>${p.score}</span>
                                  </div>`;
                         
-                        // Sync skor jika di DB lebih tinggi
-                        if(p.name === playerName && score < p.score) {
+                        // Sync skor balik
+                        if(p.name === playerName && score < parseInt(p.score)) {
                             score = parseInt(p.score);
                             document.getElementById('score-val').innerText = score;
                         }
                     });
                     document.getElementById('l-list').innerHTML = html;
                 }
-            }).catch(() => {
-                document.getElementById('l-list').innerHTML = "Server Busy";
+            })
+            .catch(() => {
+                document.getElementById('l-list').innerHTML = "<span style='color:#555'>Server Busy...</span>";
             });
         }
 
@@ -140,8 +143,10 @@
             location.reload();
         }
 
+        // Jalankan saat start
         getLeaderboard();
-        setInterval(getLeaderboard, 30000); // Tarik leaderboard tiap 30 detik
+        // Update tiap 30 detik
+        setInterval(getLeaderboard, 30000);
     </script>
 </body>
 </html>
