@@ -5,265 +5,241 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Projects - Ran</title>
     <style>
-        body {
-            background-color: #0b0b0b;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
+        /* CSS NYA DISINI (GABUNGAN) */
+        * {
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            animation: fadeIn 1s ease-in;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body {
+            background-color: #0b0b0b;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            min-height: 100vh;
+            padding: 50px 20px;
+        }
 
+        /* LOADING SCREEN RGB */
+        #loader-wrapper {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0b0b0b;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: 0.5s;
+        }
+
+        .loader-text {
+            color: #007bff;
+            font-family: monospace;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 250px;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-loading {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+            background-size: 200% 100%;
+            animation: rainbow 2s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        /* LAYOUT */
         .container {
-            width: 90%;
             max-width: 800px;
-            padding: 40px 0;
+            margin: 0 auto;
         }
 
         h1 {
-            text-align: center;
-            letter-spacing: 3px;
+            font-size: 2.5rem;
+            letter-spacing: 5px;
             margin-bottom: 10px;
+            text-transform: uppercase;
         }
 
         .subtitle {
-            text-align: center;
-            color: #777;
-            margin-bottom: 40px;
-            font-size: 14px;
+            color: #888;
+            margin-bottom: 50px;
         }
 
-        /* Grid System */
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
+        /* CARDS */
         .card {
-    background: #121212; /* Warna kotak gelap */
-    border: 1px solid #222;
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 20px;
-    text-align: left;
-    transition: 0.3s;
-}
-
-.card:hover {
-    border-color: #007bff; /* Glow biru pas di-hover */
-    transform: translateY(-5px);
-}
-
-.tech-stack span, .tag {
-    background: #1a1a1a;
-    color: #007bff;
-    font-size: 11px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    margin-right: 8px;
-    border: 1px solid #333;
-}
-
-/* Wadah dasarnya harus punya lebar yang jelas */
-.progress-bar-bg {
-    background: #1a1a1a; /* Warna background bar yang kosong */
-    width: 100%;        /* Pakai 100% biar dia ngikutin lebar kotak hitamnya */
-    height: 8px;
-    border-radius: 10px;
-    margin: 15px 0;
-    overflow: hidden;    /* KUNCI: Biar kalau isinya kepanjangan, otomatis kepotong */
-    position: relative;
-}
-
-/* Bar birunya */
-.progress-fill {
-    background: #007bff;
-    height: 100%;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #007bff;
-    /* Jangan kasih margin atau padding di sini biar nggak geser */
-    transition: width 0.5s ease-in-out; 
-}
-}.card {
-    background: #121212; /* Warna kotak gelap */
-    border: 1px solid #222;
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 20px;
-    text-align: left;
-    transition: 0.3s;
-}
-
-.card:hover {
-    border-color: #007bff; /* Glow biru pas di-hover */
-    transform: translateY(-5px);
-}
-
-.tech-stack span, .tag {
-    background: #1a1a1a;
-    color: #007bff;
-    font-size: 11px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    margin-right: 8px;
-    border: 1px solid #333;
-}
-
-.progress-bar-bg {
-    background: #222;
-    height: 8px;
-    border-radius: 10px;
-    margin: 15px 0;
-}
-
-.progress-fill {
-    background: #007bff;
-    height: 100%;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #007bff;
-}
-        .card {
-            background: #161616;
+            background: #121212;
             border: 1px solid #222;
-            padding: 25px;
             border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: left;
             transition: 0.3s;
             position: relative;
-            overflow: hidden;
         }
 
         .card:hover {
             border-color: #007bff;
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 123, 255, 0.1);
         }
 
-        .card h3 {
-            margin-top: 0;
-            color: #007bff;
+        .status-badge {
+            color: #28a745;
+            font-size: 10px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .tech-stack {
+            margin: 15px 0;
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .card p {
-            font-size: 13px;
-            color: #aaa;
-            line-height: 1.5;
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            background: #222;
-            border-radius: 10px;
-            height: 8px;
-            margin: 15px 0 5px;
-        }
-
-        .progress-bar {
-            background: #007bff;
-            height: 100%;
-            border-radius: 10px;
-            transition: width 1s ease-in-out;
-        }
-
-        .progress-text {
+        .tech-stack span {
+            background: #1a1a1a;
+            color: #007bff;
             font-size: 11px;
-            color: #555;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid #333;
+        }
+
+        /* PROGRESS BAR FIX (ANTI NYANGKUT) */
+        .progress-info {
             display: flex;
             justify-content: space-between;
-        }
-
-        .tag {
-            background: #222;
-            padding: 4px 10px;
-            border-radius: 5px;
-            font-size: 10px;
-            color: #007bff;
-            margin-right: 5px;
-        }
-
-        .back-nav {
-            text-align: center;
-            margin-top: 40px;
-            padding-bottom: 30px; /* Biar ada jarak dari bawah layar */
-        }
-
-        .btn-back {
-            display: inline-block;
-            padding: 12px 30px;
-            color: white;
-            text-decoration: none;
-            border: 1px solid #444;
-            border-radius: 30px;
-            background-color: #161616;
-            transition: 0.3s;
             font-size: 14px;
-            font-weight: bold;
+            margin-top: 20px;
+            color: #ccc;
         }
 
-        .btn-back:hover { 
-            background: white; 
-            color: black;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        .progress-bar-bg {
+            background: #1a1a1a;
+            width: 100%;
+            height: 10px;
+            border-radius: 50px;
+            margin: 10px 0;
+            overflow: hidden; /* Dinding pembatas */
+            border: 1px solid #333;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #00d4ff);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            border-radius: 50px;
+        }
+
+        /* BUTTONS */
+        .details-link {
+            color: #555;
+            text-decoration: none;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .details-link:hover {
+            color: #007bff;
+        }
+
+        .back-btn {
+            margin-top: 40px;
+            color: #888;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 10px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #fff;
+            color: #000;
         }
     </style>
-</head> 
+</head>
 <body>
 
+    <div id="loader-wrapper">
+        <div class="loader-text">CONNECTING TO SERVER...</div>
+        <div class="progress-container">
+            <div class="progress-bar-loading"></div>
+        </div>
+    </div>
+
     <div class="container">
-        <h1>MY PROJECTS</h1>
-        <p class="subtitle">Explore what I've been building</p>
+        <header>
+            <h1>MY PROJECTS</h1>
+            <p class="subtitle">Explore what I've been building</p>
+        </header>
 
-        <div class="project-list"> <div class="card">
-        <div class="card-content">
-            <span class="status-badge">● LIVE</span>
-            <h3>🌐 Server Monitoring Dashboard</h3>
-            <p>Real-time visualization system for monitoring server status, CPU usage, and local network traffic.</p>
-            
-            <div class="tech-stack">
-                <span>HTML5</span>
-                <span>CSS Grid</span>
-                <span>JavaScript</span>
+        <div class="project-list">
+            <div class="card">
+                <span class="status-badge">● LIVE</span>
+                <h3>🌐 Server Monitoring Dashboard</h3>
+                <p style="color: #bbb; font-size: 14px; margin-top: 5px;">Real-time visualization system for monitoring server status, CPU usage, and local network traffic.</p>
+                <div class="tech-stack">
+                    <span>HTML5</span>
+                    <span>CSS Grid</span>
+                    <span>JavaScript</span>
+                </div>
+                <a href="#" class="details-link">Lihat Detail →</a>
             </div>
-            
-            
+
+            <div class="card">
+                <h3>🎮 Survival World "Ancient"</h3>
+                <p style="color: #bbb; font-size: 14px; margin-top: 5px;">Long-term survival project with Netherite infrastructure and rare collections.</p>
+                
+                <div class="progress-info">
+                    <span>Progress: Level 24,010 XP</span>
+                    <span>95%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" style="width: 95%;"></div>
+                </div>
+
+                <div class="tech-stack">
+                    <span>Netherite Beacon</span>
+                    <span>Blue Axolotl</span>
+                </div>
+            </div>
         </div>
+
+        <a href="index.html" class="back-btn">← Back to Dashboard</a>
     </div>
 
-    <div class="card">
-        <div class="card-content">
-            <h3>🎮 Survival World "Ancient"</h3>
-            <p>Long-term survival project with Netherite infrastructure and rare collections.</p>
-            
-            <div class="progress-info">
-                <span>Progress: Level 24,010 XP</span>
-                <span>95%</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div class="progress-fill" style="width: 95%;"></div>
-            </div>
-
-            <div class="tags">
-                <span class="tag">Netherite Beacon</span>
-                <span class="tag">Blue Axolotl</span>
-            </div>
-        </div>
-    </div>
-
-</div>              
-            </div>
-        </div> <div class="back-nav">
-            <a href="home.html" class="btn-back">← Back to Dashboard</a>
-        </div>
-        
-    </div>
+    <script>
+        // HILANGKAN LOADING SETELAH PAGE LOAD
+        window.addEventListener("load", function() {
+            const loader = document.getElementById("loader-wrapper");
+            setTimeout(() => {
+                loader.style.opacity = "0";
+                setTimeout(() => {
+                    loader.style.display = "none";
+                }, 500);
+            }, 1500); // 1.5 detik
+        });
+    </script>
 </body>
 </html>
