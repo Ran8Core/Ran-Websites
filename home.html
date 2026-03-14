@@ -81,10 +81,63 @@
 
         .status { margin-top: 50px; font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }
         .dot { height: 8px; width: 8px; background-color: #28a745; border-radius: 50%; }
+        /* Loading Screen Overlay */
+#loader-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0b0b0b;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Biar di atas semua elemen */
+    transition: opacity 0.5s ease;
+}
+
+.loader-text {
+    color: #007bff;
+    font-family: monospace;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* Progress Bar Container */
+.progress-container {
+    width: 250px;
+    height: 4px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Progress Bar Moving */
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background: #007bff; /* Ganti warna di sini sesukamu! */
+    box-shadow: 0 0 10px #007bff;
+    animation: loadAnim 2s forwards;
+}
+
+@keyframes loadAnim {
+    0% { width: 0%; }
+    50% { width: 70%; }
+    100% { width: 100%; }
+}
     </style>
 </head>
 <body>
-
+    
+       <div id="loader-wrapper">
+    <div class="loader-text">INITIALIZING SYSTEM...</div>
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+</div>
     <div class="logout-container">
         <a href="#" class="btn-logout" onclick="logout()">LOGOUT</a>
     </div>
@@ -158,6 +211,17 @@
             localStorage.removeItem("activeUser");
             window.location.href = "index.html";
         }
+        window.addEventListener("load", function() {
+    const loader = document.getElementById("loader-wrapper");
+    
+    // Kasih delay dikit (misal 2 detik) biar loading-nya kelihatan keren
+    setTimeout(() => {
+        loader.style.opacity = "0";
+        setTimeout(() => {
+            loader.style.display = "none";
+        }, 500); // Waktu transisi hilang
+    }, 2000); 
+});
     </script>
 </body>
 </html>
