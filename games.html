@@ -3,162 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Clicker - Fix Edition</title>
+    <title>Core Clicker - Fix Final</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: #0b0b0b; color: #ffffff;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            min-height: 100vh; padding: 20px;
-        }
-        .progress-container {
-            width: 100%; max-width: 400px;
-            background: #1a1a1a; height: 12px;
-            border-radius: 10px; margin: 15px 0;
-            border: 1px solid #333; overflow: hidden;
-        }
-        .progress-bar {
-            width: 0%; height: 100%;
-            background: #007bff; transition: width 0.1s;
-        }
-        .game-card {
-            background: #121212; border: 2px solid #222;
-            padding: 35px; border-radius: 25px;
-            text-align: center; width: 100%; max-width: 420px;
-        }
-        #score-val { font-size: 5.5rem; font-weight: 900; margin: 10px 0; }
-        .leaderboard {
-            margin-top: 25px; background: #0a0a0a;
-            padding: 15px; border-radius: 15px; border: 1px solid #1a1a1a;
-        }
+        body { background-color: #0b0b0b; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .progress-container { width: 100%; max-width: 400px; background: #1a1a1a; height: 12px; border-radius: 10px; margin: 15px 0; border: 1px solid #333; overflow: hidden; }
+        #p-bar { width: 0%; height: 100%; background: #007bff; transition: width 0.1s; }
+        .progress-full { background: linear-gradient(90deg, #ff0000, #ffcc00, #00ff00, #007bff, #ff0000) !important; background-size: 200% !important; animation: rainbow 1.5s linear infinite; }
+        @keyframes rainbow { 0%{background-position:0%} 100%{background-position:200%} }
+        .game-card { background: #121212; border: 2px solid #222; padding: 35px; border-radius: 25px; text-align: center; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
+        #score-val { font-size: 5.5rem; font-weight: 900; margin: 10px 0; transition: transform 0.1s; }
+        .leaderboard { margin-top: 25px; background: #0a0a0a; padding: 15px; border-radius: 15px; border: 1px solid #1a1a1a; }
         .leaderboard h3 { font-size: 11px; color: #007bff; letter-spacing: 3px; margin-bottom: 12px; text-transform: uppercase; }
         .entry { display: flex; justify-content: space-between; font-size: 13px; padding: 10px 0; border-bottom: 1px solid #1a1a1a; color: #aaa; }
         .rank-1 { color: #ffcc00; font-weight: bold; }
-        .main-btn {
-            width: 100%; padding: 20px; background: #1a1a1a;
-            color: white; border: 1px solid #333; border-radius: 15px;
-            font-weight: bold; cursor: pointer; transition: 0.2s;
-            text-transform: uppercase; box-shadow: 0 6px 0 #000;
-        }
+        .main-btn { width: 100%; padding: 20px; background: #1a1a1a; color: white; border: 1px solid #333; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; box-shadow: 0 6px 0 #000; }
         .main-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #000; }
         .back-link { margin-top: 25px; display: block; color: #444; text-decoration: none; font-size: 12px; }
+        .shake { animation: shake-anim 0.1s infinite; }
+        @keyframes shake-anim { 0% {transform: translate(3px,3px)} 50% {transform: translate(-3px,-3px)} }
     </style>
 </head>
-<body>
+<body id="bg">
 
-    <div style="font-size: 11px; color: #ffcc00; margin-bottom: 5px;">BEST RECORD: <span id="hs">0</span></div>
-    <div class="progress-container"><div id="p-bar" class="progress-bar"></div></div>
+    <div style="font-size: 11px; color: #ffcc00; letter-spacing: 2px;">BEST RECORD: <span id="hs">0</span></div>
+    <div class="progress-container"><div id="p-bar"></div></div>
 
     <div class="game-card">
-        <h2 style="font-size: 10px; color: #444; letter-spacing: 5px; margin-bottom: 10px;">CORE_PROCESSOR_v3</h2>
         <div id="score-val">0</div>
         <button class="main-btn" onclick="tap()">Execute Process</button>
-
         <div class="leaderboard">
             <h3>Global Top Players</h3>
-            <div id="l-list">Loading Database...</div>
+            <div id="l-list">Syncing...</div>
         </div>
         <a href="home.html" class="back-link">← TERMINATE SESSION</a>
     </div>
 
     <script>
-        <script>
-    const API_URL = "https://sheetdb.io/api/v1/tzwnahbmb418g"; 
-    
-    let playerName = localStorage.getItem('ran_name') || prompt("Input Participant Name:") || "Guest_" + Math.floor(Math.random()*1000);
-    localStorage.setItem('ran_name', playerName);
-
-    let score = 0;
-    let highScore = localStorage.getItem('ran_hs') || 0;
-    document.getElementById('hs').innerText = highScore;
-
-    function tap() {
-        score++;
-        document.getElementById('score-val').innerText = score;
-
-        // Progress Bar
-        let p = score % 100;
-        if(p === 0 && score !== 0) p = 100;
-        document.getElementById('p-bar').style.width = p + "%";
-
-        // High Score
-        if(score > highScore) {
-            highScore = score;
-            localStorage.setItem('ran_hs', highScore);
-            document.getElementById('hs').innerText = highScore;
-        }
+        const API_URL = "https://sheetdb.io/api/v1/tzwnahbmb418g";
+        let score = 0;
+        let playerName = localStorage.getItem('ran_name') || prompt("Input Name:") || "User";
+        localStorage.setItem('ran_name', playerName);
         
-        // Simpan ke Sheets tiap 10 klik
-        if(score % 10 === 0) updateDatabase();
+        let highScore = localStorage.getItem('ran_hs') || 0;
+        document.getElementById('hs').innerText = highScore;
 
-        // EFEK COMBO (Dipastikan Jalan)
-        if(score % 100 === 0) {
-            triggerCombo();
-        } else if(score % 100 === 1) {
-            document.getElementById('p-bar').classList.remove('progress-full');
-        }
-    }
+        function tap() {
+            score++;
+            document.getElementById('score-val').innerText = score;
+            
+            // Progress Bar
+            let p = score % 100;
+            if(p === 0 && score !== 0) p = 100;
+            document.getElementById('p-bar').style.width = p + "%";
 
-    function updateDatabase() {
-        // Cek dulu apakah nama sudah ada atau belum
-        fetch(API_URL + "/search?name=" + playerName)
-        .then(res => res.json())
-        .then(data => {
-            if(data.length > 0) {
-                // Jika ada, gunakan PATCH
-                fetch(API_URL + "/name/" + playerName, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ "score": score })
-                });
-            } else {
-                // Jika tidak ada, gunakan POST (Daftar Baru)
-                fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ "name": playerName, "score": score })
-                });
+            // Visual Effect
+            if(score % 100 === 0) {
+                triggerCombo();
+            } else if(score % 100 === 1) {
+                document.getElementById('p-bar').classList.remove('progress-full');
             }
-        }).catch(err => console.log("Offline update"));
-    }
 
-    function triggerCombo() {
-        const bg = document.getElementById('bg');
-        const scoreText = document.getElementById('score-val');
-        const pBar = document.getElementById('p-bar');
+            // High Score & DB
+            if(score > highScore) {
+                highScore = score;
+                localStorage.setItem('ran_hs', highScore);
+                document.getElementById('hs').innerText = highScore;
+            }
+            if(score % 10 === 0) updateDB();
+        }
 
-        bg.classList.add('shake');
-        pBar.classList.add('progress-full');
-        scoreText.style.color = "#ffcc00";
-        scoreText.style.textShadow = "0 0 30px #ffcc00";
+        function triggerCombo() {
+            document.getElementById('bg').classList.add('shake');
+            document.getElementById('p-bar').classList.add('progress-full');
+            setTimeout(() => document.getElementById('bg').classList.remove('shake'), 1000);
+        }
 
-        setTimeout(() => {
-            bg.classList.remove('shake');
-            scoreText.style.color = "white";
-            scoreText.style.textShadow = "none";
-        }, 1000);
-    }
-
-    function fetchLeaderboard() {
-        fetch(API_URL + "?sort_by=score&sort_order=desc")
-        .then(res => res.json())
-        .then(data => {
-            let html = '';
-            data.slice(0, 3).forEach((item, index) => {
-                html += `<div class="entry ${index === 0 ? 'rank-1' : ''}">
-                            <span>${index+1}. ${item.name}</span>
-                            <span>${item.score}</span>
-                         </div>`;
+        function updateDB() {
+            fetch(API_URL + "/search?name=" + playerName)
+            .then(res => res.json())
+            .then(data => {
+                let method = data.length > 0 ? 'PATCH' : 'POST';
+                let url = data.length > 0 ? `${API_URL}/name/${playerName}` : API_URL;
+                fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name: playerName, score: score })
+                });
             });
-            document.getElementById('l-list').innerHTML = html;
-        });
-    }
+        }
 
-    fetchLeaderboard();
-    setInterval(fetchLeaderboard, 60000);
-</script>
+        function getLeaderboard() {
+            fetch(API_URL + "?sort_by=score&sort_order=desc")
+            .then(res => res.json())
+            .then(data => {
+                let html = '';
+                data.slice(0, 3).forEach((p, i) => {
+                    html += `<div class="entry ${i===0?'rank-1':''}"><span>${i+1}. ${p.name}</span><span>${p.score}</span></div>`;
+                });
+                document.getElementById('l-list').innerHTML = html;
+            });
+        }
+
+        getLeaderboard();
+        setInterval(getLeaderboard, 30000);
     </script>
 </body>
 </html>
