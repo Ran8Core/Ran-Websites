@@ -14,52 +14,50 @@
         body {
             background-color: #0b0b0b;
             color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
             flex-direction: column;
-            transition: background 0.3s;
+            transition: background 0.2s;
         }
 
-        /* SCREEN SHAKE ANIMATION */
+        /* SCREEN SHAKE */
         .ultra-shake {
             animation: shake-anim 0.1s infinite;
         }
         @keyframes shake-anim {
-            0% { transform: translate(2px, 2px); }
-            50% { transform: translate(-2px, -2px); }
+            0% { transform: translate(3px, 3px); }
+            50% { transform: translate(-3px, -3px); }
             100% { transform: translate(0,0); }
         }
 
-        /* PROGRESS BAR CONTAINER */
+        /* PROGRESS BAR */
         .progress-container {
             width: 100%;
             max-width: 400px;
             background: #1a1a1a;
-            height: 12px;
+            height: 10px;
             border-radius: 10px;
             margin-bottom: 20px;
             border: 1px solid #333;
             overflow: hidden;
-            position: relative;
         }
 
         .progress-bar {
             width: 0%;
             height: 100%;
             background: #007bff;
-            box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
             transition: width 0.1s ease;
         }
 
-        /* FULL PROGRESS GLOW */
         .progress-full {
             background: linear-gradient(90deg, #ff0000, #ffcc00, #00ff00, #007bff, #ff0000);
             background-size: 200%;
-            animation: rainbow 2s linear infinite;
+            animation: rainbow 1.5s linear infinite;
         }
 
         @keyframes rainbow {
@@ -67,7 +65,7 @@
             100% { background-position: 200%; }
         }
 
-        /* GAME CARD */
+        /* CARD */
         .game-card {
             background: #121212;
             border: 2px solid #222;
@@ -80,22 +78,28 @@
             position: relative;
         }
 
-        h2 {
-            font-size: 10px;
-            color: #555;
-            letter-spacing: 6px;
+        .hs-label {
+            font-size: 11px;
+            color: #ffcc00;
+            letter-spacing: 2px;
             text-transform: uppercase;
             margin-bottom: 5px;
         }
 
-        #score-val {
-            font-size: 5.5rem;
-            font-weight: 900;
-            margin: 15px 0;
-            transition: 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        #high-score-val {
+            font-weight: bold;
+            color: #ffcc00;
         }
 
-        /* BUTTON CLICKER */
+        #score-val {
+            font-size: 6rem;
+            font-weight: 900;
+            margin: 10px 0;
+            transition: 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #fff;
+        }
+
+        /* BUTTON */
         .main-btn {
             background: #1a1a1a;
             color: white;
@@ -121,7 +125,7 @@
             color: #007bff;
         }
 
-        /* FOOTER & BACK */
+        /* BACK LINK */
         .back-link {
             display: inline-block;
             margin-top: 25px;
@@ -131,69 +135,78 @@
             padding: 8px 15px;
             border-radius: 20px;
             transition: 0.3s;
+            border: 1px solid transparent;
         }
 
-        .back-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
-
-        .system-footer {
-            position: fixed;
-            bottom: 10px;
-            font-family: monospace;
-            font-size: 9px;
-            color: #222;
+        .back-link:hover { 
+            color: #fff; 
+            border-color: #333;
+            background: rgba(255,255,255,0.05); 
         }
+
     </style>
 </head>
 <body id="bg">
+
+    <div class="hs-label">Best Record: <span id="high-score-val">0</span></div>
 
     <div class="progress-container">
         <div id="p-bar" class="progress-bar"></div>
     </div>
 
-    <div class="game-card" id="card">
-        <h2>System Processor</h2>
+    <div class="game-card">
+        <h2 style="font-size: 10px; color: #555; letter-spacing: 4px; text-transform: uppercase;">Core Clicker v2.0</h2>
         <div id="score-val">0</div>
         
         <button class="main-btn" onclick="tap()">Execute Process</button>
         
-        <a href="home.html" class="back-link">← TERMINATE_SESSION</a>
-    </div>
-
-    <div class="system-footer">
-        STATUS: ONLINE | NODE: RAN_8CORE | VAR: SHENA_GAME_v2
+        <a href="home.html" class="back-link">← TERMINATE SESSION</a>
     </div>
 
     <script>
         let score = 0;
+        // AMBIL HIGH SCORE DARI STORAGE
+        let highScore = localStorage.getItem('ran8core_hs') || 0;
+        
         const scoreText = document.getElementById('score-val');
+        const hsText = document.getElementById('high-score-val');
         const pBar = document.getElementById('p-bar');
         const bg = document.getElementById('bg');
+
+        // TAMPILKAN HIGH SCORE SAAT LOAD
+        hsText.innerText = highScore;
 
         function tap() {
             score++;
             scoreText.innerText = score;
 
-            // 1. Progress Bar Logic (0-100)
-            let progress = score % 100;
-            if (progress === 0 && score !== 0) progress = 100;
-            
-            pBar.style.width = progress + "%";
+            // 1. UPDATE HIGH SCORE
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('ran8core_hs', highScore);
+                hsText.innerText = highScore;
+            }
 
-            // 2. Click Animation (Scale)
+            // 2. PROGRESS BAR LOGIC
+            let currentProgress = score % 100;
+            if (currentProgress === 0 && score !== 0) currentProgress = 100;
+            pBar.style.width = currentProgress + "%";
+
+            // 3. ANIMASI CLICK
             scoreText.style.transform = "scale(1.2)";
             setTimeout(() => scoreText.style.transform = "scale(1)", 100);
 
-            // 3. Ultra Combo (Kelipatan 100)
+            // 4. KELIPATAN 100 (SUPER COMBO)
             if (score % 100 === 0) {
                 pBar.classList.add('progress-full');
                 triggerCombo();
-            } else {
+            } else if (score % 100 === 1) {
+                // Reset warna bar setelah lewat 100
                 pBar.classList.remove('progress-full');
             }
         }
 
         function triggerCombo() {
-            // Layar Getar
             bg.classList.add('ultra-shake');
             scoreText.style.color = "#ffcc00";
             scoreText.style.textShadow = "0 0 40px #ffcc00";
