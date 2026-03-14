@@ -39,3 +39,171 @@
     <div class="progress-container"><div id="p-bar"></div></div>
     <div class="game-card">
         <div id="level-tag" class="lvl-rookie">RANK: ROOKIE</div>
+        <div id="score-val">0</div>
+        <button class="main-btn" onclick="tap()">Execute Process</button>
+        <div class="leaderboard"><div id="l-list" style="font-size: 11px;">Syncing...</div></div>
+        <a href="home.html" class="back-link">← TERMINATE SESSION</a>
+        <button onclick="changeIdentity()" class="reset-btn">[ RESET IDENTITY ]</button>
+    </div>
+    <script>
+        const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
+        let score = 0; let lastMilestone = 0;
+        let playerName = localStorage.getItem('ran_name');
+        let highScore = parseInt(localStorage.getItem('ran_hs')) || 0;
+        if (!playerName) { playerName = prompt("Nickname:") || "Agent_" + Math.floor(Math.random()*99); localStorage.setItem('ran_name', playerName); }
+        document.getElementById('hs').innerText = highScore.toLocaleString();
+        function tap() {
+            score++; updateUI();
+            if (score % 100 === 0) { triggerCombo(); updateDB(); }
+            if (score > highScore) { highScore = score; localStorage.setItem('ran_hs', highScore); document.getElementById('hs').innerText = highScore.toLocaleString(); }
+            checkMilestones();
+        }
+        function updateUI() {
+            document.getElementById('score-val').innerText = score.toLocaleString();
+            const tag = document.getElementById('level-tag');
+            let rank = "ROOKIE", cls = "lvl-rookie";
+            if (score >= 1000000) { rank = "MILLIONAIRE LEGEND"; cls = "lvl-mythic"; }
+            else if (score >= 100000) { rank = "UNSTOPPABLE"; cls = "lvl-eternal"; }
+            else if (score >= 10000) { rank = "ETERNAL"; cls = "lvl-eternal"; }
+            else if (score >= 1000) { rank = "GOD"; cls = "lvl-pro"; }
+            else if (score >= 100) { rank = "ELITE"; cls = "lvl-elite"; }
+            tag.innerText = "RANK: " + rank; tag.className = cls;
+            let p = score % 100; if (p === 0 && score !== 0) p = 100;
+            document.getElementById('p-bar').style.width = p + "%";
+        }
+        function checkMilestones() {
+            const milestones = [100, 1000, 10000, 100000, 1000000];
+            milestones.forEach(m => { if (score === m && lastMilestone !== m) { showAchievement("UNLOCKED: " + m.toLocaleString() + " CLICKS!"); lastMilestone = m; } });
+        }
+        function showAchievement(msg) {
+            const el = document.getElementById('achieve'); el.innerText = msg; el.classList.add('show-achieve');
+            setTimeout(() => el.classList.remove('show-achieve'), 3000);
+        }
+        function triggerCombo() {
+            document.getElementById('bg').classList.add('shake'); document.getElementById('p-bar').classList.add('progress-full');
+            setTimeout(() => { document.getElementById('bg').classList.remove('shake'); document.getElementById('p-bar').classList.remove('progress-full'); }, 1000);
+        }
+        function updateDB() { fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) }); }
+        function getLeaderboard() {
+            fetch(API_URL).then(res => res.json()).then(data => {
+                if (Array.isArray(data)) {
+                    let filtered = data.filter(i => i.name && i.name !== "null");
+                    filtered.sort((a, b) => parseInt(b.score || 0) - parseInt(a.score || 0));
+                    let html = '';
+                    filtered.slice(0, 3).forEach((p, i) => {
+                        html += `<div class="entry ${i===0?'rank-1':''}"><span>${i+1}. ${p.name}</span><span>${parseInt(p.score).toLocaleString()}</span></div>`;
+                        if (p.name === playerName && score < parseInt(p.score)) { score = parseInt(p.score); updateUI(); }
+                    });
+                    document.getElementById('l-list').innerHTML = html || "No Data";
+                }
+            });
+        }
+        function changeIdentity() { if(confirm("Reset nickname?")) { localStorage.removeItem('ran_name'); location.reload(); } }
+        getLeaderboard(); setInterval(getLeaderboard, 30000); 
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Clicker V4.0 | Stable</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0b0b0b; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        .progress-container { width: 100%; max-width: 400px; background: #1a1a1a; height: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; overflow: hidden; }
+        #p-bar { width: 0%; height: 100%; background: #007bff; }
+        .progress-full { background: linear-gradient(90deg, #ff0000, #ffcc00, #00ff00, #007bff, #ff0000); background-size: 200%; animation: rainbow 2s linear infinite; }
+        @keyframes rainbow { 0%{background-position:0%} 100%{background-position:200%} }
+        .shake { animation: shake-anim 0.1s 5; }
+        @keyframes shake-anim { 0% {transform: translate(2px,2px)} 50% {transform: translate(-2px,-2px)} }
+        .game-card { background: #121212; border: 2px solid #222; padding: 30px; border-radius: 25px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        #score-val { font-size: 4.5rem; font-weight: 900; margin: 5px 0; }
+        #level-tag { font-size: 11px; font-weight: 800; letter-spacing: 3px; margin-bottom: 10px; text-transform: uppercase; padding: 5px 15px; border-radius: 20px; display: inline-block; background: #1a1a1a; }
+        .lvl-rookie { color: #888; }
+        .lvl-elite { color: #007bff; }
+        .lvl-pro { color: #00ff00; }
+        .lvl-eternal { color: #ff00ff; text-shadow: 0 0 10px #ff00ff; }
+        .lvl-mythic { color: #ff3e3e; text-shadow: 0 0 15px #ff3e3e; }
+        #achieve { position: fixed; top: 15%; background: #fff; color: #000; padding: 12px 25px; border-radius: 10px; font-weight: 900; transform: translateY(-200px); transition: 0.5s; z-index: 100; border-left: 8px solid #ffcc00; }
+        .show-achieve { transform: translateY(0) !important; }
+        .leaderboard { margin-top: 20px; background: #080808; padding: 15px; border-radius: 15px; border: 1px solid #151515; margin-bottom: 15px; }
+        .entry { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 12px; border-bottom: 1px solid #111; color: #888; }
+        .rank-1 { color: #ffcc00 !important; font-weight: bold; }
+        .main-btn { width: 100%; padding: 18px; background: #1a1a1a; color: white; border: 1px solid #333; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .main-btn:active { transform: scale(0.98); }
+        .back-link { display: block; color: #444; font-size: 11px; text-decoration: none; margin-top: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .back-link:hover { color: #fff; }
+        .reset-btn { background: none; border: none; color: #222; font-size: 9px; cursor: pointer; margin-top: 10px; text-decoration: underline; }
+    </style>
+</head>
+<body id="bg">
+    <div id="achieve">MILESTONE REACHED!</div>
+    <div style="font-size: 10px; color: #ffcc00; letter-spacing: 2px; margin-bottom: 8px;">RECORD: <span id="hs">0</span></div>
+    <div class="progress-container"><div id="p-bar"></div></div>
+    <div class="game-card">
+        <div id="level-tag" class="lvl-rookie">RANK: ROOKIE</div>
+        <div id="score-val">0</div>
+        <button class="main-btn" onclick="tap()">Execute Process</button>
+        <div class="leaderboard"><div id="l-list" style="font-size: 11px;">Syncing...</div></div>
+        <a href="home.html" class="back-link">← TERMINATE SESSION</a>
+        <button onclick="changeIdentity()" class="reset-btn">[ RESET IDENTITY ]</button>
+    </div>
+    <script>
+        const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
+        let score = 0; let lastMilestone = 0;
+        let playerName = localStorage.getItem('ran_name');
+        let highScore = parseInt(localStorage.getItem('ran_hs')) || 0;
+        if (!playerName) { playerName = prompt("Nickname:") || "Agent_" + Math.floor(Math.random()*99); localStorage.setItem('ran_name', playerName); }
+        document.getElementById('hs').innerText = highScore.toLocaleString();
+        function tap() {
+            score++; updateUI();
+            if (score % 100 === 0) { triggerCombo(); updateDB(); }
+            if (score > highScore) { highScore = score; localStorage.setItem('ran_hs', highScore); document.getElementById('hs').innerText = highScore.toLocaleString(); }
+            checkMilestones();
+        }
+        function updateUI() {
+            document.getElementById('score-val').innerText = score.toLocaleString();
+            const tag = document.getElementById('level-tag');
+            let rank = "ROOKIE", cls = "lvl-rookie";
+            if (score >= 1000000) { rank = "MILLIONAIRE LEGEND"; cls = "lvl-mythic"; }
+            else if (score >= 100000) { rank = "UNSTOPPABLE"; cls = "lvl-eternal"; }
+            else if (score >= 10000) { rank = "ETERNAL"; cls = "lvl-eternal"; }
+            else if (score >= 1000) { rank = "GOD"; cls = "lvl-pro"; }
+            else if (score >= 100) { rank = "ELITE"; cls = "lvl-elite"; }
+            tag.innerText = "RANK: " + rank; tag.className = cls;
+            let p = score % 100; if (p === 0 && score !== 0) p = 100;
+            document.getElementById('p-bar').style.width = p + "%";
+        }
+        function checkMilestones() {
+            const milestones = [100, 1000, 10000, 100000, 1000000];
+            milestones.forEach(m => { if (score === m && lastMilestone !== m) { showAchievement("UNLOCKED: " + m.toLocaleString() + " CLICKS!"); lastMilestone = m; } });
+        }
+        function showAchievement(msg) {
+            const el = document.getElementById('achieve'); el.innerText = msg; el.classList.add('show-achieve');
+            setTimeout(() => el.classList.remove('show-achieve'), 3000);
+        }
+        function triggerCombo() {
+            document.getElementById('bg').classList.add('shake'); document.getElementById('p-bar').classList.add('progress-full');
+            setTimeout(() => { document.getElementById('bg').classList.remove('shake'); document.getElementById('p-bar').classList.remove('progress-full'); }, 1000);
+        }
+        function updateDB() { fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) }); }
+        function getLeaderboard() {
+            fetch(API_URL).then(res => res.json()).then(data => {
+                if (Array.isArray(data)) {
+                    let filtered = data.filter(i => i.name && i.name !== "null");
+                    filtered.sort((a, b) => parseInt(b.score || 0) - parseInt(a.score || 0));
+                    let html = '';
+                    filtered.slice(0, 3).forEach((p, i) => {
+                        html += `<div class="entry ${i===0?'rank-1':''}"><span>${i+1}. ${p.name}</span><span>${parseInt(p.score).toLocaleString()}</span></div>`;
+                        if (p.name === playerName && score < parseInt(p.score)) { score = parseInt(p.score); updateUI(); }
+                    });
+                    document.getElementById('l-list').innerHTML = html || "No Data";
+                }
+            });
+        }
+        function changeIdentity() { if(confirm("Reset nickname?")) { localStorage.removeItem('ran_name'); location.reload(); } }
+        getLeaderboard(); setInterval(getLeaderboard, 30000); 
+    </script>
+</body>
+</html>
