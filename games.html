@@ -1,37 +1,191 @@
-<style>
-    .back-btn {
-            display: inline-block;
-            margin-top: 40px;
-            padding: 10px 25px;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Games - Ran Admin</title>
+    <style>
+        /* BASE STYLE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0b0b0b;
+            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        /* CONTAINER CARD */
+        .game-card {
+            background: #121212;
+            border: 1px solid #222;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 90%;
+            transition: 0.3s;
+        }
+
+        .game-card:hover {
+            border-color: #007bff;
+        }
+
+        h2 {
+            font-size: 14px;
+            color: #888;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* SCORE DISPLAY */
+        #score-val {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #007bff;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
+            transition: 0.2s;
+        }
+
+        /* ANIMASI GETAR */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, 1px) rotate(0deg); }
+        }
+
+        .shake-effect {
+            animation: shake 0.2s;
+        }
+
+        /* BUTTON STYLE */
+        .click-btn {
+            background: #1a1a1a;
             color: white;
-            text-decoration: none;
             border: 1px solid #333;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .click-btn:hover {
+            background: #007bff;
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 123, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .click-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* BACK BUTTON */
+        .back-btn {
+            margin-top: 30px;
+            text-decoration: none;
+            color: #444;
+            font-size: 13px;
+            border: 1px solid #222;
+            padding: 8px 20px;
             border-radius: 30px;
             transition: 0.3s;
         }
-</style>
 
-<div class="card" style="margin-top: 30px; max-width: 400px; margin-left: auto; margin-right: auto;">
-    <h3 style="font-size: 14px; color: #888; letter-spacing: 2px;">MINI CHALLENGE</h3>
-    <p style="font-size: 12px; margin: 10px 0;">Kumpulin Skor!</p>
-    
-    <div style="font-size: 2rem; font-weight: bold; color: #007bff; margin: 10px 0;" id="score-val">0</div>
-    
-    <button onclick="mainGame()" style="background: #1a1a1a; color: white; border: 1px solid #333; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.borderColor='#007bff'" onmouseout="this.style.borderColor='#333'">
-        PENCET DISINI!
-    </button>
-</div>
-<a href="home.html" class="back-btn">← Back to Dashboard</a>
-<script>
-    let score = 0;
-    function mainGame() {
-        score++;
-        document.getElementById('score-val').innerText = score;
-        
-        // Efek getar dikit pas dipencet
-        if(score % 10 === 0) {
-            console.log("Checkpoint: " + score);
+        .back-btn:hover {
+            color: #fff;
+            border-color: #555;
+            background: rgba(255,255,255,0.05);
         }
-    }
 
-</script>
+        /* UPTIME DISPLAY */
+        .system-info {
+            position: fixed;
+            bottom: 15px;
+            font-family: monospace;
+            font-size: 10px;
+            color: #00ff00;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <h2>Mini Challenge</h2>
+        <p class="subtitle">Saran Shena: Kumpulin Skor!</p>
+        
+        <div id="score-val">0</div>
+        
+        <button class="click-btn" onclick="mainGame()">PENCET DISINI!</button>
+        
+        <div style="margin-top: 40px;">
+            <a href="home.html" class="back-btn">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="system-info">
+        System Uptime: <span id="uptime">0</span>s | Latency: 22ms | Auth: ADMIN_RAN
+    </div>
+
+    <script>
+        let score = 0;
+        let uptime = 0;
+
+        // FUNGSI UTAMA GAME
+        function mainGame() {
+            score++;
+            const scoreDisplay = document.getElementById('score-val');
+            scoreDisplay.innerText = score;
+            
+            // Tambahkan class shake biar kerasa kliknya
+            scoreDisplay.classList.add('shake-effect');
+            setTimeout(() => {
+                scoreDisplay.classList.remove('shake-effect');
+            }, 200);
+
+            // Bonus: Kelipatan 10 ganti warna jadi EMAS (Combo)
+            if(score % 10 === 0) {
+                scoreDisplay.style.color = "#ffcc00";
+                scoreDisplay.style.textShadow = "0 0 30px rgba(255, 204, 0, 0.8)";
+                setTimeout(() => {
+                    scoreDisplay.style.color = "#007bff";
+                    scoreDisplay.style.textShadow = "0 0 20px rgba(0, 123, 255, 0.4)";
+                }, 500);
+            }
+        }
+
+        // SYSTEM UPTIME COUNTER
+        setInterval(() => {
+            uptime++;
+            document.getElementById('uptime').innerText = uptime;
+        }, 1000);
+    </script>
+
+</body>
+</html>
