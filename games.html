@@ -1,28 +1,145 @@
-<div class="tab-container" style="margin-top: 15px;">
-    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-        <button onclick="showTab('shop')" class="tab-btn">Aura Shop</button>
-        <button onclick="showTab('leader')" class="tab-btn">Rankings</button>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Clicker V4.4 | Stable UI</title>
+    <style>
+        :root { --main-clr: #007bff; --accent: #1a1a1a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0b0b0b; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        
+        .progress-container { width: 100%; max-width: 400px; background: #1a1a1a; height: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; overflow: hidden; }
+        #p-bar { width: 0%; height: 100%; background: var(--main-clr); transition: 0.1s; }
 
-    <div id="shop-content" class="tab-content">
-        <div class="skin-grid">
+        .game-card { background: #121212; border: 2px solid #222; padding: 25px; border-radius: 25px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); z-index: 2; }
+        #score-val { font-size: 4rem; font-weight: 900; margin: 5px 0; letter-spacing: -2px; }
+        #level-tag { font-size: 10px; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; padding: 5px 15px; border-radius: 20px; display: inline-block; background: #1a1a1a; border: 1px solid var(--main-clr); color: var(--main-clr); }
+        
+        .main-btn { width: 100%; padding: 20px; background: var(--accent); color: white; border: 1px solid var(--main-clr); border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .main-btn:active { transform: scale(0.95); }
+
+        /* Tab System */
+        .tab-box { width: 100%; background: #080808; border-radius: 15px; border: 1px solid #1a1a1a; padding: 15px; margin-top: 10px; }
+        .tab-nav { display: flex; gap: 5px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 8px; font-size: 9px; background: #151515; color: #555; border: 1px solid #222; cursor: pointer; border-radius: 6px; text-transform: uppercase; font-weight: bold; }
+        .tab-btn.active { border-color: var(--main-clr); color: var(--main-clr); }
+
+        .skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .skin-btn { height: 30px; border-radius: 6px; border: 2px solid #222; cursor: pointer; position: relative; transition: 0.2s; }
+        .skin-btn:hover { transform: scale(1.05); border-color: #fff; }
+        .skin-btn::after { content: attr(data-price); position: absolute; font-size: 7px; bottom: -14px; left: 0; width: 100%; color: #444; }
+
+        .entry { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 5px; border-bottom: 1px solid #111; color: #888; }
+        .rank-1 { color: #ffcc00 !important; font-weight: bold; }
+
+        .back-link { display: block; color: #333; font-size: 9px; text-decoration: none; margin-top: 15px; text-transform: uppercase; }
+        #achieve { position: fixed; top: 10%; background: var(--main-clr); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: bold; transform: translateY(-200px); transition: 0.5s; z-index: 100; }
+        .show { transform: translateY(0) !important; }
+    </style>
+</head>
+<body id="bg">
+    <div id="achieve">AURA EQUIPPED!</div>
+    <div style="font-size: 10px; color: #444; margin-bottom: 8px; letter-spacing: 2px;">RECORD: <span id="hs">0</span></div>
+    <div class="progress-container"><div id="p-bar"></div></div>
+
+    <div class="game-card">
+        <div id="level-tag">RANK: ROOKIE</div>
+        <div id="score-val">0</div>
+        
+        <button class="main-btn" onclick="tap()">Execute Process</button>
+
+        <div class="tab-box">
+            <div class="tab-nav">
+                <button id="btn-shop" onclick="showTab('shop')" class="tab-btn active">Aura Shop</button>
+                <button id="btn-leader" onclick="showTab('leader')" class="tab-btn">Rankings</button>
             </div>
+
+            <div id="shop-content">
+                <div class="skin-grid">
+                    <div class="skin-btn" style="background:#007bff;" data-price="FREE" onclick="setSkin('#007bff')"></div>
+                    <div class="skin-btn" style="background:#ff3e3e;" data-price="500" onclick="buySkin('#ff3e3e', 500)"></div>
+                    <div class="skin-btn" style="background:#00ff00;" data-price="1.5K" onclick="buySkin('#00ff00', 1500)"></div>
+                    <div class="skin-btn" style="background:#ff00ff;" data-price="5K" onclick="buySkin('#ff00ff', 5000)"></div>
+                    <div class="skin-btn" style="background:#ffcc00;" data-price="10K" onclick="buySkin('#ffcc00', 10000)"></div>
+                    <div class="skin-btn" style="background:#ffffff;" data-price="25K" onclick="buySkin('#ffffff', 25000)"></div>
+                </div>
+            </div>
+
+            <div id="leader-content" style="display: none;">
+                <div id="l-list" style="text-align: left;">Syncing...</div>
+            </div>
+        </div>
+
+        <a href="home.html" class="back-link">← TERMINATE SESSION</a>
     </div>
 
-    <div id="leader-content" class="tab-content" style="display: none;">
-        <div id="l-list" style="font-size: 11px;">Syncing...</div>
-    </div>
-</div>
+    <script>
+        const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
+        let score = 0;
+        let playerName = localStorage.getItem('ran_name') || "Agent_" + Math.floor(Math.random()*99);
+        localStorage.setItem('ran_name', playerName);
+        let highScore = parseInt(localStorage.getItem('ran_hs')) || 0;
 
-<style>
-    .tab-btn { flex: 1; padding: 5px; font-size: 9px; background: #1a1a1a; color: #555; border: 1px solid #222; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
-    .tab-btn:hover { color: #fff; }
-    .active-tab { border-color: var(--main-clr); color: var(--main-clr); }
-</style>
+        function tap() {
+            score++; updateUI();
+            if (score % 50 === 0) updateDB();
+            if (score > highScore) { highScore = score; localStorage.setItem('ran_hs', highScore); }
+        }
 
-<script>
-    function showTab(type) {
-        document.getElementById('shop-content').style.display = type === 'shop' ? 'block' : 'none';
-        document.getElementById('leader-content').style.display = type === 'leader' ? 'block' : 'none';
-    }
-</script>
+        function showTab(type) {
+            document.getElementById('shop-content').style.display = type === 'shop' ? 'block' : 'none';
+            document.getElementById('leader-content').style.display = type === 'leader' ? 'block' : 'none';
+            document.getElementById('btn-shop').classList.toggle('active', type === 'shop');
+            document.getElementById('btn-leader').classList.toggle('active', type === 'leader');
+        }
+
+        function setSkin(color) {
+            document.documentElement.style.setProperty('--main-clr', color);
+            showMsg("AURA UPDATED!");
+        }
+
+        function buySkin(color, price) {
+            if (score >= price) { score -= price; setSkin(color); updateUI(); updateDB(); }
+            else { alert("Score kurang!"); }
+        }
+
+        function updateUI() {
+            document.getElementById('score-val').innerText = score.toLocaleString();
+            document.getElementById('hs').innerText = highScore.toLocaleString();
+            const tag = document.getElementById('level-tag');
+            if (score >= 10000) tag.innerText = "RANK: ETERNAL";
+            else if (score >= 1000) tag.innerText = "RANK: GOD";
+            else tag.innerText = "RANK: ROOKIE";
+            document.getElementById('p-bar').style.width = (score % 100) + "%";
+        }
+
+        function showMsg(m) {
+            const e = document.getElementById('achieve'); e.innerText = m; e.classList.add('show');
+            setTimeout(() => e.classList.remove('show'), 2000);
+        }
+
+        function updateDB() {
+            fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) });
+        }
+
+        function getLeaderboard() {
+            fetch(API_URL).then(res => res.json()).then(data => {
+                if (Array.isArray(data)) {
+                    let filtered = data.filter(i => i.name).sort((a,b) => b.score - a.score);
+                    let html = '';
+                    filtered.slice(0, 3).forEach((p, i) => {
+                        html += `<div class="entry ${i===0?'rank-1':''}"><span>${i+1}. ${p.name}</span><span>${parseInt(p.score).toLocaleString()}</span></div>`;
+                    });
+                    document.getElementById('l-list').innerHTML = html || "No Data";
+                }
+            });
+        }
+
+        setInterval(getLeaderboard, 30000);
+        getLeaderboard();
+        updateUI();
+    </script>
+</body>
+</html>
