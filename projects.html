@@ -144,11 +144,18 @@
         }
 
         .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #007bff, #00d4ff);
-            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-            border-radius: 50px;
-        }
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #00d4ff, #007bff);
+    background-size: 200% 100%;
+    animation: flow 2s linear infinite; /* Efek cahaya jalan */
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.8);
+    border-radius: 50px;
+}
+
+@keyframes flow {
+    0% { background-position: 200% 0; }
+    100% { background-position: 0 0; }
+}
 
         /* BUTTONS */
         .details-link {
