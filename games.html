@@ -64,83 +64,114 @@
     </div>
 
     <script>
-        const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
-        let score = 0;
-        let playerName = localStorage.getItem('ran_name') || "Admin_Ran";
-        let ownedSkins = JSON.parse(localStorage.getItem('ran_skins')) || [0];
+    const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
+    
+    // AMBIL DATA DARI PENYIMPANAN LOKAL SAAT REFRESH
+    let score = parseInt(localStorage.getItem('ran_score')) || 0; 
+    let playerName = localStorage.getItem('ran_name') || "Admin_Ran";
+    let ownedSkins = JSON.parse(localStorage.getItem('ran_skins')) || [0];
 
-        function tap() { score++; updateUI(); if(score % 50 === 0) updateDB(); }
+    function tap() { 
+        score++; 
+        updateUI(); 
+        saveToLocal(); // Simpan setiap kali klik biar aman
+        if(score % 50 === 0) updateDB(); 
+    }
 
-        function toggleConsole() { 
-            let con = document.getElementById('admin-console');
-            con.style.display = con.style.display === 'block' ? 'none' : 'block';
-            if(con.style.display === 'block') document.getElementById('console-input').focus();
+    function saveToLocal() {
+        localStorage.setItem('ran_score', score);
+    }
+
+    function toggleConsole() { 
+        let con = document.getElementById('admin-console');
+        con.style.display = con.style.display === 'block' ? 'none' : 'block';
+        if(con.style.display === 'block') document.getElementById('console-input').focus();
+    }
+
+    document.getElementById('console-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            let cmd = this.value;
+            if(cmd.startsWith('/give ')) {
+                let amt = parseInt(cmd.split(' ')[1]);
+                score += amt; 
+                updateUI(); 
+                saveToLocal();
+                updateDB();
+                alert("Added " + amt + " points!");
+            }
+            this.value = ''; toggleConsole();
         }
+    });
 
-        document.getElementById('console-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                let cmd = this.value;
-                if(cmd.startsWith('/give ')) {
-                    let amt = parseInt(cmd.split(' ')[1]);
-                    score += amt; updateUI(); updateDB();
-                    alert("Added " + amt + " points!");
-                }
-                this.value = ''; toggleConsole();
+    function handleSkin(color, price, id) {
+        let idx = parseInt(id.replace('skin-', ''));
+        if(ownedSkins.includes(idx)) { setSkin(color); }
+        else if(score >= price) { 
+            score -= price; 
+            ownedSkins.push(idx); 
+            localStorage.setItem('ran_skins', JSON.stringify(ownedSkins)); 
+            saveToLocal();
+            setSkin(color); 
+            updateUI(); 
+            updateDB(); 
+        }
+    }
+
+    function setSkin(color) { 
+        document.documentElement.style.setProperty('--main-clr', color); 
+        refreshSkinButtons(); 
+    }
+
+    function refreshSkinButtons() {
+        ownedSkins.forEach(i => {
+            let b = document.getElementById('skin-' + i);
+            if(b) b.classList.add('owned');
+        });
+    }
+
+    function showTab(t) {
+        document.getElementById('shop-content').style.display = t === 'shop' ? 'block' : 'none';
+        document.getElementById('leader-content').style.display = t === 'leader' ? 'block' : 'none';
+        document.getElementById('btn-shop').classList.toggle('active', t === 'shop');
+        document.getElementById('btn-leader').classList.toggle('active', t === 'leader');
+    }
+
+    function updateUI() {
+        document.getElementById('score-val').innerText = score.toLocaleString();
+        const tag = document.getElementById('level-tag');
+        if(score >= 100000) tag.innerText = "RANK: UNSTOPPABLE";
+        else if(score >= 10000) tag.innerText = "RANK: ETERNAL";
+        else tag.innerText = "RANK: ROOKIE";
+        refreshSkinButtons();
+    }
+
+    function updateDB() {
+        fetch(API_URL, { 
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) 
+        });
+    }
+
+    function getLeaderboard() {
+        fetch(API_URL).then(res => res.json()).then(data => {
+            if (Array.isArray(data)) {
+                let filtered = data.filter(i => i.name).sort((a,b) => b.score - a.score);
+                let html = '';
+                filtered.slice(0, 5).forEach((p, i) => {
+                    html += `<div class="entry"><span>${i+1}. ${p.name}</span><span>${parseInt(p.score).toLocaleString()}</span></div>`;
+                });
+                document.getElementById('l-list').innerHTML = html || "No Data";
             }
         });
+    }
 
-        function handleSkin(color, price, id) {
-            let idx = parseInt(id.replace('skin-', ''));
-            if(ownedSkins.includes(idx)) { setSkin(color); }
-            else if(score >= price) { score -= price; ownedSkins.push(idx); localStorage.setItem('ran_skins', JSON.stringify(ownedSkins)); setSkin(color); updateUI(); updateDB(); }
-        }
-
-        function setSkin(color) { document.documentElement.style.setProperty('--main-clr', color); refreshSkinButtons(); }
-
-        function refreshSkinButtons() {
-            ownedSkins.forEach(i => {
-                let b = document.getElementById('skin-' + i);
-                if(b) b.classList.add('owned');
-            });
-        }
-
-        function showTab(t) {
-            document.getElementById('shop-content').style.display = t === 'shop' ? 'block' : 'none';
-            document.getElementById('leader-content').style.display = t === 'leader' ? 'block' : 'none';
-            document.getElementById('btn-shop').classList.toggle('active', t === 'shop');
-            document.getElementById('btn-leader').classList.toggle('active', t === 'leader');
-        }
-
-        function updateUI() {
-            document.getElementById('score-val').innerText = score.toLocaleString();
-            const tag = document.getElementById('level-tag');
-            if(score >= 100000) tag.innerText = "RANK: UNSTOPPABLE";
-            else if(score >= 10000) tag.innerText = "RANK: ETERNAL";
-            else tag.innerText = "RANK: ROOKIE";
-            refreshSkinButtons();
-        }
-
-        function updateDB() {
-            fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) });
-        }
-
-        function getLeaderboard() {
-            fetch(API_URL).then(res => res.json()).then(data => {
-                if (Array.isArray(data)) {
-                    let filtered = data.filter(i => i.name).sort((a,b) => b.score - a.score);
-                    let html = '';
-                    filtered.slice(0, 5).forEach((p, i) => {
-                        html += `<div class="entry"><span>${i+1}. ${p.name}</span><span>${parseInt(p.score).toLocaleString()}</span></div>`;
-                    });
-                    document.getElementById('l-list').innerHTML = html || "No Data";
-                }
-            });
-        }
-
-        window.addEventListener('keydown', (e) => { if(e.key === '~') toggleConsole(); });
-        setInterval(getLeaderboard, 15000);
-        getLeaderboard(); updateUI();
-    </script>
+    window.addEventListener('keydown', (e) => { if(e.key === '~') toggleConsole(); });
+    
+    // LOAD PERTAMA KALI
+    updateUI();
+    getLeaderboard();
+    setInterval(getLeaderboard, 15000);
+</script>
 </body>
 </html>
