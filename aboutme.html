@@ -5,145 +5,146 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Me - Ran</title>
     <style>
+        :root {
+            --bg: #0b0b0b;
+            --card: #161616;
+            --accent: #007bff;
+            --mc-gold: #ffcc00;
+        }
+
         body {
-            background-color: #0b0b0b;
+            background-color: var(--bg);
             color: white;
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            animation: fadeIn 1s ease-in;
+            min-height: 100vh;
+            padding: 40px 0;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .about-card {
-            background: #161616;
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid #222;
-            width: 400px;
+        .container {
+            width: 90%;
+            max-width: 900px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
+        .profile-header { margin-bottom: 40px; }
         .profile-img {
-            width: 100px;
-            height: 100px;
-            background: #333;
+            width: 100px; height: 100px;
+            background: var(--card);
             border-radius: 50%;
             margin: 0 auto 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 40px;
-            border: 2px solid #007bff;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 40px; border: 2px solid var(--accent);
         }
 
-        h2 { margin: 10px 0; letter-spacing: 2px; }
-
-        /* Efek Ngetik */
-        .typing-container {
-            height: 20px;
-            margin-bottom: 30px;
-        }
+        h1 { margin: 10px 0; letter-spacing: 2px; text-transform: uppercase; }
         
-        .typing {
-            color: #007bff;
-            font-weight: bold;
-            border-right: 2px solid #007bff;
-            white-space: nowrap;
-            overflow: hidden;
+        /* Bento Grid Skills */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .skill-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #222;
+            transition: 0.3s;
+            text-align: left;
+            position: relative;
+        }
+
+        .skill-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            background: #1a1a1a;
+        }
+
+        .skill-card h3 { margin: 0 0 10px 0; font-size: 16px; color: var(--accent); }
+        .skill-card p { margin: 0; font-size: 12px; color: #888; }
+        
+        .level-dot {
+            height: 8px; width: 8px;
+            border-radius: 50%;
             display: inline-block;
-            animation: blink 0.7s infinite;
+            margin-right: 5px;
         }
 
-        @keyframes blink { 50% { border-color: transparent; } }
-
-        .bio {
-            color: #aaa;
-            line-height: 1.6;
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
+        .expert { background: #ff4d4d; } /* Red */
+        .intermediate { background: var(--mc-gold); } /* Gold */
+        .newbie { background: #28a745; } /* Green */
 
         .back-btn {
             display: inline-block;
+            margin-top: 40px;
             padding: 10px 25px;
             color: white;
             text-decoration: none;
-            border: 1px solid #444;
+            border: 1px solid #333;
             border-radius: 30px;
             transition: 0.3s;
-            font-size: 13px;
         }
 
-        .back-btn:hover {
-            background: white;
-            color: black;
-            transform: scale(1.05);
-        }
+        .back-btn:hover { background: white; color: black; }
     </style>
 </head>
 <body>
 
-    <div class="about-card">
-        <div class="profile-img">👤</div>
-        <h2 id="name-display">DEVELOPER</h2>
-        
-        <div class="typing-container">
-            <span class="typing" id="typing-text"></span>
+    <div class="container">
+        <div class="profile-header">
+            <div class="profile-img">👤</div>
+            <h1 id="user-display">RAN</h1>
+            <p style="color: #666;">TJKT Student | Pro Miner</p>
         </div>
 
-        <p class="bio">
-            TJKT Student | Minecraft Survivalist | Network Enthusiast. 
-            Focused on building clean interfaces and long-term Minecraft worlds.
-        </p>
+        <h2 style="font-size: 18px; letter-spacing: 4px; color: #444;">TECH & SKILLS</h2>
+
+        <div class="skills-grid">
+            <div class="skill-card">
+                <h3>⛏️ Minecraft Miner</h3>
+                <p>Netherite Grinding & XP Farming</p>
+                <div style="margin-top:10px; font-size: 10px;">
+                    <span class="level-dot expert"></span> <span style="color: #ff4d4d;">EXPERT</span>
+                </div>
+            </div>
+
+            <div class="skill-card">
+                <h3>🌐 Networking</h3>
+                <p>Cisco Packet Tracer & DNS Config</p>
+                <div style="margin-top:10px; font-size: 10px;">
+                    <span class="level-dot intermediate"></span> <span style="color: var(--mc-gold);">INTERMEDIATE</span>
+                </div>
+            </div>
+
+            <div class="skill-card">
+                <h3>💻 JavaScript</h3>
+                <p>DOM Manipulation (Still Learning)</p>
+                <div style="margin-top:10px; font-size: 10px;">
+                    <span class="level-dot newbie"></span> <span style="color: #28a745;">NEWBIE</span>
+                </div>
+            </div>
+
+            <div class="skill-card">
+                <h3>🐧 Linux Admin</h3>
+                <p>Server & CLI Management</p>
+                <div style="margin-top:10px; font-size: 10px;">
+                    <span class="level-dot intermediate"></span> <span style="color: var(--mc-gold);">INTERMEDIATE</span>
+                </div>
+            </div>
+        </div>
 
         <a href="home.html" class="back-btn">← Back to Dashboard</a>
     </div>
 
     <script>
-        // Ambil nama dari login (biar tetep personal)
-        const user = localStorage.getItem("activeUser") || "DEVELOPER";
-        document.getElementById("name-display").innerText = user.toUpperCase();
-
-        // Efek Typing
-        const textElement = document.getElementById("typing-text");
-        const words = ["Software Developer", "Minecraft Expert", "Silent Worker", "Tester Website"];
-        let wordIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-
-        function type() {
-            const currentWord = words[wordIndex];
-            
-            if (isDeleting) {
-                textElement.textContent = currentWord.substring(0, charIndex - 1);
-                charIndex--;
-            } else {
-                textElement.textContent = currentWord.substring(0, charIndex + 1);
-                charIndex++;
-            }
-
-            let typeSpeed = isDeleting ? 50 : 100;
-
-            if (!isDeleting && charIndex === currentWord.length) {
-                isDeleting = true;
-                typeSpeed = 2000; // Diem bentar pas kata lengkap
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                wordIndex = (wordIndex + 1) % words.length;
-                typeSpeed = 500;
-            }
-
-            setTimeout(type, typeSpeed);
-        }
-
-        type();
+        const user = localStorage.getItem("activeUser") || "RAN";
+        document.getElementById("user-display").innerText = user.toUpperCase();
     </script>
 </body>
 </html>
