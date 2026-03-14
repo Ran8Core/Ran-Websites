@@ -58,20 +58,28 @@
         document.getElementById('hs').innerText = highScore;
 
         function tap() {
-            score++;
-            document.getElementById('score-val').innerText = score;
-            
-            let p = score % 100;
-            if(p === 0 && score !== 0) p = 100;
-            document.getElementById('p-bar').style.width = p + "%";
+    score++;
+    document.getElementById('score-val').innerText = score;
+    
+    // Hitung progress bar (0-100%)
+    let p = score % 100;
+    if(p === 0 && score !== 0) p = 100;
+    document.getElementById('p-bar').style.width = p + "%";
 
-            if(score % 100 === 0) triggerCombo();
-            
-            if(score > highScore) {
-                highScore = score;
-                localStorage.setItem('ran_hs', highScore);
-                document.getElementById('hs').innerText = highScore;
-            }
+    // CEK DISINI: Kalau skor pas kelipatan 100, nyalain animasi
+    if(score % 100 === 0 && score !== 0) {
+        triggerCombo();
+    }
+    
+    // Simpan Highscore
+    if(score > highScore) {
+        highScore = score;
+        localStorage.setItem('ran_hs', highScore);
+        document.getElementById('hs').innerText = highScore;
+    }
+
+    if(score % 20 === 0) updateDB();
+}
 
             // Kirim tiap 20 klik
             if(score % 20 === 0) updateDB();
