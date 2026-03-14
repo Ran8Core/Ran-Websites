@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Clicker V4.2 | Skin Edition</title>
+    <title>Core Clicker V4.3 | Aura & Skin</title>
     <style>
         :root { --main-clr: #007bff; --accent: #1a1a1a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
@@ -17,23 +17,25 @@
         
         #level-tag { font-size: 10px; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; padding: 5px 15px; border-radius: 20px; display: inline-block; background: #1a1a1a; border: 1px solid var(--main-clr); color: var(--main-clr); }
         
-        /* Skin Shop Section */
+        /* Aura Shop Section */
         .shop-box { margin-top: 15px; background: #080808; padding: 15px; border-radius: 15px; border: 1px solid #1a1a1a; }
-        .skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+        .skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px; padding-bottom: 10px; }
         .skin-btn { height: 35px; border-radius: 8px; border: 2px solid #222; cursor: pointer; transition: 0.2s; position: relative; }
-        .skin-btn::after { content: attr(data-price); position: absolute; font-size: 7px; bottom: -12px; left: 0; width: 100%; color: #444; }
+        .skin-btn::after { content: attr(data-price); position: absolute; font-size: 7px; bottom: -14px; left: 0; width: 100%; color: #555; font-weight: bold; }
         .skin-btn:hover { transform: scale(1.1); border-color: #fff; }
 
-        .main-btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: 1px solid var(--main-clr); border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .main-btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: 1px solid var(--main-clr); border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .main-btn:active { transform: scale(0.98); }
         
-        .back-link { display: block; color: #333; font-size: 10px; text-decoration: none; margin-top: 15px; text-transform: uppercase; }
-        #achieve { position: fixed; top: 10%; background: var(--main-clr); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: bold; transform: translateY(-200px); transition: 0.5s; z-index: 100; }
+        .back-link { display: block; color: #333; font-size: 10px; text-decoration: none; margin-top: 20px; letter-spacing: 1px; }
+        .back-link:hover { color: #666; }
+        
+        #achieve { position: fixed; top: 10%; background: var(--main-clr); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: bold; transform: translateY(-200px); transition: 0.5s; z-index: 100; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .show { transform: translateY(0) !important; }
     </style>
 </head>
 <body id="bg">
-    <div id="achieve">SKIN EQUIPPED!</div>
+    <div id="achieve">AURA EQUIPPED!</div>
     <div style="font-size: 10px; color: #555; margin-bottom: 8px; letter-spacing: 2px;">BEST RECORD: <span id="hs">0</span></div>
     <div class="progress-container"><div id="p-bar"></div></div>
 
@@ -44,14 +46,14 @@
         <button class="main-btn" onclick="tap()">Execute Process</button>
 
         <div class="shop-box">
-            <h4 style="font-size: 9px; color: #444; text-transform: uppercase;">Aura Shop</h4>
+            <h4 style="font-size: 9px; color: #444; text-transform: uppercase; margin-bottom: 5px;">Aura Skin Shop</h4>
             <div class="skin-grid">
                 <div class="skin-btn" style="background: #007bff;" data-price="FREE" onclick="setSkin('#007bff')"></div>
                 <div class="skin-btn" style="background: #ff3e3e;" data-price="500" onclick="buySkin('#ff3e3e', 500)"></div>
-                <div class="skin-btn" style="background: #00ff00;" data-price="1,500" onclick="buySkin('#00ff00', 1500)"></div>
-                <div class="skin-btn" style="background: #ff00ff;" data-price="5,000" onclick="buySkin('#ff00ff', 5000)"></div>
-                <div class="skin-btn" style="background: #ffcc00;" data-price="10,000" onclick="buySkin('#ffcc00', 10000)"></div>
-                <div class="skin-btn" style="background: #ffffff;" data-price="25,000" onclick="buySkin('#ffffff', 25000)"></div>
+                <div class="skin-btn" style="background: #00ff00;" data-price="1.5K" onclick="buySkin('#00ff00', 1500)"></div>
+                <div class="skin-btn" style="background: #ff00ff;" data-price="5K" onclick="buySkin('#ff00ff', 5000)"></div>
+                <div class="skin-btn" style="background: #ffcc00;" data-price="10K" onclick="buySkin('#ffcc00', 10000)"></div>
+                <div class="skin-btn" style="background: #ffffff;" data-price="25K" onclick="buySkin('#ffffff', 25000)"></div>
             </div>
         </div>
 
@@ -64,13 +66,20 @@
         let playerName = localStorage.getItem('ran_name');
         let highScore = parseInt(localStorage.getItem('ran_hs')) || 0;
 
-        if (!playerName) { playerName = prompt("Agent Nickname:") || "Agent_" + Math.floor(Math.random()*99); localStorage.setItem('ran_name', playerName); }
+        if (!playerName) { 
+            playerName = prompt("Agent Nickname:") || "Agent_" + Math.floor(Math.random()*99); 
+            localStorage.setItem('ran_name', playerName); 
+        }
 
         function tap() {
             score++;
             updateUI();
+            // Simpan otomatis tiap 50 klik biar ga berat
             if (score % 50 === 0) updateDB();
-            if (score > highScore) { highScore = score; localStorage.setItem('ran_hs', highScore); }
+            if (score > highScore) { 
+                highScore = score; 
+                localStorage.setItem('ran_hs', highScore); 
+            }
         }
 
         function setSkin(color) {
@@ -82,7 +91,11 @@
             if (score >= price) {
                 score -= price;
                 setSkin(color);
-            } else { alert("Score tidak cukup!"); }
+                updateUI();
+                updateDB();
+            } else { 
+                alert("Score tidak cukup untuk aura ini!"); 
+            }
         }
 
         function updateUI() {
@@ -90,7 +103,8 @@
             document.getElementById('hs').innerText = highScore.toLocaleString();
             
             const tag = document.getElementById('level-tag');
-            if (score >= 10000) tag.innerText = "RANK: ETERNAL";
+            if (score >= 100000) tag.innerText = "RANK: UNSTOPPABLE";
+            else if (score >= 10000) tag.innerText = "RANK: ETERNAL";
             else if (score >= 1000) tag.innerText = "RANK: GOD";
             else if (score >= 100) tag.innerText = "RANK: ELITE";
             else tag.innerText = "RANK: ROOKIE";
@@ -99,21 +113,31 @@
         }
 
         function showMsg(m) {
-            const e = document.getElementById('achieve'); e.innerText = m; e.classList.add('show');
+            const e = document.getElementById('achieve'); 
+            e.innerText = m; 
+            e.classList.add('show');
             setTimeout(() => e.classList.remove('show'), 2000);
         }
 
         function updateDB() {
-            fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) });
+            fetch(API_URL, { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) 
+            }).catch(e => console.log("Sync..."));
         }
 
+        // Amankan data tiap 30 detik
         setInterval(getLeaderboard, 30000); 
+
         function getLeaderboard() {
             fetch(API_URL).then(res => res.json()).then(data => {
                 if (Array.isArray(data)) {
                     let pData = data.find(i => i.name === playerName);
-                    if (pData && score < parseInt(pData.score)) { score = parseInt(pData.score); updateUI(); }
+                    if (pData && score < parseInt(pData.score)) { 
+                        score = parseInt(pData.score); 
+                        updateUI(); 
+                    }
                 }
             });
         }
