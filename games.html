@@ -93,17 +93,28 @@
             });
         }
 
-        function getLeaderboard() {
-            fetch(API_URL + "?sort_by=score&sort_order=desc")
-            .then(res => res.json())
-            .then(data => {
-                let html = '';
-                data.slice(0, 3).forEach((p, i) => {
-                    html += `<div class="entry ${i===0?'rank-1':''}"><span>${i+1}. ${p.name}</span><span>${p.score}</span></div>`;
-                });
-                document.getElementById('l-list').innerHTML = html;
+       function getLeaderboard() {
+    // Tambahin timestamp biar dia selalu narik data paling fresh dari Sheets
+    fetch(API_URL + "?sort_by=score&sort_order=desc&t=" + new Date().getTime())
+    .then(res => res.json())
+    .then(data => {
+        if (data.length > 0) {
+            let html = '';
+            data.slice(0, 3).forEach((p, i) => {
+                html += `<div class="entry ${i===0?'rank-1':''}">
+                            <span>${i+1}. ${p.name}</span>
+                            <span>${p.score}</span>
+                         </div>`;
             });
+            document.getElementById('l-list').innerHTML = html;
+        } else {
+            document.getElementById('l-list').innerHTML = "No Players Yet";
         }
+    })
+    .catch(err => {
+        document.getElementById('l-list').innerHTML = "Database Offline";
+    });
+}
 
         getLeaderboard();
         setInterval(getLeaderboard, 30000);
