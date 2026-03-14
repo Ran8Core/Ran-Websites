@@ -70,18 +70,26 @@
     border: 1px solid #333;
 }
 
+/* Wadah dasarnya harus punya lebar yang jelas */
 .progress-bar-bg {
-    background: #222;
+    background: #1a1a1a; /* Warna background bar yang kosong */
+    width: 100%;        /* Pakai 100% biar dia ngikutin lebar kotak hitamnya */
     height: 8px;
     border-radius: 10px;
     margin: 15px 0;
+    overflow: hidden;    /* KUNCI: Biar kalau isinya kepanjangan, otomatis kepotong */
+    position: relative;
 }
 
+/* Bar birunya */
 .progress-fill {
     background: #007bff;
     height: 100%;
     border-radius: 10px;
     box-shadow: 0 0 10px #007bff;
+    /* Jangan kasih margin atau padding di sini biar nggak geser */
+    transition: width 0.5s ease-in-out; 
+}
 }.card {
     background: #121212; /* Warna kotak gelap */
     border: 1px solid #222;
