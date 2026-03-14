@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Clicker V4.9 | Admin Console</title>
+    <title>Core Clicker V5.0 | Final Edition</title>
     <style>
         :root { --main-clr: #007bff; --accent: #1a1a1a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #0b0b0b; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        body { background-color: #0b0b0b; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; user-select: none; }
         
+        /* Click Animation */
+        .click-num { position: absolute; font-weight: 900; color: var(--main-clr); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 100; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+
         .game-card { background: #121212; border: 2px solid #222; padding: 25px; border-radius: 25px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); position: relative; }
-        #score-val { font-size: 4rem; font-weight: 900; margin: 5px 0; cursor: pointer; }
+        #score-val { font-size: 4rem; font-weight: 900; margin: 5px 0; cursor: pointer; color: #fff; text-shadow: 0 0 10px var(--main-clr); }
         #level-tag { font-size: 10px; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; padding: 5px 15px; border-radius: 20px; display: inline-block; background: #1a1a1a; border: 1px solid var(--main-clr); color: var(--main-clr); }
         
-        .main-btn { width: 100%; padding: 20px; background: var(--accent); color: white; border: 1px solid var(--main-clr); border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; }
-        .main-btn:active { transform: scale(0.95); }
+        .main-btn { width: 100%; padding: 20px; background: var(--accent); color: white; border: 1px solid var(--main-clr); border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; transition: 0.1s; }
+        .main-btn:active { transform: scale(0.95); background: var(--main-clr); }
 
         .tab-box { width: 100%; background: #080808; border-radius: 15px; border: 1px solid #1a1a1a; padding: 15px; }
         .tab-nav { display: flex; gap: 5px; margin-bottom: 10px; }
@@ -26,23 +30,21 @@
         .skin-btn.owned::before { content: 'OWNED'; position: absolute; top: -12px; left: 0; width: 100%; font-size: 6px; color: #00ff00; font-weight: bold; }
         
         .entry { display: flex; justify-content: space-between; font-size: 11px; padding: 8px 5px; border-bottom: 1px solid #111; color: #888; align-items: center; }
-        .badge { font-weight: 900; font-size: 9px; margin-right: 5px; padding: 1px 4px; border-radius: 3px; background: #222; }
 
-        /* Hidden Console Styling */
-        #admin-console { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); border: 1px solid #333; padding: 10px; border-radius: 8px; display: none; width: 300px; z-index: 100; }
+        #admin-console { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.95); border: 1px solid #00ff00; padding: 10px; border-radius: 8px; display: none; width: 300px; z-index: 100; box-shadow: 0 0 15px #00ff0055; }
         #console-input { width: 100%; background: transparent; border: none; color: #00ff00; font-family: monospace; outline: none; }
     </style>
 </head>
 <body>
 
     <div id="admin-console">
-        <input type="text" id="console-input" placeholder="Admin Command...">
+        <input type="text" id="console-input" placeholder="root@admin:~#">
     </div>
 
     <div class="game-card">
         <div id="level-tag">RANK: ROOKIE</div>
         <div id="score-val" onclick="toggleConsole()">0</div>
-        <button class="main-btn" onclick="tap()">Execute Process</button>
+        <button class="main-btn" id="clickBtn">Execute Process</button>
 
         <div class="tab-box">
             <div class="tab-nav">
@@ -64,114 +66,104 @@
     </div>
 
     <script>
-    const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
-    
-    // AMBIL DATA DARI PENYIMPANAN LOKAL SAAT REFRESH
-    let score = parseInt(localStorage.getItem('ran_score')) || 0; 
-    let playerName = localStorage.getItem('ran_name') || "Admin_Ran";
-    let ownedSkins = JSON.parse(localStorage.getItem('ran_skins')) || [0];
+        const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
+        let score = parseInt(localStorage.getItem('ran_score')) || 0;
+        let playerName = localStorage.getItem('ran_name') || "Admin_Ran";
+        let ownedSkins = JSON.parse(localStorage.getItem('ran_skins')) || [0];
 
-    function tap() { 
-        score++; 
-        updateUI(); 
-        saveToLocal(); // Simpan setiap kali klik biar aman
-        if(score % 50 === 0) updateDB(); 
-    }
-
-    function saveToLocal() {
-        localStorage.setItem('ran_score', score);
-    }
-
-    function toggleConsole() { 
-        let con = document.getElementById('admin-console');
-        con.style.display = con.style.display === 'block' ? 'none' : 'block';
-        if(con.style.display === 'block') document.getElementById('console-input').focus();
-    }
-
-    document.getElementById('console-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            let cmd = this.value;
-            if(cmd.startsWith('/give ')) {
-                let amt = parseInt(cmd.split(' ')[1]);
-                score += amt; 
-                updateUI(); 
-                saveToLocal();
-                updateDB();
-                alert("Added " + amt + " points!");
-            }
-            this.value = ''; toggleConsole();
-        }
-    });
-
-    function handleSkin(color, price, id) {
-        let idx = parseInt(id.replace('skin-', ''));
-        if(ownedSkins.includes(idx)) { setSkin(color); }
-        else if(score >= price) { 
-            score -= price; 
-            ownedSkins.push(idx); 
-            localStorage.setItem('ran_skins', JSON.stringify(ownedSkins)); 
+        // Click Handler with Animation
+        document.getElementById('clickBtn').addEventListener('click', function(e) {
+            score++;
+            createFloatingText(e.clientX, e.clientY, "+1");
+            updateUI();
             saveToLocal();
-            setSkin(color); 
-            updateUI(); 
-            updateDB(); 
+            if(score % 50 === 0) updateDB();
+        });
+
+        function createFloatingText(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'click-num';
+            el.innerText = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 600);
         }
-    }
 
-    function setSkin(color) { 
-        document.documentElement.style.setProperty('--main-clr', color); 
-        refreshSkinButtons(); 
-    }
+        function saveToLocal() { localStorage.setItem('ran_score', score); }
 
-    function refreshSkinButtons() {
-        ownedSkins.forEach(i => {
-            let b = document.getElementById('skin-' + i);
-            if(b) b.classList.add('owned');
-        });
-    }
+        function toggleConsole() { 
+            let con = document.getElementById('admin-console');
+            con.style.display = con.style.display === 'block' ? 'none' : 'block';
+            if(con.style.display === 'block') document.getElementById('console-input').focus();
+        }
 
-    function showTab(t) {
-        document.getElementById('shop-content').style.display = t === 'shop' ? 'block' : 'none';
-        document.getElementById('leader-content').style.display = t === 'leader' ? 'block' : 'none';
-        document.getElementById('btn-shop').classList.toggle('active', t === 'shop');
-        document.getElementById('btn-leader').classList.toggle('active', t === 'leader');
-    }
-
-    function updateUI() {
-        document.getElementById('score-val').innerText = score.toLocaleString();
-        const tag = document.getElementById('level-tag');
-        if(score >= 100000) tag.innerText = "RANK: UNSTOPPABLE";
-        else if(score >= 10000) tag.innerText = "RANK: ETERNAL";
-        else tag.innerText = "RANK: ROOKIE";
-        refreshSkinButtons();
-    }
-
-    function updateDB() {
-        fetch(API_URL, { 
-            method: 'PUT', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) 
-        });
-    }
-
-    function getLeaderboard() {
-        fetch(API_URL).then(res => res.json()).then(data => {
-            if (Array.isArray(data)) {
-                let filtered = data.filter(i => i.name).sort((a,b) => b.score - a.score);
-                let html = '';
-                filtered.slice(0, 5).forEach((p, i) => {
-                    html += `<div class="entry"><span>${i+1}. ${p.name}</span><span>${parseInt(p.score).toLocaleString()}</span></div>`;
-                });
-                document.getElementById('l-list').innerHTML = html || "No Data";
+        document.getElementById('console-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                let cmd = this.value;
+                if(cmd.startsWith('/give ')) {
+                    let amt = parseInt(cmd.split(' ')[1]);
+                    score += amt; updateUI(); saveToLocal(); updateDB();
+                }
+                this.value = ''; toggleConsole();
             }
         });
-    }
 
-    window.addEventListener('keydown', (e) => { if(e.key === '~') toggleConsole(); });
-    
-    // LOAD PERTAMA KALI
-    updateUI();
-    getLeaderboard();
-    setInterval(getLeaderboard, 15000);
-</script>
+        function handleSkin(color, price, id) {
+            let idx = parseInt(id.replace('skin-', ''));
+            if(ownedSkins.includes(idx)) { setSkin(color); }
+            else if(score >= price) { 
+                score -= price; ownedSkins.push(idx); 
+                localStorage.setItem('ran_skins', JSON.stringify(ownedSkins)); 
+                saveToLocal(); setSkin(color); updateUI(); updateDB(); 
+            }
+        }
+
+        function setSkin(color) { document.documentElement.style.setProperty('--main-clr', color); refreshSkinButtons(); }
+
+        function refreshSkinButtons() {
+            ownedSkins.forEach(i => {
+                let b = document.getElementById('skin-' + i);
+                if(b) b.classList.add('owned');
+            });
+        }
+
+        function showTab(t) {
+            document.getElementById('shop-content').style.display = t === 'shop' ? 'block' : 'none';
+            document.getElementById('leader-content').style.display = t === 'leader' ? 'block' : 'none';
+            document.getElementById('btn-shop').classList.toggle('active', t === 'shop');
+            document.getElementById('btn-leader').classList.toggle('active', t === 'leader');
+        }
+
+        function updateUI() {
+            document.getElementById('score-val').innerText = score.toLocaleString();
+            const tag = document.getElementById('level-tag');
+            if(score >= 100000) tag.innerText = "RANK: UNSTOPPABLE";
+            else if(score >= 10000) tag.innerText = "RANK: ETERNAL";
+            else tag.innerText = "RANK: ROOKIE";
+            refreshSkinButtons();
+        }
+
+        function updateDB() {
+            fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) });
+        }
+
+        function getLeaderboard() {
+            fetch(API_URL).then(res => res.json()).then(data => {
+                if (Array.isArray(data)) {
+                    let filtered = data.filter(i => i.name).sort((a,b) => b.score - a.score);
+                    let html = '';
+                    filtered.slice(0, 5).forEach((p, i) => {
+                        html += `<div class="entry"><span>${i+1}. ${p.name}</span><span>${parseInt(p.score).toLocaleString()}</span></div>`;
+                    });
+                    document.getElementById('l-list').innerHTML = html || "No Data";
+                }
+            });
+        }
+
+        window.addEventListener('keydown', (e) => { if(e.key === '~') toggleConsole(); });
+        updateUI(); getLeaderboard(); setInterval(getLeaderboard, 20000);
+    </script>
 </body>
 </html>
