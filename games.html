@@ -64,72 +64,101 @@
     </div>
 
     <script>
-        // Gunakan API URL SheetDB kamu
-        const API_URL = "https://sheetdb.io/api/v1/tzwnahbmb418g"; 
+        <script>
+    const API_URL = "https://sheetdb.io/api/v1/tzwnahbmb418g"; 
+    
+    let playerName = localStorage.getItem('ran_name') || prompt("Input Participant Name:") || "Guest_" + Math.floor(Math.random()*1000);
+    localStorage.setItem('ran_name', playerName);
+
+    let score = 0;
+    let highScore = localStorage.getItem('ran_hs') || 0;
+    document.getElementById('hs').innerText = highScore;
+
+    function tap() {
+        score++;
+        document.getElementById('score-val').innerText = score;
+
+        // Progress Bar
+        let p = score % 100;
+        if(p === 0 && score !== 0) p = 100;
+        document.getElementById('p-bar').style.width = p + "%";
+
+        // High Score
+        if(score > highScore) {
+            highScore = score;
+            localStorage.setItem('ran_hs', highScore);
+            document.getElementById('hs').innerText = highScore;
+        }
         
-        let playerName = localStorage.getItem('ran_name') || prompt("Input Participant Name:") || "Guest_" + Math.floor(Math.random()*1000);
-        localStorage.setItem('ran_name', playerName);
+        // Simpan ke Sheets tiap 10 klik
+        if(score % 10 === 0) updateDatabase();
 
-        let score = 0;
-        let highScore = localStorage.getItem('ran_hs') || 0;
-        document.getElementById('hs').innerText = highScore;
-
-        // FUNGSI UTAMA (Sangat Penting)
-        function tap() {
-            score++;
-            document.getElementById('score-val').innerText = score;
-
-            // Update Progress Bar
-            let p = score % 100;
-            if(p === 0 && score !== 0) p = 100;
-            document.getElementById('p-bar').style.width = p + "%";
-
-            // High Score
-            if(score > highScore) {
-                highScore = score;
-                localStorage.setItem('ran_hs', highScore);
-                document.getElementById('hs').innerText = highScore;
-            }
-            
-            // Simpan ke Sheets tiap 10 klik
-            if(score % 10 === 0) updateDatabase();
+        // EFEK COMBO (Dipastikan Jalan)
+        if(score % 100 === 0) {
+            triggerCombo();
+        } else if(score % 100 === 1) {
+            document.getElementById('p-bar').classList.remove('progress-full');
         }
+    }
 
-        function updateDatabase() {
-            fetch(API_URL + "/name/" + playerName, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ "score": score })
-            }).then(res => {
-                if(res.status === 404) {
-                    fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ "name": playerName, "score": score })
-                    });
-                }
-            });
-        }
-
-        function fetchLeaderboard() {
-            fetch(API_URL + "?sort_by=score&sort_order=desc")
-            .then(res => res.json())
-            .then(data => {
-                let html = '';
-                data.slice(0, 3).forEach((item, index) => {
-                    html += `<div class="entry ${index === 0 ? 'rank-1' : ''}">
-                                <span>${index+1}. ${item.name}</span>
-                                <span>${item.score}</span>
-                             </div>`;
+    function updateDatabase() {
+        // Cek dulu apakah nama sudah ada atau belum
+        fetch(API_URL + "/search?name=" + playerName)
+        .then(res => res.json())
+        .then(data => {
+            if(data.length > 0) {
+                // Jika ada, gunakan PATCH
+                fetch(API_URL + "/name/" + playerName, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ "score": score })
                 });
-                document.getElementById('l-list').innerHTML = html;
-            }).catch(err => {
-                document.getElementById('l-list').innerHTML = "Check Connection";
-            });
-        }
+            } else {
+                // Jika tidak ada, gunakan POST (Daftar Baru)
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ "name": playerName, "score": score })
+                });
+            }
+        }).catch(err => console.log("Offline update"));
+    }
 
-        fetchLeaderboard();
-        setInterval(fetchLeaderboard, 60000);
+    function triggerCombo() {
+        const bg = document.getElementById('bg');
+        const scoreText = document.getElementById('score-val');
+        const pBar = document.getElementById('p-bar');
+
+        bg.classList.add('shake');
+        pBar.classList.add('progress-full');
+        scoreText.style.color = "#ffcc00";
+        scoreText.style.textShadow = "0 0 30px #ffcc00";
+
+        setTimeout(() => {
+            bg.classList.remove('shake');
+            scoreText.style.color = "white";
+            scoreText.style.textShadow = "none";
+        }, 1000);
+    }
+
+    function fetchLeaderboard() {
+        fetch(API_URL + "?sort_by=score&sort_order=desc")
+        .then(res => res.json())
+        .then(data => {
+            let html = '';
+            data.slice(0, 3).forEach((item, index) => {
+                html += `<div class="entry ${index === 0 ? 'rank-1' : ''}">
+                            <span>${index+1}. ${item.name}</span>
+                            <span>${item.score}</span>
+                         </div>`;
+            });
+            document.getElementById('l-list').innerHTML = html;
+        });
+    }
+
+    fetchLeaderboard();
+    setInterval(fetchLeaderboard, 60000);
+</script>
     </script>
 </body>
 </html>
