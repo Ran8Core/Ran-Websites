@@ -3,33 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Clicker V4.1 | Shop Update</title>
+    <title>Core Clicker V4.2 | Skin Edition</title>
     <style>
+        :root { --main-clr: #007bff; --accent: #1a1a1a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #0b0b0b; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        
         .progress-container { width: 100%; max-width: 400px; background: #1a1a1a; height: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; overflow: hidden; }
-        #p-bar { width: 0%; height: 100%; background: #007bff; }
+        #p-bar { width: 0%; height: 100%; background: var(--main-clr); transition: 0.1s; }
+
         .game-card { background: #121212; border: 2px solid #222; padding: 25px; border-radius: 25px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        #score-val { font-size: 4rem; font-weight: 900; margin: 5px 0; }
-        #level-tag { font-size: 10px; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; padding: 5px 15px; border-radius: 20px; display: inline-block; background: #1a1a1a; }
+        #score-val { font-size: 4rem; font-weight: 900; margin: 5px 0; letter-spacing: -2px; }
         
-        /* Shop Styling */
-        .shop-box { margin-top: 15px; background: #080808; padding: 15px; border-radius: 15px; border: 1px solid #1a1a1a; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .shop-item { background: #151515; border: 1px solid #222; padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
-        .shop-item:hover { border-color: #ffcc00; }
-        .shop-item h4 { font-size: 10px; color: #ffcc00; margin-bottom: 4px; }
-        .shop-item p { font-size: 9px; color: #555; }
+        #level-tag { font-size: 10px; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; padding: 5px 15px; border-radius: 20px; display: inline-block; background: #1a1a1a; border: 1px solid var(--main-clr); color: var(--main-clr); }
         
-        .main-btn { width: 100%; padding: 18px; background: #1a1a1a; color: white; border: 1px solid #333; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
+        /* Skin Shop Section */
+        .shop-box { margin-top: 15px; background: #080808; padding: 15px; border-radius: 15px; border: 1px solid #1a1a1a; }
+        .skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+        .skin-btn { height: 35px; border-radius: 8px; border: 2px solid #222; cursor: pointer; transition: 0.2s; position: relative; }
+        .skin-btn::after { content: attr(data-price); position: absolute; font-size: 7px; bottom: -12px; left: 0; width: 100%; color: #444; }
+        .skin-btn:hover { transform: scale(1.1); border-color: #fff; }
+
+        .main-btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: 1px solid var(--main-clr); border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .main-btn:active { transform: scale(0.98); }
-        .back-link { display: block; color: #333; font-size: 10px; text-decoration: none; margin-top: 15px; }
-        #achieve { position: fixed; top: 10%; background: #ffcc00; color: #000; padding: 10px 20px; border-radius: 8px; font-weight: bold; transform: translateY(-200px); transition: 0.5s; z-index: 100; }
+        
+        .back-link { display: block; color: #333; font-size: 10px; text-decoration: none; margin-top: 15px; text-transform: uppercase; }
+        #achieve { position: fixed; top: 10%; background: var(--main-clr); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: bold; transform: translateY(-200px); transition: 0.5s; z-index: 100; }
         .show { transform: translateY(0) !important; }
     </style>
 </head>
 <body id="bg">
-    <div id="achieve">BOUGHT!</div>
-    <div style="font-size: 10px; color: #555; margin-bottom: 8px;">RECORD: <span id="hs">0</span></div>
+    <div id="achieve">SKIN EQUIPPED!</div>
+    <div style="font-size: 10px; color: #555; margin-bottom: 8px; letter-spacing: 2px;">BEST RECORD: <span id="hs">0</span></div>
     <div class="progress-container"><div id="p-bar"></div></div>
 
     <div class="game-card">
@@ -39,13 +44,14 @@
         <button class="main-btn" onclick="tap()">Execute Process</button>
 
         <div class="shop-box">
-            <div class="shop-item" onclick="buyPower()">
-                <h4>Double Tap</h4>
-                <p>Cost: 5,000</p>
-            </div>
-            <div class="shop-item" onclick="buyAuto()">
-                <h4>Auto-Core</h4>
-                <p>Cost: 10,000</p>
+            <h4 style="font-size: 9px; color: #444; text-transform: uppercase;">Aura Shop</h4>
+            <div class="skin-grid">
+                <div class="skin-btn" style="background: #007bff;" data-price="FREE" onclick="setSkin('#007bff')"></div>
+                <div class="skin-btn" style="background: #ff3e3e;" data-price="500" onclick="buySkin('#ff3e3e', 500)"></div>
+                <div class="skin-btn" style="background: #00ff00;" data-price="1,500" onclick="buySkin('#00ff00', 1500)"></div>
+                <div class="skin-btn" style="background: #ff00ff;" data-price="5,000" onclick="buySkin('#ff00ff', 5000)"></div>
+                <div class="skin-btn" style="background: #ffcc00;" data-price="10,000" onclick="buySkin('#ffcc00', 10000)"></div>
+                <div class="skin-btn" style="background: #ffffff;" data-price="25,000" onclick="buySkin('#ffffff', 25000)"></div>
             </div>
         </div>
 
@@ -55,47 +61,40 @@
     <script>
         const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
         let score = 0;
-        let power = 1;
-        let autoRate = 0;
         let playerName = localStorage.getItem('ran_name');
         let highScore = parseInt(localStorage.getItem('ran_hs')) || 0;
 
-        if (!playerName) { playerName = prompt("Nickname:") || "Agent"; localStorage.setItem('ran_name', playerName); }
+        if (!playerName) { playerName = prompt("Agent Nickname:") || "Agent_" + Math.floor(Math.random()*99); localStorage.setItem('ran_name', playerName); }
 
         function tap() {
-            score += power;
+            score++;
             updateUI();
-            if (score % 100 < power) updateDB();
+            if (score % 50 === 0) updateDB();
             if (score > highScore) { highScore = score; localStorage.setItem('ran_hs', highScore); }
         }
 
-        function buyPower() {
-            if (score >= 5000) {
-                score -= 5000;
-                power += 1;
-                showMsg("POWER UPGRADED!");
-            } else { alert("Not enough score!"); }
+        function setSkin(color) {
+            document.documentElement.style.setProperty('--main-clr', color);
+            showMsg("AURA UPDATED!");
         }
 
-        function buyAuto() {
-            if (score >= 10000) {
-                score -= 10000;
-                autoRate += 1;
-                showMsg("AUTO-CLICKER ACTIVE!");
-            } else { alert("Not enough score!"); }
+        function buySkin(color, price) {
+            if (score >= price) {
+                score -= price;
+                setSkin(color);
+            } else { alert("Score tidak cukup!"); }
         }
-
-        setInterval(() => {
-            if (autoRate > 0) { score += autoRate; updateUI(); }
-        }, 1000);
 
         function updateUI() {
             document.getElementById('score-val').innerText = score.toLocaleString();
             document.getElementById('hs').innerText = highScore.toLocaleString();
+            
             const tag = document.getElementById('level-tag');
             if (score >= 10000) tag.innerText = "RANK: ETERNAL";
             else if (score >= 1000) tag.innerText = "RANK: GOD";
+            else if (score >= 100) tag.innerText = "RANK: ELITE";
             else tag.innerText = "RANK: ROOKIE";
+            
             document.getElementById('p-bar').style.width = (score % 100) + "%";
         }
 
@@ -109,7 +108,17 @@
             body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) });
         }
 
-        setInterval(updateDB, 30000);
+        setInterval(getLeaderboard, 30000); 
+        function getLeaderboard() {
+            fetch(API_URL).then(res => res.json()).then(data => {
+                if (Array.isArray(data)) {
+                    let pData = data.find(i => i.name === playerName);
+                    if (pData && score < parseInt(pData.score)) { score = parseInt(pData.score); updateUI(); }
+                }
+            });
+        }
+
+        getLeaderboard();
         updateUI();
     </script>
 </body>
