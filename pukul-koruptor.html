@@ -1,0 +1,23 @@
+<div class="card" style="margin-top: 30px; max-width: 400px; margin-left: auto; margin-right: auto;">
+    <h3 style="font-size: 14px; color: #888; letter-spacing: 2px;">MINI CHALLENGE</h3>
+    <p style="font-size: 12px; margin: 10px 0;">Kumpulin Skor!</p>
+    
+    <div style="font-size: 2rem; font-weight: bold; color: #007bff; margin: 10px 0;" id="score-val">0</div>
+    
+    <button onclick="mainGame()" style="background: #1a1a1a; color: white; border: 1px solid #333; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.borderColor='#007bff'" onmouseout="this.style.borderColor='#333'">
+        PENCET DISINI!
+    </button>
+</div>
+
+<script>
+    let score = 0;
+    function mainGame() {
+        score++;
+        document.getElementById('score-val').innerText = score;
+        
+        // Efek getar dikit pas dipencet
+        if(score % 10 === 0) {
+            console.log("Checkpoint: " + score);
+        }
+    }
+</script>
