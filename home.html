@@ -128,6 +128,32 @@
     50% { width: 70%; }
     100% { width: 100%; }
 }
+        /* Progress Bar Pelangi (RGB Style) */
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    /* Pakai gradient warna warni */
+    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+    background-size: 200% 100%; /* Biar gradient-nya bisa digeser */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    
+    /* Gabungkan animasi loading (loadAnim) dan animasi warna (rainbow) */
+    animation: 
+        loadAnim 2s forwards, 
+        rainbow 2s linear infinite;
+}
+
+/* Animasi menggeser warna pelangi */
+@keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+/* Animasi mengisi bar-nya (tetap sama) */
+@keyframes loadAnim {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
     </style>
 </head>
 <body>
