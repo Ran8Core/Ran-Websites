@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Station - Ran</title>
+    <title>Core Clicker - Ran 8Core</title>
     <style>
         * {
             margin: 0;
@@ -14,7 +14,7 @@
         body {
             background-color: #0b0b0b;
             color: #ffffff;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,181 +24,184 @@
             transition: background 0.3s;
         }
 
-        /* EFEK SCREEN SHAKE UNTUK KELIPATAN 100 */
+        /* SCREEN SHAKE ANIMATION */
         .ultra-shake {
-            animation: ultra-shake-anim 0.5s infinite;
+            animation: shake-anim 0.1s infinite;
+        }
+        @keyframes shake-anim {
+            0% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, -2px); }
+            100% { transform: translate(0,0); }
         }
 
-        @keyframes ultra-shake-anim {
-            0% { transform: translate(0,0) rotate(0); }
-            25% { transform: translate(5px, 5px) rotate(2deg); }
-            50% { transform: translate(-5px, -5px) rotate(-2deg); }
-            75% { transform: translate(5px, -5px) rotate(2deg); }
-            100% { transform: translate(0,0) rotate(0); }
+        /* PROGRESS BAR CONTAINER */
+        .progress-container {
+            width: 100%;
+            max-width: 400px;
+            background: #1a1a1a;
+            height: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* CONTAINER */
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #007bff;
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+            transition: width 0.1s ease;
+        }
+
+        /* FULL PROGRESS GLOW */
+        .progress-full {
+            background: linear-gradient(90deg, #ff0000, #ffcc00, #00ff00, #007bff, #ff0000);
+            background-size: 200%;
+            animation: rainbow 2s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0%; }
+            100% { background-position: 200%; }
+        }
+
+        /* GAME CARD */
         .game-card {
-            background: rgba(18, 18, 18, 0.9);
+            background: #121212;
             border: 2px solid #222;
             padding: 40px;
             border-radius: 25px;
             text-align: center;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             max-width: 450px;
             width: 90%;
-            z-index: 10;
             position: relative;
         }
 
         h2 {
-            font-size: 12px;
-            color: #007bff;
-            letter-spacing: 5px;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
-        .high-score {
             font-size: 10px;
             color: #555;
-            margin-bottom: 20px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
 
-        /* SCORE DISPLAY */
         #score-val {
-            font-size: 6rem;
-            font-weight: bold;
-            color: #ffffff;
-            margin: 10px 0;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-            transition: 0.1s;
+            font-size: 5.5rem;
+            font-weight: 900;
+            margin: 15px 0;
+            transition: 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         /* BUTTON CLICKER */
-        .click-btn {
-            background: linear-gradient(145deg, #1a1a1a, #111);
+        .main-btn {
+            background: #1a1a1a;
             color: white;
             border: 1px solid #333;
             padding: 20px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             border-radius: 15px;
             cursor: pointer;
             width: 100%;
             transition: 0.2s;
-            box-shadow: 0 5px 0 #000;
+            text-transform: uppercase;
+            box-shadow: 0 6px 0 #000;
         }
 
-        .click-btn:active {
+        .main-btn:active {
             transform: translateY(4px);
-            box-shadow: 0 1px 0 #000;
+            box-shadow: 0 2px 0 #000;
         }
 
-        .click-btn:hover {
+        .main-btn:hover {
             border-color: #007bff;
             color: #007bff;
         }
 
-        /* BACK BUTTON */
+        /* FOOTER & BACK */
         .back-link {
             display: inline-block;
-            margin-top: 30px;
+            margin-top: 25px;
             color: #444;
             text-decoration: none;
-            font-size: 12px;
-            padding: 10px 20px;
-            border: 1px solid transparent;
+            font-size: 11px;
+            padding: 8px 15px;
             border-radius: 20px;
             transition: 0.3s;
         }
 
-        .back-link:hover {
-            color: #fff;
-            border-color: #333;
-        }
+        .back-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
 
-        /* SYSTEM INFO */
-        .footer-info {
+        .system-footer {
             position: fixed;
             bottom: 10px;
             font-family: monospace;
             font-size: 9px;
-            color: #333;
+            color: #222;
         }
     </style>
 </head>
-<body id="game-body">
+<body id="bg">
 
-    <div class="game-card" id="card">
-        <h2>CORE CLICKER</h2>
-        <div class="high-score">BEST RECORD: <span id="high-score-val">0</span></div>
-        
-        <div id="score-val">0</div>
-        
-        <button class="click-btn" id="main-button" onclick="handleTap()">TAP TO PROCESS</button>
-        
-        <a href="home.html" class="back-link">← TERMINATE SESSION</a>
+    <div class="progress-container">
+        <div id="p-bar" class="progress-bar"></div>
     </div>
 
-    <div class="footer-info">
-        CPU_LOAD: STABLE | NODE: RAN_8CORE | VAR: SHENA_SUGGESTION
+    <div class="game-card" id="card">
+        <h2>System Processor</h2>
+        <div id="score-val">0</div>
+        
+        <button class="main-btn" onclick="tap()">Execute Process</button>
+        
+        <a href="home.html" class="back-link">← TERMINATE_SESSION</a>
+    </div>
+
+    <div class="system-footer">
+        STATUS: ONLINE | NODE: RAN_8CORE | VAR: SHENA_GAME_v2
     </div>
 
     <script>
         let score = 0;
-        let highScore = localStorage.getItem('ranHighScore') || 0;
-        document.getElementById('high-score-val').innerText = highScore;
-
         const scoreText = document.getElementById('score-val');
-        const body = document.getElementById('game-body');
-        const card = document.getElementById('card');
+        const pBar = document.getElementById('p-bar');
+        const bg = document.getElementById('bg');
 
-        function handleTap() {
+        function tap() {
             score++;
             scoreText.innerText = score;
 
-            // Update High Score
-            if(score > highScore) {
-                highScore = score;
-                localStorage.setItem('ranHighScore', highScore);
-                document.getElementById('high-score-val').innerText = highScore;
-            }
+            // 1. Progress Bar Logic (0-100)
+            let progress = score % 100;
+            if (progress === 0 && score !== 0) progress = 100;
+            
+            pBar.style.width = progress + "%";
 
-            // EFEK STANDAR (Setiap Klik)
-            scoreText.style.transform = "scale(1.1)";
+            // 2. Click Animation (Scale)
+            scoreText.style.transform = "scale(1.2)";
             setTimeout(() => scoreText.style.transform = "scale(1)", 100);
 
-            // EFEK KELIPATAN 10 (Glow Biru)
-            if(score % 10 === 0 && score % 100 !== 0) {
-                scoreText.style.color = "#007bff";
-                scoreText.style.textShadow = "0 0 30px #007bff";
-                setTimeout(() => {
-                    scoreText.style.color = "#ffffff";
-                    scoreText.style.textShadow = "none";
-                }, 300);
-            }
-
-            // EFEK KELIPATAN 100 (SUPER COMBO)
-            if(score % 100 === 0) {
-                triggerUltraCombo();
+            // 3. Ultra Combo (Kelipatan 100)
+            if (score % 100 === 0) {
+                pBar.classList.add('progress-full');
+                triggerCombo();
+            } else {
+                pBar.classList.remove('progress-full');
             }
         }
 
-        function triggerUltraCombo() {
-            // 1. Warna Emas Berkilau
+        function triggerCombo() {
+            // Layar Getar
+            bg.classList.add('ultra-shake');
             scoreText.style.color = "#ffcc00";
-            scoreText.style.textShadow = "0 0 50px #ffcc00";
-            
-            // 2. Screen Shake
-            body.classList.add('ultra-shake');
-            
-            // 3. Background Flash
-            body.style.background = "#1a1500";
+            scoreText.style.textShadow = "0 0 40px #ffcc00";
+            bg.style.background = "#1a1500";
 
             setTimeout(() => {
-                body.classList.remove('ultra-shake');
-                body.style.background = "#0b0b0b";
+                bg.classList.remove('ultra-shake');
+                bg.style.background = "#0b0b0b";
                 scoreText.style.color = "#ffffff";
                 scoreText.style.textShadow = "none";
             }, 1000);
