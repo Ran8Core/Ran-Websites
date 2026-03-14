@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Games - Ran Admin</title>
+    <title>Arcade Station - Ran</title>
     <style>
-        /* BASE STYLE */
         * {
             margin: 0;
             padding: 0;
@@ -22,170 +21,188 @@
             min-height: 100vh;
             overflow: hidden;
             flex-direction: column;
+            transition: background 0.3s;
         }
 
-        /* CONTAINER CARD */
+        /* EFEK SCREEN SHAKE UNTUK KELIPATAN 100 */
+        .ultra-shake {
+            animation: ultra-shake-anim 0.5s infinite;
+        }
+
+        @keyframes ultra-shake-anim {
+            0% { transform: translate(0,0) rotate(0); }
+            25% { transform: translate(5px, 5px) rotate(2deg); }
+            50% { transform: translate(-5px, -5px) rotate(-2deg); }
+            75% { transform: translate(5px, -5px) rotate(2deg); }
+            100% { transform: translate(0,0) rotate(0); }
+        }
+
+        /* CONTAINER */
         .game-card {
-            background: #121212;
-            border: 1px solid #222;
+            background: rgba(18, 18, 18, 0.9);
+            border: 2px solid #222;
             padding: 40px;
-            border-radius: 20px;
+            border-radius: 25px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 400px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            max-width: 450px;
             width: 90%;
-            transition: 0.3s;
-        }
-
-        .game-card:hover {
-            border-color: #007bff;
+            z-index: 10;
+            position: relative;
         }
 
         h2 {
-            font-size: 14px;
-            color: #888;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
+            font-size: 12px;
+            color: #007bff;
+            letter-spacing: 5px;
+            margin-bottom: 5px;
             text-transform: uppercase;
         }
 
-        .subtitle {
-            font-size: 12px;
+        .high-score {
+            font-size: 10px;
             color: #555;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         /* SCORE DISPLAY */
         #score-val {
-            font-size: 5rem;
+            font-size: 6rem;
             font-weight: bold;
-            color: #007bff;
-            margin: 20px 0;
-            text-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
-            transition: 0.2s;
+            color: #ffffff;
+            margin: 10px 0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            transition: 0.1s;
         }
 
-        /* ANIMASI GETAR */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, 1px) rotate(0deg); }
-        }
-
-        .shake-effect {
-            animation: shake 0.2s;
-        }
-
-        /* BUTTON STYLE */
+        /* BUTTON CLICKER */
         .click-btn {
-            background: #1a1a1a;
+            background: linear-gradient(145deg, #1a1a1a, #111);
             color: white;
             border: 1px solid #333;
-            padding: 15px 30px;
-            font-size: 16px;
+            padding: 20px;
+            font-size: 18px;
             font-weight: bold;
-            border-radius: 12px;
+            border-radius: 15px;
             cursor: pointer;
             width: 100%;
-            transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .click-btn:hover {
-            background: #007bff;
-            border-color: #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 123, 255, 0.6);
-            transform: scale(1.05);
+            transition: 0.2s;
+            box-shadow: 0 5px 0 #000;
         }
 
         .click-btn:active {
-            transform: scale(0.95);
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #000;
+        }
+
+        .click-btn:hover {
+            border-color: #007bff;
+            color: #007bff;
         }
 
         /* BACK BUTTON */
-        .back-btn {
+        .back-link {
+            display: inline-block;
             margin-top: 30px;
-            text-decoration: none;
             color: #444;
-            font-size: 13px;
-            border: 1px solid #222;
-            padding: 8px 20px;
-            border-radius: 30px;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 10px 20px;
+            border: 1px solid transparent;
+            border-radius: 20px;
             transition: 0.3s;
         }
 
-        .back-btn:hover {
+        .back-link:hover {
             color: #fff;
-            border-color: #555;
-            background: rgba(255,255,255,0.05);
+            border-color: #333;
         }
 
-        /* UPTIME DISPLAY */
-        .system-info {
+        /* SYSTEM INFO */
+        .footer-info {
             position: fixed;
-            bottom: 15px;
+            bottom: 10px;
             font-family: monospace;
-            font-size: 10px;
-            color: #00ff00;
-            opacity: 0.5;
+            font-size: 9px;
+            color: #333;
         }
     </style>
 </head>
-<body>
+<body id="game-body">
 
-    <div class="game-card">
-        <h2>Mini Challenge</h2>
-        <p class="subtitle"> Kumpulin Skor!</p>
+    <div class="game-card" id="card">
+        <h2>CORE CLICKER</h2>
+        <div class="high-score">BEST RECORD: <span id="high-score-val">0</span></div>
         
         <div id="score-val">0</div>
         
-        <button class="click-btn" onclick="mainGame()">PENCET DISINI!</button>
+        <button class="click-btn" id="main-button" onclick="handleTap()">TAP TO PROCESS</button>
         
-        <div style="margin-top: 40px;">
-            <a href="home.html" class="back-btn">← Back to Dashboard</a>
-        </div>
+        <a href="home.html" class="back-link">← TERMINATE SESSION</a>
     </div>
 
-    <div class="system-info">
-        System Uptime: <span id="uptime">0</span>s | Latency: 22ms | Auth: ADMIN_RAN
+    <div class="footer-info">
+        CPU_LOAD: STABLE | NODE: RAN_8CORE | VAR: SHENA_SUGGESTION
     </div>
 
     <script>
         let score = 0;
-        let uptime = 0;
+        let highScore = localStorage.getItem('ranHighScore') || 0;
+        document.getElementById('high-score-val').innerText = highScore;
 
-        // FUNGSI UTAMA GAME
-        function mainGame() {
+        const scoreText = document.getElementById('score-val');
+        const body = document.getElementById('game-body');
+        const card = document.getElementById('card');
+
+        function handleTap() {
             score++;
-            const scoreDisplay = document.getElementById('score-val');
-            scoreDisplay.innerText = score;
-            
-            // Tambahkan class shake biar kerasa kliknya
-            scoreDisplay.classList.add('shake-effect');
-            setTimeout(() => {
-                scoreDisplay.classList.remove('shake-effect');
-            }, 200);
+            scoreText.innerText = score;
 
-            // Bonus: Kelipatan 10 ganti warna jadi EMAS (Combo)
-            if(score % 10 === 0) {
-                scoreDisplay.style.color = "#ffcc00";
-                scoreDisplay.style.textShadow = "0 0 30px rgba(255, 204, 0, 0.8)";
+            // Update High Score
+            if(score > highScore) {
+                highScore = score;
+                localStorage.setItem('ranHighScore', highScore);
+                document.getElementById('high-score-val').innerText = highScore;
+            }
+
+            // EFEK STANDAR (Setiap Klik)
+            scoreText.style.transform = "scale(1.1)";
+            setTimeout(() => scoreText.style.transform = "scale(1)", 100);
+
+            // EFEK KELIPATAN 10 (Glow Biru)
+            if(score % 10 === 0 && score % 100 !== 0) {
+                scoreText.style.color = "#007bff";
+                scoreText.style.textShadow = "0 0 30px #007bff";
                 setTimeout(() => {
-                    scoreDisplay.style.color = "#007bff";
-                    scoreDisplay.style.textShadow = "0 0 20px rgba(0, 123, 255, 0.4)";
-                }, 500);
+                    scoreText.style.color = "#ffffff";
+                    scoreText.style.textShadow = "none";
+                }, 300);
+            }
+
+            // EFEK KELIPATAN 100 (SUPER COMBO)
+            if(score % 100 === 0) {
+                triggerUltraCombo();
             }
         }
 
-        // SYSTEM UPTIME COUNTER
-        setInterval(() => {
-            uptime++;
-            document.getElementById('uptime').innerText = uptime;
-        }, 1000);
-    </script>
+        function triggerUltraCombo() {
+            // 1. Warna Emas Berkilau
+            scoreText.style.color = "#ffcc00";
+            scoreText.style.textShadow = "0 0 50px #ffcc00";
+            
+            // 2. Screen Shake
+            body.classList.add('ultra-shake');
+            
+            // 3. Background Flash
+            body.style.background = "#1a1500";
 
+            setTimeout(() => {
+                body.classList.remove('ultra-shake');
+                body.style.background = "#0b0b0b";
+                scoreText.style.color = "#ffffff";
+                scoreText.style.textShadow = "none";
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
