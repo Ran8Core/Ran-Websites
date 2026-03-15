@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAN8CORE - Games</title>
+    <title>RAN8CORE - Games & Shop</title>
     <style>
         :root {
             --main-clr: #00d1ff;
@@ -13,13 +13,13 @@
         body {
             background-color: var(--bg-clr);
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
             margin: 0;
+            user-select: none; /* Biar teks gak ke-highlight pas ditekan lama */
         }
         .container {
             background: var(--card-clr);
@@ -28,7 +28,6 @@
             width: 350px;
             text-align: center;
             border: 1px solid #333;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .rank-tag {
             border: 1px solid #fff;
@@ -37,7 +36,9 @@
             font-size: 10px;
             text-transform: uppercase;
         }
-        h1 { font-size: 60px; margin: 10px 0; }
+        h1 { font-size: 60px; margin: 10px 0; cursor: pointer; transition: 0.3s; }
+        h1:active { color: var(--main-clr); transform: scale(0.98); }
+        
         .btn-click {
             background: none;
             border: 2px solid var(--main-clr);
@@ -48,31 +49,36 @@
             font-weight: bold;
             cursor: pointer;
             margin-bottom: 20px;
-            transition: 0.2s;
         }
-        .btn-click:active { transform: scale(0.95); background: var(--main-clr); }
-        .tabs {
-            display: flex;
-            background: #000;
-            padding: 5px;
-            border-radius: 10px;
-            border: 1px solid #333;
-        }
-        .tab {
-            flex: 1;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 8px;
-            font-size: 14px;
-        }
+        .btn-click:active { transform: scale(0.95); background: var(--main-clr); color: #000; }
+        
+        .tabs { display: flex; background: #000; padding: 5px; border-radius: 10px; border: 1px solid #333; }
+        .tab { flex: 1; padding: 10px; cursor: pointer; border-radius: 8px; font-size: 14px; color: #777; }
         .tab.active { background: #1a1a1a; color: var(--main-clr); border: 1px solid #333; }
-        #rank-content { margin-top: 15px; text-align: left; max-height: 200px; overflow-y: auto; }
-        .rank-item {
+        
+        .list-container { margin-top: 15px; text-align: left; max-height: 250px; overflow-y: auto; }
+        .item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #222;
-            font-size: 14px;
+            align-items: center;
+            padding: 12px;
+            background: #1d1d1d;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #252525;
+        }
+        .item-info { display: flex; flex-direction: column; }
+        .item-name { font-weight: bold; font-size: 14px; }
+        .item-price { color: var(--main-clr); font-size: 12px; }
+        .btn-buy {
+            background: var(--main-clr);
+            border: none;
+            color: black;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -85,30 +91,56 @@
         <button class="btn-click" onclick="addScore()">EXECUTE PROCESS</button>
 
         <div class="tabs">
-            <div id="nav-shop" class="tab" onclick="showTab('shop')">Aura Shop</div>
-            <div id="nav-rank" class="tab active" onclick="showTab('rank')">Rankings</div>
+            <div id="nav-shop" class="tab active" onclick="showTab('shop')">Aura Shop</div>
+            <div id="nav-rank" class="tab" onclick="showTab('rank')">Rankings</div>
         </div>
 
-        <div id="shop-content" style="display:none;">
-            <p style="margin-top:20px; color:#777;">Coming Soon...</p>
+        <div id="shop-content" class="list-container">
+            <div class="item">
+                <div class="item-info">
+                    <span class="item-name">Blue Aura</span>
+                    <span class="item-price">Cost: 1,000</span>
+                </div>
+                <button class="btn-buy" onclick="buyAura('Blue', 1000)">BUY</button>
+            </div>
+            <div class="item">
+                <div class="item-info">
+                    <span class="item-name">Void Aura</span>
+                    <span class="item-price">Cost: 5,000</span>
+                </div>
+                <button class="btn-buy" onclick="buyAura('Void', 5000)">BUY</button>
+            </div>
         </div>
 
-        <div id="rank-content">
+        <div id="rank-content" class="list-container" style="display:none;">
             Syncing...
         </div>
     </div>
 
     <script>
-        // CONFIG - Pastiin Sheet1 sesuai nama tab di Google Sheets lo!
         const API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
         let score = 345;
         let myName = "Admin_Ran";
 
         function addScore() {
             score++;
-            document.getElementById('display-score').innerText = score;
-            // Tiap 10 klik otomatis sync biar nggak berat
+            updateUI();
             if(score % 10 === 0) sync();
+        }
+
+        function updateUI() {
+            document.getElementById('display-score').innerText = score;
+        }
+
+        function buyAura(name, price) {
+            if(score >= price) {
+                score -= price;
+                updateUI();
+                sync();
+                alert("Purchased " + name + " Aura!");
+            } else {
+                alert("Not enough CorePoints!");
+            }
         }
 
         async function sync() {
@@ -116,12 +148,8 @@
                 await fetch(API, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        condition: { name: myName }, 
-                        set: { score: score } 
-                    })
+                    body: JSON.stringify({ condition: { name: myName }, set: { score: score } })
                 });
-                console.log("Data synced!");
             } catch (e) { console.error("Sync Error"); }
         }
 
@@ -130,22 +158,16 @@
             try {
                 const response = await fetch(API);
                 const data = await response.json();
-                
-                // Urutin dari skor paling dewa
                 data.sort((a, b) => (b.score || 0) - (a.score || 0));
-
                 let html = "";
                 data.forEach((user, index) => {
-                    html += `
-                        <div class="rank-item">
-                            <span>#${index + 1} ${user.name}</span>
-                            <span style="color:var(--main-clr)">${Number(user.score).toLocaleString()}</span>
-                        </div>`;
+                    html += `<div class="item" style="background:none; border-bottom:1px solid #222;">
+                                <span>#${index + 1} ${user.name}</span>
+                                <span style="color:var(--main-clr)">${Number(user.score).toLocaleString()}</span>
+                             </div>`;
                 });
-                rankDiv.innerHTML = html || "No data available";
-            } catch (e) {
-                rankDiv.innerHTML = "Failed to sync rankings.";
-            }
+                rankDiv.innerHTML = html || "No data";
+            } catch (e) { rankDiv.innerHTML = "Error loading."; }
         }
 
         function showTab(t) {
@@ -153,23 +175,5 @@
             const rank = document.getElementById('rank-content');
             const nShop = document.getElementById('nav-shop');
             const nRank = document.getElementById('nav-rank');
-
             if(t === 'rank') {
-                shop.style.display = 'none';
-                rank.style.display = 'block';
-                nRank.classList.add('active');
-                nShop.classList.remove('active');
-                loadRankings();
-            } else {
-                shop.style.display = 'block';
-                rank.style.display = 'none';
-                nShop.classList.add('active');
-                nRank.classList.remove('active');
-            }
-        }
-
-        // Jalankan saat pertama kali buka
-        window.onload = loadRankings;
-    </script>
-</body>
-</html>
+                shop
