@@ -3,237 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Clicker V6.5 | Navigation Edition</title>
+    <title>About Me | RAN8CORE</title>
     <style>
-        :root { --main-clr: #007bff; --bg-glow: rgba(0, 123, 255, 0.15); }
+        :root { --main-clr: #007bff; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { 
             background-color: #050505; 
-            background-image: radial-gradient(circle at center, var(--bg-glow) 0%, #050505 70%);
             color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; overflow: hidden; transition: 0.8s ease;
+            min-height: 100vh; overflow: hidden;
         }
 
-        /* TOMBOL BACK BARU */
         .back-nav {
-            position: fixed; top: 20px; left: 20px; z-index: 100;
-            text-decoration: none; color: #555; font-size: 12px; font-weight: 900;
-            display: flex; align-items: center; gap: 8px; transition: 0.3s;
-            border: 1px solid #222; padding: 8px 15px; border-radius: 10px;
-            background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
+            position: fixed; top: 20px; left: 20px; text-decoration: none; color: #555; 
+            font-size: 12px; font-weight: 900; border: 1px solid #222; padding: 8px 15px; 
+            border-radius: 10px; transition: 0.3s;
         }
         .back-nav:hover { color: var(--main-clr); border-color: var(--main-clr); box-shadow: 0 0 15px var(--main-clr); }
 
-        #milestone-pop {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            background: rgba(0,0,0,0.95); border: 3px solid var(--main-clr); padding: 40px;
-            border-radius: 30px; text-align: center; z-index: 1000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 60px var(--main-clr); min-width: 320px;
-        }
-        #milestone-pop.active { transform: translate(-50%, -50%) scale(1); }
-
-        .game-card { 
-            background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(15px); 
-            border: 2px solid #222; padding: 25px; border-radius: 25px; 
-            text-align: center; width: 100%; max-width: 450px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8); position: relative; z-index: 5; 
+        .profile-card {
+            background: rgba(18, 18, 18, 0.8); border: 1px solid #222; 
+            padding: 40px; border-radius: 25px; text-align: center; width: 90%; max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        #score-val { font-size: 4rem; font-weight: 900; margin: 10px 0; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-        .main-btn { width: 100%; padding: 20px; background: #1a1a1a; color: white; border: 1px solid var(--main-clr); border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; transition: 0.2s; }
-        .main-btn:active { transform: scale(0.98); background: var(--main-clr); }
-
-        .tab-box { width: 100%; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; border: 1px solid #333; }
-        .tab-nav { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 10px; font-size: 11px; background: #151515; color: #555; border: 1px solid #333; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.3s; }
-        .tab-btn.active { border-color: var(--main-clr); color: var(--main-clr); background: rgba(0, 123, 255, 0.1); }
-
-        .skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .skin-btn { height: 45px; border-radius: 10px; border: 2px solid #333; cursor: pointer; position: relative; transition: 0.3s; }
-        .skin-btn.owned { border-color: #00ff00; }
-        .skin-btn.owned::after { content: 'OWNED'; position: absolute; bottom: -15px; left: 0; width: 100%; font-size: 7px; color: #00ff00; font-weight: 900; text-align: center; }
-
-        .leader-entry { display: flex; justify-content: space-between; font-size: 12px; padding: 10px 5px; border-bottom: 1px solid #1a1a1a; color: #aaa; }
-
-        #admin-console { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.95); border: 1px solid #00ff00; padding: 12px; border-radius: 10px; display: none; width: 350px; z-index: 100; box-shadow: 0 0 20px #00ff00; }
-        #console-input { width: 100%; background: transparent; border: none; color: #00ff00; font-family: monospace; outline: none; font-size: 14px; }
+        h1 { font-size: 1.5rem; letter-spacing: 5px; margin-bottom: 20px; color: var(--main-clr); }
+        p { color: #888; line-height: 1.6; font-size: 14px; margin-bottom: 25px; }
         
-        #level-tag { transition: 0.5s; text-shadow: 0 0 5px currentColor; margin-bottom: 15px; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 900; font-size: 10px; border: 1px solid; }
+        .motto {
+            font-style: italic; color: #fff; font-weight: 300; border-left: 2px solid var(--main-clr);
+            padding-left: 15px; margin: 20px 0; text-align: left;
+        }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; margin-top: 30px;
+        }
+        .stat-item { background: #111; padding: 15px; border-radius: 12px; border: 1px solid #222; }
+        .stat-label { font-size: 10px; color: #555; text-transform: uppercase; font-weight: 900; }
+        .stat-val { font-size: 13px; color: #ccc; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="back-nav">
-        <span>←</span> BACK TO HOME
-    </a>
+    <a href="index.html" class="back-nav">← BACK</a>
 
-    <div id="milestone-pop">
-        <h2 style="color: var(--main-clr); margin-bottom: 10px;">ACHIEVEMENT UNLOCKED</h2>
-        <h1 id="m-text" style="font-size: 3rem;">0</h1>
-        <p style="font-size: 11px; color: #555; margin-top: 20px;">TAP TO CONTINUE</p>
-    </div>
-
-    <div id="admin-console"><input type="text" id="console-input" placeholder="root@admin:~#"></div>
-
-    <div class="game-card">
-        <div id="level-tag">RANK: ROOKIE</div>
-        <div id="score-val" onclick="toggleConsole()">0</div>
-        <button class="main-btn" onclick="tap()">Execute Process</button>
+    <div class="profile-card">
+        <h1>ABOUT ME</h1>
         
-        <div class="tab-box">
-            <div class="tab-nav">
-                <button id="nav-shop" onclick="showTab('shop')" class="tab-btn active">Aura Shop</button>
-                <button id="nav-rank" onclick="showTab('rank')" class="tab-btn">Rankings</button>
-            </div>
+        <p>A software development student and a long-term sandbox enthusiast. Focused on building systems and mastering mechanics in silence.</p>
 
-            <div id="shop-content">
-                <div class="skin-grid">
-                    <div id="skin-0" class="skin-btn" style="background:#007bff;" onclick="handleSkin('#007bff', 0, 0)"></div>
-                    <div id="skin-1" class="skin-btn" style="background:#ff3e3e;" onclick="handleSkin('#ff3e3e', 500, 1)"></div>
-                    <div id="skin-2" class="skin-btn" style="background:#00ff00;" onclick="handleSkin('#00ff00', 1500, 2)"></div>
-                    <div id="skin-3" class="skin-btn" style="background:#ff00ff;" onclick="handleSkin('#ff00ff', 5000, 3)"></div>
-                    <div id="skin-4" class="skin-btn" style="background:#ffcc00;" onclick="handleSkin('#ffcc00', 10000, 4)"></div>
-                    <div id="skin-5" class="skin-btn" style="background:#ffffff;" onclick="handleSkin('#ffffff', 25000, 5)"></div>
-                </div>
-            </div>
+        <div class="motto">
+            "In silence, let the results speak."
+        </div>
 
-            <div id="rank-content" style="display: none;">
-                <div id="leader-list">Syncing Database...</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">Main Field</div>
+                <div class="stat-val">PPLG (Software Dev)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Experience</div>
+                <div class="stat-val">Minecraft Anarchy (2018)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Focus</div>
+                <div class="stat-val">JavaScript & Game Logic</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Currently</div>
+                <div class="stat-val">Learning Daily English</div>
             </div>
         </div>
     </div>
 
-    <script>
-        const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
-        const sfxTap = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-        const sfxUnlock = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
-        sfxTap.volume = 0.3;
-
-        let score = parseInt(localStorage.getItem('ran_score')) || 0;
-        let playerName = "Admin_Ran"; 
-        let ownedSkins = JSON.parse(localStorage.getItem('ran_skins')) || [0];
-        let reached = JSON.parse(localStorage.getItem('ran_achieved')) || [];
-
-        function tap() {
-            score++;
-            sfxTap.currentTime = 0; sfxTap.play();
-            checkMilestone(); updateUI(); saveToLocal();
-            if(score % 50 === 0) updateDB();
-        }
-
-        function checkMilestone() {
-            const targets = [{val:999,label:"999"},{val:1000,label:"1k"},{val:1000000,label:"1M"},{val:1000000000,label:"1B"}];
-            targets.forEach(t => {
-                if (score >= t.val && !reached.includes(t.val)) {
-                    reached.push(t.val);
-                    localStorage.setItem('ran_achieved', JSON.stringify(reached));
-                    showMilestone(t.label);
-                }
-            });
-        }
-
-        function showMilestone(text) {
-            sfxUnlock.play();
-            document.getElementById('m-text').innerText = text;
-            const pop = document.getElementById('milestone-pop');
-            pop.classList.add('active');
-            pop.onclick = () => pop.classList.remove('active');
-        }
-
-        function showTab(t) {
-            document.getElementById('shop-content').style.display = t === 'shop' ? 'block' : 'none';
-            document.getElementById('rank-content').style.display = t === 'rank' ? 'block' : 'none';
-            document.getElementById('nav-shop').classList.toggle('active', t === 'shop');
-            document.getElementById('nav-rank').classList.toggle('active', t === 'rank');
-            if(t === 'rank') getLeaderboard();
-        }
-
-        function handleSkin(color, price, idx) {
-            if(ownedSkins.includes(idx)) { setSkin(color); }
-            else if(score >= price) { 
-                score -= price; ownedSkins.push(idx); 
-                localStorage.setItem('ran_skins', JSON.stringify(ownedSkins)); 
-                setSkin(color); saveToLocal(); updateUI(); updateDB(); 
-            }
-        }
-
-        function setSkin(color) { 
-            document.documentElement.style.setProperty('--main-clr', color); 
-            let rgba = color === '#ffffff' ? 'rgba(255,255,255,0.1)' : color + "26";
-            document.documentElement.style.setProperty('--bg-glow', rgba);
-            updateUI(); 
-        }
-
-        function toggleConsole() { 
-            let con = document.getElementById('admin-console');
-            con.style.display = con.style.display === 'block' ? 'none' : 'block';
-            if(con.style.display === 'block') document.getElementById('console-input').focus();
-        }
-
-        document.getElementById('console-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                let cmd = this.value; let parts = cmd.split(' ');
-                if(cmd.startsWith('/give ')) { score += parseInt(parts[1]); updateUI(); saveToLocal(); updateDB(); } 
-                else if(cmd.startsWith('/setpoint ')) {
-                    let target = parts[1]; let amt = parseInt(parts[2]);
-                    if(target && !isNaN(amt)) {
-                        fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify({ condition: { name: target }, set: { score: amt } }) 
-                        }).then(() => { if(target === playerName) { score = amt; saveToLocal(); updateUI(); } getLeaderboard(); });
-                    }
-                }
-                this.value = ''; toggleConsole();
-            }
-        });
-
-        function updateUI() {
-            const scoreDisp = document.getElementById('score-val');
-            scoreDisp.innerText = score.toLocaleString();
-            if(score >= 1000000000000) scoreDisp.style.fontSize = "2.2rem";
-            else if(score >= 1000000000) scoreDisp.style.fontSize = "2.8rem";
-            else scoreDisp.style.fontSize = "4rem";
-
-            const tag = document.getElementById('level-tag');
-            tag.style.boxShadow = "none";
-            
-            if (score >= 1000000000000) { 
-                tag.innerText = "RANK: CORE SYSTEM OVERLORD"; tag.style.color = "#ffffff"; 
-                tag.style.boxShadow = "0 0 20px #ffffff, 0 0 40px #00ffff";
-                scoreDisp.style.textShadow = "0 0 20px #00ffff";
-            } else if (score >= 999999000) { 
-                tag.innerText = "RANK: THE CORE"; tag.style.color = "#ff0000"; 
-                tag.style.boxShadow = "0 0 15px #ff0000";
-                scoreDisp.style.textShadow = "0 0 20px #ff0000";
-            } else if (score >= 1000000) { 
-                tag.innerText = "RANK: UNSTOPPABLE"; tag.style.color = "#ffcc00"; 
-                scoreDisp.style.textShadow = "0 0 15px #ffcc00";
-            } else { 
-                tag.innerText = "RANK: ROOKIE"; tag.style.color = "#ffffff"; 
-                scoreDisp.style.textShadow = "0 0 10px var(--main-clr)";
-            }
-
-            ownedSkins.forEach(i => {
-                let b = document.getElementById('skin-' + i);
-                if(b) b.classList.add('owned');
-            });
-        }
-
-        function saveToLocal() { localStorage.setItem('ran_score', score); }
-        function updateDB() {
-            fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) });
-        }
-        function getLeaderboard() {
-            fetch(API_URL).then(res => res.json()).then(data => {
-                if(Array.isArray(data)) {
-                    let html = data.filter(p => p.name).sort((a,b) => b.score - a.score).slice(0, 5)
-                        .map((p, i) => `<div class="leader-entry"><span>${i+1}. ${p.name}</span><span>${parseInt(p.score).toLocaleString()}</span></div>`).join('');
-                    document.getElementById('leader-list').innerHTML = html;
-                }
-            });
-        }
-
-        updateUI(); setInterval(getLeaderboard, 30000);
-    </script>
 </body>
 </html>
