@@ -31,4 +31,207 @@
         }
 
         #score-val { font-size: 4rem; font-weight: 900; margin: 5px 0; cursor: pointer; text-shadow: 0 0 20px var(--main-clr); }
-        .main-btn { width: 100%; padding: 20px; background: #1a1a1a; color: white; border: 1px solid var(--main-clr); border-radius: 15px;
+        .main-btn { width: 100%; padding: 20px; background: #1a1a1a; color: white; border: 1px solid var(--main-clr); border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; }
+        .main-btn:active { transform: scale(0.98); background: var(--main-clr); }
+
+        /* Tabs System */
+        .tab-box { width: 100%; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; border: 1px solid #222; }
+        .tab-nav { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 8px; font-size: 10px; background: #151515; color: #555; border: 1px solid #333; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-weight: bold; }
+        .tab-btn.active { border-color: var(--main-clr); color: var(--main-clr); background: rgba(0, 123, 255, 0.05); }
+
+        .skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .skin-btn { height: 35px; border-radius: 8px; border: 2px solid #333; cursor: pointer; position: relative; }
+        .skin-btn.owned::before { content: 'OWNED'; position: absolute; top: -12px; left: 0; width: 100%; font-size: 6px; color: #00ff00; font-weight: 900; }
+
+        .leader-entry { display: flex; justify-content: space-between; font-size: 11px; padding: 8px 5px; border-bottom: 1px solid #1a1a1a; color: #aaa; }
+
+        #admin-console { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); border: 1px solid #00ff00; padding: 12px; border-radius: 10px; display: none; width: 320px; z-index: 100; }
+        #console-input { width: 100%; background: transparent; border: none; color: #00ff00; font-family: monospace; outline: none; }
+    </style>
+</head>
+<body>
+
+    <div id="milestone-pop">
+        <h2 style="color: var(--main-clr); margin-bottom: 10px;">ACHIEVEMENT UNLOCKED</h2>
+        <h1 id="m-text" style="font-size: 3rem;">0</h1>
+        <p style="font-size: 11px; color: #555; margin-top: 20px;">TAP TO CONTINUE</p>
+    </div>
+
+    <div id="admin-console"><input type="text" id="console-input" placeholder="root@admin:~#"></div>
+
+    <div class="game-card">
+        <div id="level-tag" style="font-size: 9px; border: 1px solid var(--main-clr); padding: 5px 15px; border-radius: 20px; color: var(--main-clr); margin-bottom: 15px; display: inline-block; font-weight: 900;">RANK: ROOKIE</div>
+        <div id="score-val" onclick="toggleConsole()">0</div>
+        <button class="main-btn" onclick="tap()">Execute Process</button>
+        
+        <div class="tab-box">
+            <div class="tab-nav">
+                <button id="nav-shop" onclick="showTab('shop')" class="tab-btn active">Aura Shop</button>
+                <button id="nav-rank" onclick="showTab('rank')" class="tab-btn">Rankings</button>
+            </div>
+
+            <div id="shop-content">
+                <div class="skin-grid">
+                    <div id="skin-0" class="skin-btn owned" style="background:#007bff;" onclick="handleSkin('#007bff', 0, 'skin-0')"></div>
+                    <div id="skin-1" class="skin-btn" style="background:#ff3e3e;" onclick="handleSkin('#ff3e3e', 500, 'skin-1')"></div>
+                    <div id="skin-2" class="skin-btn" style="background:#00ff00;" onclick="handleSkin('#00ff00', 1500, 'skin-2')"></div>
+                    <div id="skin-3" class="skin-btn" style="background:#ff00ff;" onclick="handleSkin('#ff00ff', 5000, 'skin-3')"></div>
+                    <div id="skin-4" class="skin-btn" style="background:#ffcc00;" onclick="handleSkin('#ffcc00', 10000, 'skin-4')"></div>
+                    <div id="skin-5" class="skin-btn" style="background:#ffffff;" onclick="handleSkin('#ffffff', 25000, 'skin-5')"></div>
+                </div>
+            </div>
+
+            <div id="rank-content" style="display: none;">
+                <div id="leader-list">Syncing...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
+        const sfxTap = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+        const sfxUnlock = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+        sfxTap.volume = 0.3;
+
+        // DATA INITIALIZATION
+        let score = parseInt(localStorage.getItem('ran_score')) || 0;
+        let playerName = "Admin_Ran"; 
+        let ownedSkins = JSON.parse(localStorage.getItem('ran_skins')) || [0];
+        let reached = JSON.parse(localStorage.getItem('ran_achieved')) || [];
+
+        // KOREKSI TARGET V5.9
+        const targets = [
+            {val: 999, label: "999"}, {val: 1000, label: "1,000"},
+            {val: 9999, label: "9,999"}, {val: 10000, label: "10,000"},
+            {val: 99999, label: "99,999"}, {val: 100000, label: "100,000"},
+            {val: 999999, label: "999,999"}, {val: 1000000, label: "1,000,000"},
+            {val: 9999000, label: "9,999k"}, {val: 999999000, label: "999,999k"}
+        ];
+
+        function tap() {
+            score++;
+            sfxTap.currentTime = 0; sfxTap.play();
+            checkMilestone();
+            updateUI();
+            saveToLocal();
+            if(score % 50 === 0) updateDB();
+        }
+
+        function checkMilestone() {
+            targets.forEach(t => {
+                if (score >= t.val && !reached.includes(t.val)) {
+                    reached.push(t.val);
+                    localStorage.setItem('ran_achieved', JSON.stringify(reached));
+                    showMilestone(t.label);
+                }
+            });
+        }
+
+        function showMilestone(text) {
+            sfxUnlock.play();
+            document.getElementById('m-text').innerText = text;
+            const pop = document.getElementById('milestone-pop');
+            pop.classList.add('active');
+            pop.onclick = () => pop.classList.remove('active');
+        }
+
+        function showTab(t) {
+            document.getElementById('shop-content').style.display = t === 'shop' ? 'block' : 'none';
+            document.getElementById('rank-content').style.display = t === 'rank' ? 'block' : 'none';
+            document.getElementById('nav-shop').classList.toggle('active', t === 'shop');
+            document.getElementById('nav-rank').classList.toggle('active', t === 'rank');
+            if(t === 'rank') getLeaderboard();
+        }
+
+        function handleSkin(color, price, id) {
+            let idx = parseInt(id.replace('skin-', ''));
+            if(ownedSkins.includes(idx)) { setSkin(color); }
+            else if(score >= price) { 
+                score -= price; ownedSkins.push(idx); 
+                localStorage.setItem('ran_skins', JSON.stringify(ownedSkins)); 
+                setSkin(color); saveToLocal(); updateUI(); updateDB(); 
+            }
+        }
+
+        function setSkin(color) { 
+            document.documentElement.style.setProperty('--main-clr', color); 
+            let rgba = color.replace('rgb', 'rgba').replace(')', ', 0.15)');
+            if(!color.startsWith('rgb')) rgba = color === '#ffffff' ? 'rgba(255,255,255,0.1)' : color + '26';
+            document.documentElement.style.setProperty('--bg-glow', rgba);
+            refreshSkinButtons(); 
+        }
+
+        function toggleConsole() { 
+            let con = document.getElementById('admin-console');
+            con.style.display = con.style.display === 'block' ? 'none' : 'block';
+            if(con.style.display === 'block') document.getElementById('console-input').focus();
+        }
+
+        // --- COMMAND SYSTEM V5.9 ---
+        document.getElementById('console-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                let cmd = this.value;
+                let parts = cmd.split(' ');
+
+                if(cmd.startsWith('/give ')) {
+                    score += parseInt(parts[1]); 
+                    updateUI(); saveToLocal(); updateDB(); checkMilestone();
+                } 
+                else if(cmd.startsWith('/setpoint ')) {
+                    let target = parts[1];
+                    let amt = parseInt(parts[2]);
+                    if(target && !isNaN(amt)) {
+                        fetch(API_URL, { 
+                            method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
+                            body: JSON.stringify({ condition: { name: target }, set: { score: amt } }) 
+                        }).then(() => { alert("Set Point Success!"); getLeaderboard(); });
+                    }
+                }
+                this.value = ''; toggleConsole();
+            }
+        });
+
+        function getLeaderboard() {
+            fetch(API_URL).then(res => res.json()).then(data => {
+                if(Array.isArray(data)) {
+                    let sorted = data.filter(p => p.name).sort((a,b) => b.score - a.score);
+                    let html = '';
+                    sorted.slice(0, 5).forEach((p, i) => {
+                        html += `<div class="leader-entry"><span>${i+1}. ${p.name}</span><span>${parseInt(p.score).toLocaleString()}</span></div>`;
+                    });
+                    document.getElementById('leader-list').innerHTML = html;
+                }
+            });
+        }
+
+        function saveToLocal() { localStorage.setItem('ran_score', score); }
+
+        function updateUI() {
+            document.getElementById('score-val').innerText = score.toLocaleString();
+            const tag = document.getElementById('level-tag');
+            if (score >= 1000000) tag.innerText = "RANK: UNSTOPPABLE";
+            else if (score >= 10000) tag.innerText = "RANK: ETERNAL";
+            else if (score >= 1000) tag.innerText = "RANK: GOD";
+            else tag.innerText = "RANK: ROOKIE";
+            refreshSkinButtons();
+        }
+
+        function refreshSkinButtons() {
+            ownedSkins.forEach(i => {
+                let b = document.getElementById('skin-' + i);
+                if(b) b.classList.add('owned');
+            });
+        }
+
+        function updateDB() {
+            fetch(API_URL, { 
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) 
+            });
+        }
+
+        updateUI(); setInterval(getLeaderboard, 30000); // Sinkronisasi otomatis setiap 30 detik
+    </script>
+</body>
+</html>
