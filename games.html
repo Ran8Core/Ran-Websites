@@ -3,139 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Engine | RAN8CORE</title>
+    <title>RAN8CORE - Games</title>
     <style>
-        :root { --main-clr: #007bff; --bg-glow: rgba(0, 123, 255, 0.15); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { 
-            background-color: #050505; 
-            background-image: radial-gradient(circle at center, var(--bg-glow) 0%, #050505 70%);
-            color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; overflow: hidden;
+        :root {
+            --main-clr: #00d1ff;
+            --bg-clr: #0a0a0a;
+            --card-clr: #161616;
         }
-
-        .back-nav {
-            position: fixed; top: 20px; left: 20px; text-decoration: none; color: #555; 
-            font-size: 11px; font-weight: 900; border: 1px solid #222; padding: 8px 15px; 
-            border-radius: 10px; background: rgba(0,0,0,0.3); transition: 0.3s;
+        body {
+            background-color: var(--bg-clr);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
         }
-        .back-nav:hover { color: var(--main-clr); border-color: var(--main-clr); box-shadow: 0 0 15px var(--main-clr); }
-
-        .game-card { 
-            background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(15px); 
-            border: 2px solid #222; padding: 25px; border-radius: 25px; 
-            text-align: center; width: 100%; max-width: 450px; position: relative;
+        .container {
+            background: var(--card-clr);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 350px;
+            text-align: center;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
-        #score-val { font-size: 4rem; font-weight: 900; margin: 10px 0; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-        .main-btn { width: 100%; padding: 20px; background: #1a1a1a; color: white; border: 1px solid var(--main-clr); border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; }
-        .main-btn:active { transform: scale(0.98); background: var(--main-clr); }
-
-        .tab-box { width: 100%; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; border: 1px solid #333; }
-        .tab-nav { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 10px; font-size: 11px; background: #151515; color: #555; border: 1px solid #333; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .tab-btn.active { border-color: var(--main-clr); color: var(--main-clr); }
-
-        .skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .skin-btn { height: 45px; border-radius: 10px; border: 2px solid #333; cursor: pointer; position: relative; }
-        .skin-btn.owned::after { content: 'OWN'; position: absolute; bottom: -12px; left: 0; width: 100%; font-size: 7px; color: #00ff00; text-align: center; font-weight: 900; }
-
-        #level-tag { transition: 0.5s; margin-bottom: 15px; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 900; font-size: 10px; border: 1px solid; }
-        
-        #admin-console { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #000; border: 1px solid #00ff00; padding: 10px; display: none; width: 300px; }
-        #console-input { width: 100%; background: transparent; border: none; color: #00ff00; font-family: monospace; outline: none; }
+        .rank-tag {
+            border: 1px solid #fff;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+        h1 { font-size: 60px; margin: 10px 0; }
+        .btn-click {
+            background: none;
+            border: 2px solid var(--main-clr);
+            color: white;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: 0.2s;
+        }
+        .btn-click:active { transform: scale(0.95); background: var(--main-clr); }
+        .tabs {
+            display: flex;
+            background: #000;
+            padding: 5px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .tab.active { background: #1a1a1a; color: var(--main-clr); border: 1px solid #333; }
+        #rank-content { margin-top: 15px; text-align: left; max-height: 200px; overflow-y: auto; }
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #222;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
-    <a href="home.html" class="back-nav">← EXIT TO HOME</a>
+    <div class="container">
+        <span class="rank-tag">Rank: Rookie</span>
+        <h1 id="display-score">345</h1>
 
-    <div id="admin-console"><input type="text" id="console-input" placeholder="root@admin:~#"></div>
+        <button class="btn-click" onclick="addScore()">EXECUTE PROCESS</button>
 
-    <div class="game-card">
-        <div id="level-tag">RANK: ROOKIE</div>
-        <div id="score-val" onclick="toggleConsole()">0</div>
-        <button class="main-btn" onclick="tap()">Execute Process</button>
-        
-        <div class="tab-box">
-            <div class="tab-nav">
-                <button id="nav-shop" onclick="showTab('shop')" class="tab-btn active">Aura Shop</button>
-                <button id="nav-rank" onclick="showTab('rank')" class="tab-btn">Rankings</button>
-            </div>
-            <div id="shop-content">
-                <div class="skin-grid">
-                    <div id="skin-0" class="skin-btn" style="background:#007bff;" onclick="handleSkin('#007bff', 0, 0)"></div>
-                    <div id="skin-1" class="skin-btn" style="background:#ff3e3e;" onclick="handleSkin('#ff3e3e', 500, 1)"></div>
-                    <div id="skin-2" class="skin-btn" style="background:#00ff00;" onclick="handleSkin('#00ff00', 1500, 2)"></div>
-                    <div id="skin-3" class="skin-btn" style="background:#ff00ff;" onclick="handleSkin('#ff00ff', 5000, 3)"></div>
-                    <div id="skin-4" class="skin-btn" style="background:#ffcc00;" onclick="handleSkin('#ffcc00', 10000, 4)"></div>
-                    <div id="skin-5" class="skin-btn" style="background:#ffffff;" onclick="handleSkin('#ffffff', 25000, 5)"></div>
-                </div>
-            </div>
-            <div id="rank-content" style="display: none;"><div id="leader-list" style="font-size: 11px; color:#555;">Syncing...</div></div>
+        <div class="tabs">
+            <div id="nav-shop" class="tab" onclick="showTab('shop')">Aura Shop</div>
+            <div id="nav-rank" class="tab active" onclick="showTab('rank')">Rankings</div>
+        </div>
+
+        <div id="shop-content" style="display:none;">
+            <p style="margin-top:20px; color:#777;">Coming Soon...</p>
+        </div>
+
+        <div id="rank-content">
+            Syncing...
         </div>
     </div>
 
     <script>
-        let score = parseInt(localStorage.getItem('ran_score')) || 0;
-        let ownedSkins = JSON.parse(localStorage.getItem('ran_skins')) || [0];
+        // CONFIG - Pastiin Sheet1 sesuai nama tab di Google Sheets lo!
         const API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
+        let score = 345;
+        let myName = "Admin_Ran";
 
-        function tap() { score++; updateUI(); save(); if(score % 50 === 0) sync(); }
-        function save() { localStorage.setItem('ran_score', score); }
+        function addScore() {
+            score++;
+            document.getElementById('display-score').innerText = score;
+            // Tiap 10 klik otomatis sync biar nggak berat
+            if(score % 10 === 0) sync();
+        }
+
+        async function sync() {
+            try {
+                await fetch(API, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        condition: { name: myName }, 
+                        set: { score: score } 
+                    })
+                });
+                console.log("Data synced!");
+            } catch (e) { console.error("Sync Error"); }
+        }
+
+        async function loadRankings() {
+            const rankDiv = document.getElementById('rank-content');
+            try {
+                const response = await fetch(API);
+                const data = await response.json();
+                
+                // Urutin dari skor paling dewa
+                data.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+                let html = "";
+                data.forEach((user, index) => {
+                    html += `
+                        <div class="rank-item">
+                            <span>#${index + 1} ${user.name}</span>
+                            <span style="color:var(--main-clr)">${Number(user.score).toLocaleString()}</span>
+                        </div>`;
+                });
+                rankDiv.innerHTML = html || "No data available";
+            } catch (e) {
+                rankDiv.innerHTML = "Failed to sync rankings.";
+            }
+        }
 
         function showTab(t) {
-            document.getElementById('shop-content').style.display = t === 'shop' ? 'block' : 'none';
-            document.getElementById('rank-content').style.display = t === 'rank' ? 'block' : 'none';
-            document.getElementById('nav-shop').classList.toggle('active', t === 'shop');
-            document.getElementById('nav-rank').classList.toggle('active', t === 'rank');
+            const shop = document.getElementById('shop-content');
+            const rank = document.getElementById('rank-content');
+            const nShop = document.getElementById('nav-shop');
+            const nRank = document.getElementById('nav-rank');
+
+            if(t === 'rank') {
+                shop.style.display = 'none';
+                rank.style.display = 'block';
+                nRank.classList.add('active');
+                nShop.classList.remove('active');
+                loadRankings();
+            } else {
+                shop.style.display = 'block';
+                rank.style.display = 'none';
+                nShop.classList.add('active');
+                nRank.classList.remove('active');
+            }
         }
 
-        function handleSkin(c, p, i) {
-            if(ownedSkins.includes(i)) { setSkin(c); }
-            else if(score >= p) { score -= p; ownedSkins.push(i); localStorage.setItem('ran_skins', JSON.stringify(ownedSkins)); setSkin(c); updateUI(); }
-        }
-
-        function setSkin(c) { 
-            document.documentElement.style.setProperty('--main-clr', c); 
-            document.documentElement.style.setProperty('--bg-glow', c + "26");
-            updateUI(); 
-        }
-
-        function toggleConsole() { 
-            let c = document.getElementById('admin-console');
-            c.style.display = c.style.display === 'block' ? 'none' : 'block';
-            if(c.style.display === 'block') document.getElementById('console-input').focus();
-        }
-
-        function updateUI() {
-            const sd = document.getElementById('score-val');
-            sd.innerText = score.toLocaleString();
-            if(score >= 1000000000000) sd.style.fontSize = "2.2rem";
-            else if(score >= 1000000000) sd.style.fontSize = "2.8rem";
-            else sd.style.fontSize = "4rem";
-
-            const tag = document.getElementById('level-tag');
-            tag.style.boxShadow = "none";
-            if (score >= 1000000000000) { 
-                tag.innerText = "RANK: CORE SYSTEM OVERLORD"; tag.style.color = "#fff"; 
-                tag.style.boxShadow = "0 0 20px #fff, 0 0 40px #00ffff";
-                sd.style.textShadow = "0 0 20px #00ffff";
-            } else if (score >= 999999000) { 
-                tag.innerText = "RANK: THE CORE"; tag.style.color = "#ff0000"; 
-                tag.style.boxShadow = "0 0 15px #ff0000";
-                sd.style.textShadow = "0 0 20px #ff0000";
-            } else { tag.innerText = "RANK: ROOKIE"; tag.style.color = "#fff"; sd.style.textShadow = "none"; }
-            
-            ownedSkins.forEach(i => document.getElementById('skin-'+i)?.classList.add('owned'));
-        }
-
-        function sync() {
-            fetch(API, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ condition: { name: "Admin_Ran" }, set: { score: score } }) });
-        }
-
-        updateUI();
+        // Jalankan saat pertama kali buka
+        window.onload = loadRankings;
     </script>
 </body>
 </html>
