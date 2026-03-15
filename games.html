@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAN8CORE - Games & Shop</title>
+    <title>RAN8CORE - Project Clicker</title>
     <style>
         :root {
             --main-clr: #00d1ff;
@@ -15,78 +15,90 @@
             color: white;
             font-family: 'Segoe UI', sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
             margin: 0;
-            user-select: none; /* Biar teks gak ke-highlight pas ditekan lama */
+            user-select: none;
         }
+        /* Tombol Back */
+        .back-nav {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #777;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .back-nav:hover { color: var(--main-clr); }
+
         .container {
             background: var(--card-clr);
             padding: 2rem;
             border-radius: 20px;
-            width: 350px;
+            width: 320px;
             text-align: center;
             border: 1px solid #333;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
         }
         .rank-tag {
-            border: 1px solid #fff;
-            padding: 2px 10px;
+            border: 1px solid #555;
+            padding: 3px 12px;
             border-radius: 20px;
             font-size: 10px;
+            color: #aaa;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        h1 { font-size: 60px; margin: 10px 0; cursor: pointer; transition: 0.3s; }
-        h1:active { color: var(--main-clr); transform: scale(0.98); }
+        h1 { font-size: 64px; margin: 15px 0; cursor: pointer; color: #fff; }
         
         .btn-click {
             background: none;
             border: 2px solid var(--main-clr);
-            color: white;
+            color: var(--main-clr);
             width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            font-weight: bold;
+            padding: 18px;
+            border-radius: 15px;
+            font-weight: 800;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            transition: 0.1s;
         }
-        .btn-click:active { transform: scale(0.95); background: var(--main-clr); color: #000; }
+        .btn-click:active { transform: scale(0.96); background: var(--main-clr); color: #000; }
         
-        .tabs { display: flex; background: #000; padding: 5px; border-radius: 10px; border: 1px solid #333; }
-        .tab { flex: 1; padding: 10px; cursor: pointer; border-radius: 8px; font-size: 14px; color: #777; }
-        .tab.active { background: #1a1a1a; color: var(--main-clr); border: 1px solid #333; }
+        .tabs { display: flex; background: #000; padding: 4px; border-radius: 12px; border: 1px solid #222; margin-bottom: 15px; }
+        .tab { flex: 1; padding: 10px; cursor: pointer; border-radius: 8px; font-size: 13px; color: #666; font-weight: bold; }
+        .tab.active { background: #1a1a1a; color: var(--main-clr); }
         
-        .list-container { margin-top: 15px; text-align: left; max-height: 250px; overflow-y: auto; }
+        .list-container { text-align: left; max-height: 220px; overflow-y: auto; padding-right: 5px; }
         .item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px;
             background: #1d1d1d;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            border: 1px solid #252525;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #282828;
         }
-        .item-info { display: flex; flex-direction: column; }
-        .item-name { font-weight: bold; font-size: 14px; }
-        .item-price { color: var(--main-clr); font-size: 12px; }
-        .btn-buy {
-            background: var(--main-clr);
-            border: none;
-            color: black;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .item-name { font-weight: bold; font-size: 14px; display: block; }
+        .item-price { color: var(--main-clr); font-size: 11px; }
+        .btn-buy { background: var(--main-clr); border: none; color: #000; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        
+        /* Custom Scrollbar */
+        .list-container::-webkit-scrollbar { width: 4px; }
+        .list-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
 
+    <a href="index.html" class="back-nav">← Back to Terminal</a>
+
     <div class="container">
-        <span class="rank-tag">Rank: Rookie</span>
-        <h1 id="display-score">345</h1>
+        <span class="rank-tag" id="rank-display">Rank: Rookie</span>
+        <h1 id="display-score">0</h1>
 
         <button class="btn-click" onclick="addScore()">EXECUTE PROCESS</button>
 
@@ -97,29 +109,23 @@
 
         <div id="shop-content" class="list-container">
             <div class="item">
-                <div class="item-info">
-                    <span class="item-name">Blue Aura</span>
-                    <span class="item-price">Cost: 1,000</span>
-                </div>
+                <div><span class="item-name">Blue Aura</span><span class="item-price">Cost: 1,000</span></div>
                 <button class="btn-buy" onclick="buyAura('Blue', 1000)">BUY</button>
             </div>
             <div class="item">
-                <div class="item-info">
-                    <span class="item-name">Void Aura</span>
-                    <span class="item-price">Cost: 5,000</span>
-                </div>
+                <div><span class="item-name">Void Aura</span><span class="item-price">Cost: 5,000</span></div>
                 <button class="btn-buy" onclick="buyAura('Void', 5000)">BUY</button>
             </div>
         </div>
 
         <div id="rank-content" class="list-container" style="display:none;">
-            Syncing...
+            <p style="text-align:center; color:#555;">Connecting to SteinHQ...</p>
         </div>
     </div>
 
     <script>
         const API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
-        let score = 345;
+        let score = 0;
         let myName = "Admin_Ran";
 
         function addScore() {
@@ -129,7 +135,12 @@
         }
 
         function updateUI() {
-            document.getElementById('display-score').innerText = score;
+            document.getElementById('display-score').innerText = score.toLocaleString();
+            let r = "Rookie";
+            if(score > 5000) r = "Veteran";
+            if(score > 20000) r = "Elite";
+            if(score > 100000) r = "Legendary";
+            document.getElementById('rank-display').innerText = "Rank: " + r;
         }
 
         function buyAura(name, price) {
@@ -137,10 +148,8 @@
                 score -= price;
                 updateUI();
                 sync();
-                alert("Purchased " + name + " Aura!");
-            } else {
-                alert("Not enough CorePoints!");
-            }
+                alert("Success: " + name + " Aura Activated!");
+            } else { alert("Insufficient CorePoints!"); }
         }
 
         async function sync() {
@@ -150,7 +159,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ condition: { name: myName }, set: { score: score } })
                 });
-            } catch (e) { console.error("Sync Error"); }
+            } catch (e) { console.log("Sync Background Failed"); }
         }
 
         async function loadRankings() {
@@ -159,15 +168,21 @@
                 const response = await fetch(API);
                 const data = await response.json();
                 data.sort((a, b) => (b.score || 0) - (a.score || 0));
+
                 let html = "";
                 data.forEach((user, index) => {
-                    html += `<div class="item" style="background:none; border-bottom:1px solid #222;">
+                    html += `<div class="item" style="background:none; border-bottom:1px solid #222; border-radius:0; border-left:none; border-right:none; border-top:none;">
                                 <span>#${index + 1} ${user.name}</span>
-                                <span style="color:var(--main-clr)">${Number(user.score).toLocaleString()}</span>
+                                <span style="color:var(--main-clr); font-weight:bold;">${Number(user.score).toLocaleString()}</span>
                              </div>`;
                 });
-                rankDiv.innerHTML = html || "No data";
-            } catch (e) { rankDiv.innerHTML = "Error loading."; }
+                rankDiv.innerHTML = html || "No records found.";
+                
+                // Sinkronkan skor lo dari DB saat pertama kali load
+                const me = data.find(u => u.name === myName);
+                if(me) { score = Number(me.score); updateUI(); }
+
+            } catch (e) { rankDiv.innerHTML = "Sync Error."; }
         }
 
         function showTab(t) {
@@ -176,4 +191,34 @@
             const nShop = document.getElementById('nav-shop');
             const nRank = document.getElementById('nav-rank');
             if(t === 'rank') {
-                shop
+                shop.style.display = 'none'; rank.style.display = 'block';
+                nRank.classList.add('active'); nShop.classList.remove('active');
+                loadRankings();
+            } else {
+                shop.style.display = 'block'; rank.style.display = 'none';
+                nShop.classList.add('active'); nRank.classList.remove('active');
+            }
+        }
+
+        // --- ADMIN CMD (LONG PRESS) ---
+        const scoreEl = document.getElementById('display-score');
+        let timer;
+        const start = () => { timer = setTimeout(() => {
+            let cmd = prompt("ADMIN ACCESS\nFormat: add [value] / set [value]");
+            if(cmd) {
+                let p = cmd.split(" ");
+                let val = parseInt(p[1]);
+                if(p[0] === "add") score += val;
+                else if(p[0] === "set") score = val;
+                updateUI(); sync();
+            }
+        }, 1500)};
+        const stop = () => clearTimeout(timer);
+        scoreEl.addEventListener('mousedown', start);
+        scoreEl.addEventListener('touchstart', start);
+        scoreEl.addEventListener('mouseup', stop);
+        scoreEl.addEventListener('touchend', stop);
+
+        window.onload = loadRankings;
+    </script>
+</body>
