@@ -175,14 +175,25 @@
                     score += parseInt(parts[1]); 
                     updateUI(); saveToLocal(); updateDB(); checkMilestone();
                 } 
-                else if(cmd.startsWith('/setpoint ')) {
+               else if(cmd.startsWith('/setpoint ')) {
                     let target = parts[1];
                     let amt = parseInt(parts[2]);
                     if(target && !isNaN(amt)) {
                         fetch(API_URL, { 
                             method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
                             body: JSON.stringify({ condition: { name: target }, set: { score: amt } }) 
-                        }).then(() => { alert("Set Point Success!"); getLeaderboard(); });
+                        }).then(() => { 
+                            alert("Set Point Success!");
+                            
+                            // FITUR BARU: Jika yang di-set adalah diri sendiri, langsung update skor lokal
+                            if(target === playerName) {
+                                score = amt;
+                                saveToLocal();
+                                updateUI();
+                            }
+                            
+                            getLeaderboard(); 
+                        });
                     }
                 }
                 this.value = ''; toggleConsole();
