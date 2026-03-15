@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Clicker V6.0 | Extreme Rank</title>
+    <title>Core Clicker V6.2 | Bug Fix Edition</title>
     <style>
         :root { --main-clr: #007bff; --bg-glow: rgba(0, 123, 255, 0.15); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
@@ -29,7 +29,8 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8); position: relative; z-index: 5; 
         }
 
-        #score-val { font-size: 4rem; font-weight: 900; margin: 5px 0; cursor: pointer; text-shadow: 0 0 20px var(--main-clr); }
+        #score-val { font-size: 4rem; font-weight: 900; margin: 5px 0; cursor: pointer; text-shadow: 0 0 20px var(--main-clr); transition: 0.1s; }
+        #score-val:active { transform: scale(0.95); }
         .main-btn { width: 100%; padding: 20px; background: #1a1a1a; color: white; border: 1px solid var(--main-clr); border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; }
         .main-btn:active { transform: scale(0.98); background: var(--main-clr); }
 
@@ -61,7 +62,7 @@
     <div id="admin-console"><input type="text" id="console-input" placeholder="root@admin:~#"></div>
 
     <div class="game-card">
-        <div id="level-tag" style="font-size: 9px; border: 1px solid var(--main-clr); padding: 5px 15px; border-radius: 20px; color: var(--main-clr); margin-bottom: 15px; display: inline-block; font-weight: 900;">RANK: ROOKIE</div>
+        <div id="level-tag">RANK: ROOKIE</div>
         <div id="score-val" onclick="toggleConsole()">0</div>
         <button class="main-btn" onclick="tap()">Execute Process</button>
         
@@ -99,14 +100,6 @@
         let ownedSkins = JSON.parse(localStorage.getItem('ran_skins')) || [0];
         let reached = JSON.parse(localStorage.getItem('ran_achieved')) || [];
 
-        const targets = [
-            {val: 999, label: "999"}, {val: 1000, label: "1,000"},
-            {val: 9999, label: "9,999"}, {val: 10000, label: "10,000"},
-            {val: 99999, label: "99,999"}, {val: 100000, label: "100,000"},
-            {val: 999999, label: "999,999"}, {val: 1000000, label: "1,000,000"},
-            {val: 9999000, label: "9,999k"}, {val: 999999000, label: "999,999k"}
-        ];
-
         function tap() {
             score++;
             sfxTap.currentTime = 0; sfxTap.play();
@@ -117,6 +110,7 @@
         }
 
         function checkMilestone() {
+            const targets = [{val:999,label:"999"},{val:1000,label:"1k"},{val:9999,label:"9,999"},{val:10000,label:"10k"},{val:99999,label:"99,999"},{val:100000,label:"100k"},{val:999999,label:"999,999"},{val:1000000,label:"1M"}];
             targets.forEach(t => {
                 if (score >= t.val && !reached.includes(t.val)) {
                     reached.push(t.val);
@@ -142,24 +136,6 @@
             if(t === 'rank') getLeaderboard();
         }
 
-        function handleSkin(color, price, id) {
-            let idx = parseInt(id.replace('skin-', ''));
-            if(ownedSkins.includes(idx)) { setSkin(color); }
-            else if(score >= price) { 
-                score -= price; ownedSkins.push(idx); 
-                localStorage.setItem('ran_skins', JSON.stringify(ownedSkins)); 
-                setSkin(color); saveToLocal(); updateUI(); updateDB(); 
-            }
-        }
-
-        function setSkin(color) { 
-            document.documentElement.style.setProperty('--main-clr', color); 
-            let rgba = color.replace('rgb', 'rgba').replace(')', ', 0.15)');
-            if(!color.startsWith('rgb')) rgba = color === '#ffffff' ? 'rgba(255,255,255,0.1)' : color + '26';
-            document.documentElement.style.setProperty('--bg-glow', rgba);
-            refreshSkinButtons(); 
-        }
-
         function toggleConsole() { 
             let con = document.getElementById('admin-console');
             con.style.display = con.style.display === 'block' ? 'none' : 'block';
@@ -173,9 +149,9 @@
 
                 if(cmd.startsWith('/give ')) {
                     score += parseInt(parts[1]); 
-                    updateUI(); saveToLocal(); updateDB(); checkMilestone();
+                    updateUI(); saveToLocal(); updateDB();
                 } 
-               else if(cmd.startsWith('/setpoint ')) {
+                else if(cmd.startsWith('/setpoint ')) {
                     let target = parts[1];
                     let amt = parseInt(parts[2]);
                     if(target && !isNaN(amt)) {
@@ -184,14 +160,11 @@
                             body: JSON.stringify({ condition: { name: target }, set: { score: amt } }) 
                         }).then(() => { 
                             alert("Set Point Success!");
-                            
-                            // FITUR BARU: Jika yang di-set adalah diri sendiri, langsung update skor lokal
                             if(target === playerName) {
-                                score = amt;
+                                score = amt; // UPDATE LOKAL SUPAYA GAK KETIMPA LAGI
                                 saveToLocal();
                                 updateUI();
                             }
-                            
                             getLeaderboard(); 
                         });
                     }
@@ -200,6 +173,25 @@
             }
         });
 
+        function updateUI() {
+            document.getElementById('score-val').innerText = score.toLocaleString();
+            const tag = document.getElementById('level-tag');
+            tag.style.fontSize = "9px"; tag.style.border = "1px solid currentColor"; tag.style.padding = "5px 15px"; tag.style.borderRadius = "20px"; tag.style.marginBottom = "15px"; tag.style.display = "inline-block"; tag.style.fontWeight = "900";
+
+            if (score >= 999999000) { tag.innerText = "RANK: THE CORE"; tag.style.color = "#ff0000"; tag.style.boxShadow = "0 0 15px #ff0000"; }
+            else if (score >= 100000000) { tag.innerText = "RANK: SYSTEM OVERRIDE"; tag.style.color = "#ff3e3e"; }
+            else if (score >= 10000000) { tag.innerText = "RANK: VOID BEYONDER"; tag.style.color = "#ff00ff"; }
+            else if (score >= 1000000) { tag.innerText = "RANK: UNSTOPPABLE"; tag.style.color = "#ffcc00"; }
+            else if (score >= 10000) { tag.innerText = "RANK: ETERNAL"; tag.style.color = "#00ff00"; }
+            else if (score >= 1000) { tag.innerText = "RANK: ELITE CLICKER"; tag.style.color = "#007bff"; }
+            else { tag.innerText = "RANK: ROOKIE"; tag.style.color = "#ffffff"; tag.style.boxShadow = "none"; }
+        }
+
+        function saveToLocal() { localStorage.setItem('ran_score', score); }
+        function updateDB() {
+            fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) });
+        }
         function getLeaderboard() {
             fetch(API_URL).then(res => res.json()).then(data => {
                 if(Array.isArray(data)) {
@@ -213,55 +205,8 @@
             });
         }
 
-        function saveToLocal() { localStorage.setItem('ran_score', score); }
-
-        function updateUI() {
-            document.getElementById('score-val').innerText = score.toLocaleString();
-            const tag = document.getElementById('level-tag');
-            
-            // LOGIKA RANK EXTREME V6.0
-            if (score >= 999999000) {
-                tag.innerText = "RANK: THE CORE";
-                tag.style.color = "#ff0000"; tag.style.borderColor = "#ff0000";
-                tag.style.boxShadow = "0 0 15px #ff0000";
-            } else if (score >= 100000000) {
-                tag.innerText = "RANK: SYSTEM OVERRIDE";
-                tag.style.color = "#ff3e3e"; tag.style.borderColor = "#ff3e3e";
-            } else if (score >= 10000000) {
-                tag.innerText = "RANK: VOID BEYONDER";
-                tag.style.color = "#ff00ff"; tag.style.borderColor = "#ff00ff";
-            } else if (score >= 1000000) {
-                tag.innerText = "RANK: UNSTOPPABLE";
-                tag.style.color = "#ffcc00"; tag.style.borderColor = "#ffcc00";
-            } else if (score >= 10000) {
-                tag.innerText = "RANK: ETERNAL";
-                tag.style.color = "#00ff00"; tag.style.borderColor = "#00ff00";
-            } else if (score >= 1000) {
-                tag.innerText = "RANK: ELITE CLICKER";
-                tag.style.color = "#007bff"; tag.style.borderColor = "#007bff";
-            } else {
-                tag.innerText = "RANK: ROOKIE";
-                tag.style.color = "#ffffff"; tag.style.borderColor = "#ffffff";
-                tag.style.boxShadow = "none";
-            }
-            refreshSkinButtons();
-        }
-
-        function refreshSkinButtons() {
-            ownedSkins.forEach(i => {
-                let b = document.getElementById('skin-' + i);
-                if(b) b.classList.add('owned');
-            });
-        }
-
-        function updateDB() {
-            fetch(API_URL, { 
-                method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ condition: { name: playerName }, set: { score: score } }) 
-            });
-        }
-
-        updateUI(); setInterval(getLeaderboard, 30000);
+        updateUI();
+        setInterval(getLeaderboard, 30000);
     </script>
 </body>
 </html>
