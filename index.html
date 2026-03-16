@@ -53,16 +53,20 @@
                 } else {
                     msg.innerText = "WRONG USERNAME/PASSWORD";
                 }
-            } else {
-                if(found) {
-                    msg.innerText = "USERNAME ALREADY TAKEN";
-                } else {
-                    await fetch(USER_API, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify([{ username: user, password: pass }])
-                    });
-                    msg.innerText = "REGISTER SUCCESS! PLEASE LOGIN.";
+            // Bagian di dalam handleAuth untuk 'register'
+} else {
+    await fetch(USER_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // PASTIIN BAGIAN INI SAMA DENGAN HEADER DI GOOGLE SHEETS
+        body: JSON.stringify([{ 
+            username: user, // Ini harus 'username' sesuai kolom A
+            password: pass  // Ini harus 'password' sesuai kolom B
+        }])
+    });
+    msg.style.color = "#00d1ff";
+    msg.innerText = "REGISTER SUCCESS! PLEASE LOGIN.";
+}
                 }
             }
         } catch (e) {
