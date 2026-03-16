@@ -3,76 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAN8CORE - Auth</title>
+    <title>RAN8CORE - Access</title>
     <style>
         :root { --main-clr: #00d1ff; --bg-clr: #0a0a0a; }
         body { background-color: var(--bg-clr); color: white; font-family: 'Consolas', monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
         .auth-card { background: #161616; padding: 30px; border-radius: 15px; border: 1px solid #333; width: 300px; text-align: center; }
-        h2 { color: var(--main-clr); font-size: 18px; letter-spacing: 2px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #444; color: var(--main-clr); border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; margin-top: 10px; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #444; color: var(--main-clr); border-radius: 5px; box-sizing: border-box; outline: none; }
+        button { width: 100%; padding: 12px; margin-top: 10px; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; }
         .btn-login { background: var(--main-clr); border: none; color: #000; }
         .btn-reg { background: transparent; border: 1px solid #555; color: #aaa; }
-        #msg { font-size: 11px; margin-top: 15px; }
+        #msg { font-size: 11px; margin-top: 15px; color: #888; }
     </style>
 </head>
 <body>
 
 <div class="auth-card">
-    <h2>SYSTEM ACCESS</h2>
+    <h2 style="color:var(--main-clr); font-size:18px;">SYSTEM AUTH</h2>
     <input type="text" id="user-input" placeholder="USERNAME">
     <input type="password" id="pass-input" placeholder="PASSWORD">
+    
     <button class="btn-login" onclick="handleAuth('login')">LOGIN</button>
-    <button class="btn-reg" onclick="handleAuth('register')">REGISTER</button>
-    <p id="msg"></p>
+    <button class="btn-reg" onclick="handleAuth('register')">CREATE ACCOUNT</button>
+    
+    <p id="msg">READY TO CONNECT...</p>
 </div>
 
 <script>
-    // URL sudah diarahkan ke sheet 'users' sesuai screenshot lo
+    // 1. Definisikan API di paling atas
     const USER_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/users";
 
+    // 2. Fungsi Utama
     async function handleAuth(type) {
+        // Ambil input PAS TOMBOL DIPENCET (bukan di luar fungsi)
         const user = document.getElementById('user-input').value.trim();
         const pass = document.getElementById('pass-input').value.trim();
         const msg = document.getElementById('msg');
 
-        if(!user || !pass) return alert("Isi username & password!");
+        if(!user || !pass) {
+            msg.innerText = "ERROR: EMPTY FIELDS";
+            msg.style.color = "orange";
+            return;
+        }
 
-        msg.innerText = "PROCESSING...";
+        msg.style.color = "white";
+        msg.innerText = "CONNECTING TO DATABASE...";
 
         try {
+            // Ambil data dari SteinHQ
             const res = await fetch(USER_API);
             const data = await res.json();
+            
+            // Cari apakah username ada di database
             const found = data.find(u => u.username === user);
 
             if(type === 'login') {
                 if(found && found.password === pass) {
+                    msg.innerText = "ACCESS GRANTED. REDIRECTING...";
                     localStorage.setItem("ran8user", user);
-                    // SETELAH LOGIN, KE HOME (TERMINAL)
-                    window.location.href = "home.html"; 
+                    
+                    // Arahkan ke file HOME lo (sesuaikan namanya)
+                    setTimeout(() => { window.location.href = "home.html"; }, 1000);
                 } else {
-                    msg.innerText = "WRONG USERNAME/PASSWORD";
+                    msg.style.color = "#ff4444";
+                    msg.innerText = "ACCESS DENIED: WRONG CREDENTIALS";
                 }
-            // Bagian di dalam handleAuth untuk 'register'
-} else {
-    await fetch(USER_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // PASTIIN BAGIAN INI SAMA DENGAN HEADER DI GOOGLE SHEETS
-        body: JSON.stringify([{ 
-            username: user, // Ini harus 'username' sesuai kolom A
-            password: pass  // Ini harus 'password' sesuai kolom B
-        }])
-    });
-    msg.style.color = "#00d1ff";
-    msg.innerText = "REGISTER SUCCESS! PLEASE LOGIN.";
-}
+            } else {
+                // PROSES REGISTRASI
+                if(found) {
+                    msg.style.color = "#ff4444";
+                    msg.innerText = "ERROR: USERNAME TAKEN";
+                } else {
+                    msg.innerText = "CREATING ACCOUNT...";
+                    const response = await fetch(USER_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify([{ 
+                            username: user, 
+                            password: pass 
+                        }])
+                    });
+
+                    if(response.ok) {
+                        msg.style.color = "#00d1ff";
+                        msg.innerText = "SUCCESS! YOU CAN LOGIN NOW.";
+                    } else {
+                        msg.innerText = "SERVER REJECTED DATA";
+                    }
                 }
             }
-        } catch (e) {
-            msg.innerText = "DATABASE ERROR";
+        } catch (error) {
+            console.error(error);
+            msg.style.color = "#ff4444";
+            msg.innerText = "CONNECTION FAILED. CHECK INTERNET.";
         }
     }
 </script>
+
 </body>
 </html>
