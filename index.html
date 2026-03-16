@@ -53,10 +53,15 @@
             const found = data.find(u => u.username === user);
 
             if(type === 'login') {
-                if(found && found.password === pass) {
-                    localStorage.setItem("ran8user", user);
-                    window.location.href = "games.html";
-                } else {
+    if(found && found.password === pass) {
+        localStorage.setItem("ran8user", user);
+        // UBAH BARIS INI:
+        window.location.href = "home.html"; // Arahkan ke halaman terminal utama
+    } else {
+        msg.style.color = "#ff4444";
+        msg.innerText = "INVALID CREDENTIALS";
+    }
+} else {
                     msg.style.color = "#ff4444";
                     msg.innerText = "INVALID CREDENTIALS";
                 }
