@@ -125,9 +125,20 @@
 
     <script>
         const API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
-        let score = 0;
-        let myName = "Admin_Ran";
 
+// AMBIL NAMA DARI PENYIMPANAN BROWSER (KALAU ADA)
+let myName = localStorage.getItem("ran8core_user");
+
+// KALAU NGGAK ADA NAMA, MINTA USER MASUKIN NAMA
+if (!myName) {
+    myName = prompt("Masukan Username lo buat Leaderboard:");
+    if (!myName || myName.trim() === "") {
+        myName = "Guest_" + Math.floor(Math.random() * 1000); // Nama default kalau kosong
+    }
+    localStorage.setItem("ran8core_user", myName); // Simpen biar gak nanya lagi
+}
+
+let score = 0; // Mulai dari 0, nanti bakal di-sync sama data di Google Sheets
         function addScore() {
             score++;
             updateUI();
