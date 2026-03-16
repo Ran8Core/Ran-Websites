@@ -32,71 +32,52 @@
     // 1. Definisikan API di paling atas
     const USER_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/users";
 
-    // 2. Fungsi Utama
-    async function handleAuth(type) {
-        // Ambil input PAS TOMBOL DIPENCET (bukan di luar fungsi)
-        const user = document.getElementById('user-input').value.trim();
-        const pass = document.getElementById('pass-input').value.trim();
-        const msg = document.getElementById('msg');
+   async function handleAuth(type) {
+    // Pakai .toLowerCase() biar huruf besar/kecil gak pengaruh pas login
+    const user = document.getElementById('user-input').value.trim().toLowerCase();
+    const pass = document.getElementById('pass-input').value.trim();
+    const msg = document.getElementById('msg');
 
-        if(!user || !pass) {
-            msg.innerText = "ERROR: EMPTY FIELDS";
-            msg.style.color = "orange";
-            return;
-        }
+    if(!user || !pass) return alert("Isi username & password!");
 
-        msg.style.color = "white";
-        msg.innerText = "CONNECTING TO DATABASE...";
+    msg.innerText = "CONNECTING...";
 
-        try {
-            // Ambil data dari SteinHQ
-            const res = await fetch(USER_API);
-            const data = await res.json();
-            
-            // Cari apakah username ada di database
-            const found = data.find(u => u.username === user);
+    try {
+        const res = await fetch(USER_API);
+        const data = await res.json();
+        
+        // Cari user dengan lebih teliti (abaikan huruf besar/kecil)
+        const found = data.find(u => u.username && u.username.toString().trim().toLowerCase() === user);
 
-            if(type === 'login') {
-                if(found && found.password === pass) {
-                    msg.innerText = "ACCESS GRANTED. REDIRECTING...";
-                    localStorage.setItem("ran8user", user);
-                    
-                    // Arahkan ke file HOME lo (sesuaikan namanya)
-                    setTimeout(() => { window.location.href = "home.html"; }, 1000);
-                } else {
-                    msg.style.color = "#ff4444";
-                    msg.innerText = "ACCESS DENIED: WRONG CREDENTIALS";
-                }
+        if(type === 'login') {
+            if(found && found.password.toString().trim() === pass) {
+                msg.innerText = "ACCESS GRANTED!";
+                localStorage.setItem("ran8user", found.username); // Simpan nama asli dari Sheets
+                
+                // Pindah ke HOME (pastikan nama filenya bener)
+                setTimeout(() => { window.location.href = "home.html"; }, 500);
             } else {
-                // PROSES REGISTRASI
-                if(found) {
-                    msg.style.color = "#ff4444";
-                    msg.innerText = "ERROR: USERNAME TAKEN";
-                } else {
-                    msg.innerText = "CREATING ACCOUNT...";
-                    const response = await fetch(USER_API, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify([{ 
-                            username: user, 
-                            password: pass 
-                        }])
-                    });
-
-                    if(response.ok) {
-                        msg.style.color = "#00d1ff";
-                        msg.innerText = "SUCCESS! YOU CAN LOGIN NOW.";
-                    } else {
-                        msg.innerText = "SERVER REJECTED DATA";
-                    }
-                }
+                msg.innerText = "WRONG USERNAME/PASSWORD";
+                msg.style.color = "red";
             }
-        } catch (error) {
-            console.error(error);
-            msg.style.color = "#ff4444";
-            msg.innerText = "CONNECTION FAILED. CHECK INTERNET.";
+        } else {
+            // REGISTRASI
+            if(found) {
+                msg.innerText = "USERNAME ALREADY TAKEN";
+            } else {
+                await fetch(USER_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify([{ username: user, password: pass }])
+                });
+                msg.innerText = "REGISTER SUCCESS! PLEASE LOGIN.";
+                msg.style.color = "#00d1ff";
+            }
         }
+    } catch (e) {
+        msg.innerText = "DATABASE ERROR";
     }
+}
 </script>
 
 </body>
