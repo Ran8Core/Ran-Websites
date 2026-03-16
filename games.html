@@ -3,49 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAN8CORE - Game</title>
+    <title>RAN8CORE - Clicker</title>
     <style>
         :root { --main-clr: #00d1ff; --bg-clr: #0a0a0a; --card-clr: #161616; }
         body { background-color: var(--bg-clr); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; user-select: none; }
         .back-nav { position: absolute; top: 20px; left: 20px; text-decoration: none; color: #555; font-size: 14px; z-index: 999; border: 1px solid #333; padding: 5px 10px; border-radius: 5px; }
-        .back-nav:hover { color: var(--main-clr); border-color: var(--main-clr); }
         .container { background: var(--card-clr); padding: 2rem; border-radius: 20px; width: 320px; text-align: center; border: 1px solid #333; display: none; }
-        .user-tag { border: 1px solid #555; padding: 3px 12px; border-radius: 20px; font-size: 11px; color: var(--main-clr); font-weight: bold; }
+        .user-tag { border: 1px solid #555; padding: 3px 12px; border-radius: 20px; font-size: 11px; color: var(--main-clr); }
         h1 { font-size: 64px; margin: 15px 0; color: #fff; cursor: pointer; }
-        .btn-click { background: none; border: 2px solid var(--main-clr); color: var(--main-clr); width: 100%; padding: 18px; border-radius: 15px; font-weight: 800; cursor: pointer; margin-bottom: 25px; }
-        .btn-click:active { transform: scale(0.95); background: var(--main-clr); color: #000; }
-        .tabs { display: flex; background: #000; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
-        .tab { flex: 1; padding: 10px; cursor: pointer; border-radius: 8px; font-size: 12px; color: #666; font-weight: bold; }
+        .btn-click { background: none; border: 2px solid var(--main-clr); color: var(--main-clr); width: 100%; padding: 18px; border-radius: 15px; font-weight: bold; cursor: pointer; }
+        .tabs { display: flex; background: #000; padding: 4px; border-radius: 12px; margin: 20px 0 15px 0; }
+        .tab { flex: 1; padding: 10px; cursor: pointer; font-size: 12px; color: #666; }
         .tab.active { background: #1a1a1a; color: var(--main-clr); }
-        .list-container { text-align: left; max-height: 220px; overflow-y: auto; }
-        .item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #1d1d1d; border-radius: 10px; margin-bottom: 8px; border: 1px solid #282828; }
+        .list-container { text-align: left; max-height: 200px; overflow-y: auto; }
+        .item { display: flex; justify-content: space-between; padding: 10px; background: #1d1d1d; border-radius: 10px; margin-bottom: 5px; font-size: 13px; }
     </style>
 </head>
 <body>
 
-<a href="index.html" class="back-nav" onclick="localStorage.removeItem('ran8user')">LOGOUT</a>
+<a href="home.html" class="back-nav">← TERMINAL</a>
 
 <div class="container" id="game-ui">
     <span class="user-tag" id="user-display">COMMANDER: ...</span>
     <h1 id="display-score">0</h1>
-    <button class="btn-click" onclick="addScore()">EXECUTE PROCESS</button>
+    <button class="btn-click" onclick="addScore()">EXECUTE</button>
 
     <div class="tabs">
-        <div id="nav-shop" class="tab active" onclick="showTab('shop')">Aura Shop</div>
-        <div id="nav-rank" class="tab" onclick="showTab('rank')">Rankings</div>
+        <div id="nav-shop" class="tab active" onclick="showTab('shop')">Shop</div>
+        <div id="nav-rank" class="tab" onclick="showTab('rank')">Rank</div>
     </div>
 
-    <div id="shop-content">
-        <div class="item">
-            <span>Blue Aura (1k)</span>
-            <button onclick="buyAura('Blue', 1000)">BUY</button>
-        </div>
-        <div class="item">
-            <span>Void Aura (5k)</span>
-            <button onclick="buyAura('Void', 5000)">BUY</button>
-        </div>
+    <div id="shop-content" class="list-container">
+        <div class="item"><span>Core Booster</span><button onclick="alert('Soon!')">BUY</button></div>
     </div>
-    <div id="rank-content" style="display:none;">Loading...</div>
+    <div id="rank-content" class="list-container" style="display:none;">Loading...</div>
 </div>
 
 <script>
@@ -55,13 +46,12 @@
 
     window.onload = async function() {
         if(!myName) {
-            window.location.href = "index.html";
+            window.location.href = "index.html"; // Tendang kalau belum login
             return;
         }
         document.getElementById('game-ui').style.display = 'block';
         document.getElementById('user-display').innerText = "COMMANDER: " + myName.toUpperCase();
         
-        // Tarik data skor awal dari cloud
         try {
             const res = await fetch(SCORE_API);
             const data = await res.json();
@@ -102,7 +92,7 @@
                 html += `<div class="item"><span>#${i+1} ${u.name}</span><b>${Number(u.score).toLocaleString()}</b></div>`;
             });
             rankDiv.innerHTML = html;
-        } catch (e) { rankDiv.innerHTML = "Sync Error"; }
+        } catch (e) { rankDiv.innerHTML = "Error Sync"; }
     }
 
     function showTab(t) {
@@ -112,16 +102,6 @@
         document.getElementById('nav-rank').classList.toggle('active', t === 'rank');
         if(t === 'rank') loadRankings();
     }
-
-    // ADMIN CMD (Long Press Score)
-    let timer;
-    document.getElementById('display-score').onmousedown = () => {
-        timer = setTimeout(() => {
-            let cmd = prompt("CMD:");
-            if(cmd && cmd.startsWith("add ")) { score += parseInt(cmd.split(" ")[1]); updateUI(); sync(); }
-        }, 1500);
-    };
-    document.onmouseup = () => clearTimeout(timer);
 </script>
 </body>
 </html>
