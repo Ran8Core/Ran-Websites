@@ -32,7 +32,7 @@
     // 1. Definisikan API di paling atas
     const USER_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/users";
 
-   async function handleAuth(type) {
+  async function handleAuth(type) {
     // Pakai .toLowerCase() biar huruf besar/kecil gak pengaruh pas login
     const user = document.getElementById('user-input').value.trim().toLowerCase();
     const pass = document.getElementById('pass-input').value.trim();
@@ -60,6 +60,24 @@
                 msg.innerText = "WRONG USERNAME/PASSWORD";
                 msg.style.color = "red";
             }
+        } else {
+            // REGISTRASI
+            if(found) {
+                msg.innerText = "USERNAME ALREADY TAKEN";
+            } else {
+                await fetch(USER_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify([{ username: user, password: pass }])
+                });
+                msg.innerText = "REGISTER SUCCESS! PLEASE LOGIN.";
+                msg.style.color = "#00d1ff";
+            }
+        }
+    } catch (e) {
+        msg.innerText = "DATABASE ERROR";
+    }
+}
         } else {
             // REGISTRASI
             if(found) {
