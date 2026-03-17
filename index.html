@@ -7,19 +7,23 @@
     <style>
         :root { --main-clr: #00d1ff; --bg-clr: #0a0a0a; }
         body { background-color: var(--bg-clr); color: white; font-family: 'Consolas', monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .auth-card { background: #161616; padding: 30px; border-radius: 15px; border: 1px solid #333; width: 300px; text-align: center; }
+        .auth-card { background: #161616; padding: 30px; border-radius: 15px; border: 1px solid #333; width: 300px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: var(--main-clr); font-size: 18px; letter-spacing: 2px; margin-bottom: 20px; }
         input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #444; color: var(--main-clr); border-radius: 5px; box-sizing: border-box; outline: none; }
-        button { width: 100%; padding: 12px; margin-top: 10px; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.2s; }
-        .btn-login { background: var(--main-clr); border: none; color: #000; }
+        input:focus { border-color: var(--main-clr); }
+        button { width: 100%; padding: 12px; margin-top: 10px; cursor: pointer; font-weight: bold; border-radius: 5px; border: none; transition: 0.3s; }
+        .btn-login { background: var(--main-clr); color: #000; }
+        .btn-login:hover { background: #00b8e6; }
         .btn-reg { background: transparent; border: 1px solid #555; color: #aaa; }
-        #msg { font-size: 11px; margin-top: 15px; color: #888; }
+        .btn-reg:hover { border-color: #777; color: #fff; }
+        #msg { font-size: 11px; margin-top: 15px; min-height: 15px; color: #888; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <div class="auth-card">
-    <h2 style="color:var(--main-clr); font-size:18px;">SYSTEM AUTH</h2>
-    <input type="text" id="user-input" placeholder="USERNAME">
+    <h2>SYSTEM AUTH</h2>
+    <input type="text" id="user-input" placeholder="USERNAME" autocomplete="off">
     <input type="password" id="pass-input" placeholder="PASSWORD">
     
     <button class="btn-login" onclick="handleAuth('login')">LOGIN</button>
@@ -29,73 +33,80 @@
 </div>
 
 <script>
-    // 1. Definisikan API di paling atas
+    // URL API lo (Sheet: users)
     const USER_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/users";
 
-  async function handleAuth(type) {
-    // Pakai .toLowerCase() biar huruf besar/kecil gak pengaruh pas login
-    const user = document.getElementById('user-input').value.trim().toLowerCase();
-    const pass = document.getElementById('pass-input').value.trim();
-    const msg = document.getElementById('msg');
+    async function handleAuth(type) {
+        const userField = document.getElementById('user-input');
+        const passField = document.getElementById('pass-input');
+        const msg = document.getElementById('msg');
 
-    if(!user || !pass) return alert("Isi username & password!");
+        const user = userField.value.trim();
+        const pass = passField.value.trim();
 
-    msg.innerText = "CONNECTING...";
-
-    try {
-        const res = await fetch(USER_API);
-        const data = await res.json();
-        
-        // Cari user dengan lebih teliti (abaikan huruf besar/kecil)
-        const found = data.find(u => u.username && u.username.toString().trim().toLowerCase() === user);
-
-        if(type === 'login') {
-            if(found && found.password.toString().trim() === pass) {
-                msg.innerText = "ACCESS GRANTED!";
-                localStorage.setItem("ran8user", found.username); // Simpan nama asli dari Sheets
-                
-                // Pindah ke HOME (pastikan nama filenya bener)
-                setTimeout(() => { window.location.href = "home.html"; }, 500);
-            } else {
-                msg.innerText = "WRONG USERNAME/PASSWORD";
-                msg.style.color = "red";
-            }
-        } else {
-            // REGISTRASI
-            if(found) {
-                msg.innerText = "USERNAME ALREADY TAKEN";
-            } else {
-                await fetch(USER_API, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify([{ username: user, password: pass }])
-                });
-                msg.innerText = "REGISTER SUCCESS! PLEASE LOGIN.";
-                msg.style.color = "#00d1ff";
-            }
+        if(!user || !pass) {
+            msg.style.color = "orange";
+            msg.innerText = "FILL ALL FIELDS!";
+            return;
         }
-    } catch (e) {
-        msg.innerText = "DATABASE ERROR";
-    }
-}
-        } else {
-            // REGISTRASI
-            if(found) {
-                msg.innerText = "USERNAME ALREADY TAKEN";
+
+        msg.style.color = "white";
+        msg.innerText = "CONNECTING...";
+
+        try {
+            // Tambah timestamp (?t=) biar gak kena cache (data selalu fresh)
+            const res = await fetch(USER_API + "?t=" + new Date().getTime());
+            const data = await res.json();
+            
+            // Cari user (Case Insensitive & Anti-Gacha)
+            const found = data.find(u => 
+                u.username && u.username.toString().trim().toLowerCase() === user.toLowerCase()
+            );
+
+            if(type === 'login') {
+                if(found && found.password.toString().trim() === pass) {
+                    msg.style.color = "#00d1ff";
+                    msg.innerText = "ACCESS GRANTED!";
+                    localStorage.setItem("ran8user", found.username);
+                    
+                    // Delay dikit biar keren, terus pindah ke home
+                    setTimeout(() => { window.location.href = "home.html"; }, 1000);
+                } else {
+                    msg.style.color = "#ff4444";
+                    msg.innerText = "WRONG USERNAME/PASSWORD";
+                }
             } else {
-                await fetch(USER_API, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify([{ username: user, password: pass }])
-                });
-                msg.innerText = "REGISTER SUCCESS! PLEASE LOGIN.";
-                msg.style.color = "#00d1ff";
+                // LOGIKA REGISTER
+                if(found) {
+                    msg.style.color = "#ff4444";
+                    msg.innerText = "USERNAME ALREADY TAKEN";
+                } else {
+                    msg.innerText = "CREATING DATA...";
+                    const reg = await fetch(USER_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify([{ 
+                            "username": user, 
+                            "password": pass 
+                        }])
+                    });
+
+                    if(reg.ok) {
+                        msg.style.color = "#00d1ff";
+                        msg.innerText = "REGISTER SUCCESS! PLEASE LOGIN.";
+                        userField.value = "";
+                        passField.value = "";
+                    } else {
+                        msg.innerText = "SERVER ERROR";
+                    }
+                }
             }
+        } catch (error) {
+            console.error(error);
+            msg.style.color = "#ff4444";
+            msg.innerText = "CONNECTION FAILED";
         }
-    } catch (e) {
-        msg.innerText = "DATABASE ERROR";
     }
-}
 </script>
 
 </body>
