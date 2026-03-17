@@ -3,104 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAN8CORE - Clicker</title>
+    <title>RAN8CORE - Game</title>
     <style>
-        :root { --main-clr: #00d1ff; --bg-clr: #0a0a0a; --card-clr: #161616; }
-        body { background-color: var(--bg-clr); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; user-select: none; }
-        .back-nav { position: absolute; top: 20px; left: 20px; text-decoration: none; color: #555; font-size: 14px; z-index: 999; border: 1px solid #333; padding: 5px 10px; border-radius: 5px; }
-        .container { background: var(--card-clr); padding: 2rem; border-radius: 20px; width: 320px; text-align: center; border: 1px solid #333; display: none; }
-        .user-tag { border: 1px solid #555; padding: 3px 12px; border-radius: 20px; font-size: 11px; color: var(--main-clr); }
-        h1 { font-size: 64px; margin: 15px 0; color: #fff; cursor: pointer; }
-        .btn-click { background: none; border: 2px solid var(--main-clr); color: var(--main-clr); width: 100%; padding: 18px; border-radius: 15px; font-weight: bold; cursor: pointer; }
-        .tabs { display: flex; background: #000; padding: 4px; border-radius: 12px; margin: 20px 0 15px 0; }
-        .tab { flex: 1; padding: 10px; cursor: pointer; font-size: 12px; color: #666; }
-        .tab.active { background: #1a1a1a; color: var(--main-clr); }
-        .list-container { text-align: left; max-height: 200px; overflow-y: auto; }
-        .item { display: flex; justify-content: space-between; padding: 10px; background: #1d1d1d; border-radius: 10px; margin-bottom: 5px; font-size: 13px; }
+        :root { --main-clr: #00d1ff; --bg-clr: #0a0a0a; }
+        body { background-color: var(--bg-clr); color: white; font-family: 'Consolas', monospace; text-align: center; margin: 0; padding-top: 50px; }
+        .container { background: #161616; padding: 20px; border-radius: 15px; display: inline-block; border: 1px solid #333; min-width: 250px; }
+        h1 { font-size: 48px; margin: 10px 0; color: var(--main-clr); }
+        button { background: var(--main-clr); border: none; padding: 15px 30px; font-weight: bold; cursor: pointer; border-radius: 10px; width: 100%; }
+        .user-info { font-size: 12px; color: #888; margin-bottom: 10px; }
+        .nav-back { position: absolute; top: 20px; left: 20px; color: #555; text-decoration: none; font-size: 12px; border: 1px solid #333; padding: 5px 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<a href="home.html" class="back-nav">← TERMINAL</a>
+<a href="home.html" class="nav-back">← BACK TO TERMINAL</a>
 
-<div class="container" id="game-ui">
-    <span class="user-tag" id="user-display">COMMANDER: ...</span>
-    <h1 id="display-score">0</h1>
-    <button class="btn-click" onclick="addScore()">EXECUTE</button>
-
-    <div class="tabs">
-        <div id="nav-shop" class="tab active" onclick="showTab('shop')">Shop</div>
-        <div id="nav-rank" class="tab" onclick="showTab('rank')">Rank</div>
-    </div>
-
-    <div id="shop-content" class="list-container">
-        <div class="item"><span>Core Booster</span><button onclick="alert('Soon!')">BUY</button></div>
-    </div>
-    <div id="rank-content" class="list-container" style="display:none;">Loading...</div>
+<div class="container">
+    <div class="user-info" id="user-display">COMMANDER: ...</div>
+    <h1 id="score-display">0</h1>
+    <button onclick="addScore()">EXECUTE CLICK</button>
+    <p id="sync-status" style="font-size: 10px; color: #555; margin-top: 10px;">IDLE</p>
 </div>
 
 <script>
-    const SCORE_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
+    // SESUAIKAN URL API LO (PASTIKAN AKHIRNYA Sheet1)
+    const GAME_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
     let score = 0;
     let myName = localStorage.getItem("ran8user");
 
     window.onload = async function() {
         if(!myName) {
-            window.location.href = "index.html"; // Tendang kalau belum login
+            window.location.href = "index.html";
             return;
         }
-        document.getElementById('game-ui').style.display = 'block';
         document.getElementById('user-display').innerText = "COMMANDER: " + myName.toUpperCase();
-        
-        try {
-            const res = await fetch(SCORE_API);
-            const data = await res.json();
-            const me = data.find(u => u.name === myName);
-            if(me) { score = Number(me.score); updateUI(); }
-        } catch(e) {}
-        loadRankings();
+        loadData();
     };
+
+    async function loadData() {
+        try {
+            const res = await fetch(GAME_API);
+            const data = await res.json();
+            // Cari skor berdasarkan nama user yang login
+            const me = data.find(u => u.name && u.name.toString().toLowerCase() === myName.toLowerCase());
+            if(me) {
+                score = parseInt(me.score) || 0;
+                updateUI();
+            }
+        } catch(e) { console.log("Load Error"); }
+    }
 
     function addScore() {
         score++;
         updateUI();
-        if(score % 10 === 0) sync();
+        // Sinkron ke Sheets setiap 10 klik biar nggak berat
+        if(score % 10 === 0) syncScore();
     }
 
     function updateUI() {
-        document.getElementById('display-score').innerText = score.toLocaleString();
+        document.getElementById('score-display').innerText = score;
     }
 
-    async function sync() {
+    async function syncScore() {
+        const status = document.getElementById('sync-status');
+        status.innerText = "SYNCING...";
         try {
-            await fetch(SCORE_API, {
+            await fetch(GAME_API, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ condition: { name: myName }, set: { score: score } })
+                body: JSON.stringify({
+                    condition: { name: myName },
+                    set: { score: score }
+                })
             });
-        } catch (e) {}
-    }
-
-    async function loadRankings() {
-        const rankDiv = document.getElementById('rank-content');
-        try {
-            const response = await fetch(SCORE_API);
-            const data = await response.json();
-            data.sort((a, b) => (b.score || 0) - (a.score || 0));
-            let html = "";
-            data.forEach((u, i) => {
-                html += `<div class="item"><span>#${i+1} ${u.name}</span><b>${Number(u.score).toLocaleString()}</b></div>`;
-            });
-            rankDiv.innerHTML = html;
-        } catch (e) { rankDiv.innerHTML = "Error Sync"; }
-    }
-
-    function showTab(t) {
-        document.getElementById('shop-content').style.display = (t === 'shop' ? 'block' : 'none');
-        document.getElementById('rank-content').style.display = (t === 'rank' ? 'block' : 'none');
-        document.getElementById('nav-shop').classList.toggle('active', t === 'shop');
-        document.getElementById('nav-rank').classList.toggle('active', t === 'rank');
-        if(t === 'rank') loadRankings();
+            status.innerText = "SAVED";
+            setTimeout(() => { status.innerText = "IDLE"; }, 1000);
+        } catch(e) { status.innerText = "SYNC ERROR"; }
     }
 </script>
 </body>
