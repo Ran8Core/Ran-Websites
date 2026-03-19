@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ran Website - Dashboard</title>
     <style>
+        :root { --main-blue: #007bff; }
         body {
             background-color: #0b0b0b;
             color: white;
@@ -23,29 +24,10 @@
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .container {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Ini kunci biar semua tetap di tengah */
-    width: 100%;
-}
 
-h1 {
-    font-size: 2.5rem;
-    letter-spacing: 3px;
-    margin: 10px 0 5px;
-    text-transform: uppercase;
-    width: 100%; /* Pastikan lebarnya full biar teks di dalamnya bisa rata tengah */
-}
-
-.subtitle {
-    color: #888;
-    font-size: 14px;
-    margin: 0 0 30px 0; /* Pastikan margin kiri-kanannya 0 */
-    width: 100%;
-    text-align: center;
-}
+        .container { text-align: center; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        h1 { font-size: 2.5rem; letter-spacing: 3px; margin: 10px 0 5px; text-transform: uppercase; width: 100%; }
+        .subtitle { color: #888; font-size: 14px; margin: 0 0 30px 0; width: 100%; text-align: center; }
 
         .logout-container { position: absolute; top: 20px; right: 20px; }
         .btn-logout {
@@ -61,19 +43,15 @@ h1 {
         }
         .btn-logout:hover { background: #ff4d4d; color: white; }
 
-        .profile-section { margin-bottom: 20px; text-align: center; }
+        .profile-section { margin-bottom: 20px; text-align: center; position: relative; }
         #profile-preview {
             width: 100px; height: 100px;
             border-radius: 50%; object-fit: cover;
-            border: 2px solid #007bff; display: none; margin: 0 auto 10px;
+            border: 2px solid var(--main-blue); display: none; margin: 0 auto 10px;
         }
         #default-icon { font-size: 60px; margin-bottom: 10px; }
         .upload-label { font-size: 11px; color: #555; cursor: pointer; text-decoration: underline; }
 
-        h1 { font-size: 2.5rem; letter-spacing: 3px; margin: 10px 0 5px; text-transform: uppercase; }
-        .subtitle { color: #888; font-size: 14px; margin-bottom: 30px; }
-
-        /* Widget Hari & Jam Sejajar */
         .time-box {
             font-size: 4rem;
             font-weight: bold;
@@ -90,194 +68,12 @@ h1 {
             font-size: 1.5rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #007bff;
-            -webkit-text-fill-color: #007bff;
+            color: var(--main-blue);
+            -webkit-text-fill-color: var(--main-blue);
         }
 
         .btn-group { display: flex; gap: 20px; }
         .btn {
             padding: 15px 30px; border: 1px solid #333; border-radius: 8px;
             background: #161616; color: white; text-decoration: none;
-            font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px;
-        }
-        .btn:hover { border-color: #007bff; transform: translateY(-3px); }
-
-        .status { margin-top: 50px; font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }
-        .dot { height: 8px; width: 8px; background-color: #28a745; border-radius: 50%; }
-        /* Loading Screen Overlay */
-#loader-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #0b0b0b;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999; /* Biar di atas semua elemen */
-    transition: opacity 0.5s ease;
-}
-
-.loader-text {
-    color: #007bff;
-    font-family: monospace;
-    letter-spacing: 3px;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
-/* Progress Bar Container */
-.progress-container {
-    width: 250px;
-    height: 4px;
-    background: #1a1a1a;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-/* Progress Bar Moving */
-.progress-bar {
-    width: 0%;
-    height: 100%;
-    background: #007bff; /* Ganti warna di sini sesukamu! */
-    box-shadow: 0 0 10px #007bff;
-    animation: loadAnim 2s forwards;
-}
-
-@keyframes loadAnim {
-    0% { width: 0%; }
-    50% { width: 70%; }
-    100% { width: 100%; }
-}
-        /* Progress Bar Pelangi (RGB Style) */
-.progress-bar {
-    width: 0%;
-    height: 100%;
-    /* Pakai gradient warna warni */
-    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
-    background-size: 200% 100%; /* Biar gradient-nya bisa digeser */
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-    
-    /* Gabungkan animasi loading (loadAnim) dan animasi warna (rainbow) */
-    animation: 
-        loadAnim 2s forwards, 
-        rainbow 2s linear infinite;
-}
-
-/* Animasi menggeser warna pelangi */
-@keyframes rainbow {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-}
-
-/* Animasi mengisi bar-nya (tetap sama) */
-@keyframes loadAnim {
-    0% { width: 0%; }
-    100% { width: 100%; }
-}
-    </style>
-</head>
-<body>
-    
-       <div id="loader-wrapper">
-    <div class="loader-text">INITIALIZING SYSTEM...</div>
-    <div class="progress-container">
-        <div class="progress-bar"></div>
-    </div>
-</div>
-    <div class="logout-container">
-        <a href="#" class="btn-logout" onclick="logout()">LOGOUT</a>
-    </div>
-
-    <div class="container">
-        <div class="profile-section">
-            <img id="profile-preview" src="#" alt="Profile">
-            <div id="default-icon">👤</div>
-            <label for="file-input" class="upload-label">Change Photo</label>
-            <input type="file" id="file-input" style="display:none" accept="image/*" onchange="previewImage(event)">
-        </div>
-
-        <h1 id="user-display">WELCOME</h1>
-        <p class="subtitle">TJKT Student & Network Enthusiast</p>
-
-        <div class="time-box">
-            <span id="day-label">DAY</span>
-            <span id="clock">00:00:00</span>
-        </div>
-
-        <div class="btn-group">
-            <a href="aboutme.html" class="btn">👤 ABOUT DEVELOPER</a>
-            <a href="projects.html" class="btn">🚀 PROJECTS</a>
-            <a href="games.html" class="btn">🎮 Play Mini Games</a>
-        </div>
-
-        <div class="status">
-            <span class="dot"></span> Network Status: Connected
-        </div>
-    </div>
-
-    <script>
-        function updateTime() {
-            const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            const s = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById("clock").innerText = `${h}:${m}:${s}`;
-
-            const days = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
-            document.getElementById("day-label").innerText = days[now.getDay()];
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        window.onload = function() {
-            const user = localStorage.getItem("activeUser") || "RAN";
-            document.getElementById("user-display").innerText = "WELCOME, " + user.toUpperCase();
-
-            const savedPic = localStorage.getItem("profilePic");
-            if(savedPic) {
-                const img = document.getElementById('profile-preview');
-                img.src = savedPic;
-                img.style.display = 'block';
-                document.getElementById('default-icon').style.display = 'none';
-            }
-        }
-
-        function previewImage(event) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                const output = document.getElementById('profile-preview');
-                output.src = reader.result;
-                output.style.display = 'block';
-                document.getElementById('default-icon').style.display = 'none';
-                localStorage.setItem("profilePic", reader.result);
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        }
-
-        function logout() {
-            localStorage.removeItem("activeUser");
-            window.location.href = "index.html";
-        }
-        window.addEventListener("load", function() {
-    const loader = document.getElementById("loader-wrapper");
-    
-    // Kasih delay dikit (misal 2 detik) biar loading-nya kelihatan keren
-    setTimeout(() => {
-        loader.style.opacity = "0";
-        setTimeout(() => {
-            loader.style.display = "none";
-        }, 500); // Waktu transisi hilang
-    }, 2000); 
-});
-        window.onload = function() {
-    const checkUser = localStorage.getItem("ran8user");
-    if(!checkUser) {
-        window.location.href = "index.html"; // Tendang balik ke login kalau belum masuk
-    }
-};
-    </script>
-</body>
-</html>
+            font
