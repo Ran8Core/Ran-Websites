@@ -70,6 +70,7 @@
     const GAME_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
     let score = 0;
     let myName = localStorage.getItem("ran8user");
+    let isUserExist = false; 
 
     window.onload = async function() {
         if(!myName) {
@@ -82,11 +83,15 @@
             const res = await fetch(GAME_API);
             const data = await res.json();
             const me = data.find(u => u.name && u.name.toString().toLowerCase() === myName.toLowerCase());
+            
             if(me) { 
                 score = parseInt(me.score) || 0; 
+                isUserExist = true; 
                 updateUI(); 
+            } else {
+                isUserExist = false; 
             }
-        } catch(e) {}
+        } catch(e) { console.error("Initial Load Error:", e); }
         loadRankings();
     };
 
@@ -103,17 +108,38 @@
     async function sync() {
         const msg = document.getElementById('sync-msg');
         msg.innerText = "DB_STATUS: SYNCING...";
+        
         try {
-            await fetch(GAME_API, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    condition: { name: myName }, 
-                    set: { score: score } 
-                })
-            });
-            msg.innerText = "DB_STATUS: SAVED";
-            setTimeout(() => { msg.innerText = "DB_STATUS: IDLE"; }, 1500);
+            let response;
+            if (isUserExist) {
+                // Update skor user lama
+                response = await fetch(GAME_API, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        condition: { name: myName }, 
+                        set: { score: score } 
+                    })
+                });
+            } else {
+                // Daftar akun baru (POST)
+                response = await fetch(GAME_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify([{ 
+                        name: myName, 
+                        score: score 
+                    }])
+                });
+                if(response.ok) isUserExist = true;
+            }
+
+            if(response.ok) {
+                msg.innerText = "DB_STATUS: SAVED";
+                setTimeout(() => { msg.innerText = "DB_STATUS: IDLE"; }, 1500);
+            } else {
+                msg.innerText = "DB_STATUS: FAILED";
+            }
         } catch (e) { msg.innerText = "DB_STATUS: ERROR"; }
     }
 
@@ -122,19 +148,22 @@
         try {
             const response = await fetch(GAME_API + "?t=" + new Date().getTime());
             const data = await response.json();
+            
             data.sort((a, b) => (parseInt(b.score) || 0) - (parseInt(a.score) || 0));
             
             let html = "";
             data.forEach((u, i) => {
-                const isMe = u.name === myName ? "border:1px solid var(--main-clr)" : "";
+                const isMeStyle = u.name && u.name.toString().toLowerCase() === myName.toLowerCase() 
+                                  ? "border:1px solid var(--main-clr); background: #1a1a1a;" 
+                                  : "";
                 html += `
-                <div class="item" style="${isMe}">
-                    <span>#${i+1} ${u.name}</span>
+                <div class="item" style="${isMeStyle}">
+                    <span>#${i+1} ${u.name || 'Unknown'}</span>
                     <b>${(parseInt(u.score) || 0).toLocaleString()}</b>
                 </div>`;
             });
             rankDiv.innerHTML = html;
-        } catch (e) { rankDiv.innerHTML = "Sync Error"; }
+        } catch (e) { rankDiv.innerHTML = "<div style='text-align:center; color:red;'>Sync Error</div>"; }
     }
 
     function showTab(t) {
