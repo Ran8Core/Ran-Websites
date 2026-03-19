@@ -310,6 +310,27 @@ particlesJS("particles-js", {
   },
   "retina_detect": true
 });
+    // A. Fungsi Navigasi dengan Fade Out
+function navigateTo(url) {
+    const overlay = document.getElementById('transition-overlay');
+    overlay.classList.add('fade-out-active');
+    setTimeout(() => {
+        window.location.href = url;
+    }, 600); // Durasi delay samain sama transisi CSS
+}
+
+// B. Tambahin di window.onload yang udah lo punya
+const originalOnload = window.onload;
+window.onload = function() {
+    if (originalOnload) originalOnload(); // Tetap jalankan fungsi load data lo yang lama
+
+    // Hilangkan overlay transisi (Fade In)
+    const transitionOverlay = document.getElementById('transition-overlay');
+    setTimeout(() => {
+        transitionOverlay.style.opacity = "0";
+    }, 200);
+};
+    
 </script>
     <div id="transition-overlay"></div>
 
