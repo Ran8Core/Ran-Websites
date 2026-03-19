@@ -12,11 +12,11 @@
         .back-nav:hover { color: var(--main-clr); border-color: var(--main-clr); }
 
         .container { background: var(--card-clr); padding: 2rem; border-radius: 20px; width: 340px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 50px rgba(0,0,0,0.8); }
-        .user-tag { border: 1px solid #444; padding: 4px 15px; border-radius: 20px; font-size: 10px; color: var(--main-clr); letter-spacing: 1px; }
+        .user-tag { border: 1px solid #444; padding: 4px 15px; border-radius: 20px; font-size: 10px; color: var(--main-clr); letter-spacing: 1px; cursor: pointer; }
         
         h1 { font-size: 72px; margin: 20px 0; color: #fff; text-shadow: 0 0 20px rgba(0, 209, 255, 0.3); }
         
-        .btn-click { background: transparent; border: 2px solid var(--main-clr); color: var(--main-clr); width: 100%; padding: 20px; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; box-shadow: inset 0 0 0 0 var(--main-clr); }
+        .btn-click { background: transparent; border: 2px solid var(--main-clr); color: var(--main-clr); width: 100%; padding: 20px; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .btn-click:active { transform: scale(0.95); background: var(--main-clr); color: #000; }
 
         .tabs { display: flex; background: #000; padding: 5px; border-radius: 12px; margin: 25px 0 15px 0; border: 1px solid #222; }
@@ -29,7 +29,8 @@
 
         .item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #0f0f0f; border-radius: 10px; margin-bottom: 8px; font-size: 13px; border: 1px solid #222; }
         .item b { color: var(--main-clr); }
-        .item button { background: #222; border: none; color: #fff; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 10px; }
+        .item button { background: #222; border: 1px solid var(--main-clr); color: var(--main-clr); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 10px; }
+        .item button:disabled { border-color: #444; color: #444; cursor: not-allowed; }
         
         #sync-msg { font-size: 9px; color: #444; margin-top: 10px; text-transform: uppercase; }
     </style>
@@ -39,7 +40,7 @@
 <a href="home.html" class="back-nav">← SYSTEM_TERMINAL</a>
 
 <div class="container">
-    <span class="user-tag" id="user-display">COMMANDER: LOADING...</span>
+    <span class="user-tag" id="user-display" onclick="adminTrigger()">RANK: LOADING...</span>
     <h1 id="display-score">0</h1>
     <button class="btn-click" onclick="addScore()">EXECUTE CLICK</button>
 
@@ -50,12 +51,12 @@
 
     <div id="shop-content" class="list-container">
         <div class="item">
-            <div><span>Core Overclock</span><br><small style="color:#555">Soon!</small></div>
-            <button disabled>LOCKED</button>
+            <div><span>Core Overclock</span><br><small style="color:#555">Cost: 50 pts</small></div>
+            <button id="btn-overclock" onclick="buyUpgrade('overclock')">UPGRADE</button>
         </div>
         <div class="item">
-            <div><span>Auto-Bot v1</span><br><small style="color:#555">Soon!</small></div>
-            <button disabled>LOCKED</button>
+            <div><span>Auto-Bot v1</span><br><small style="color:#555">Cost: 200 pts</small></div>
+            <button id="btn-bot" onclick="buyUpgrade('bot')">BUY BOT</button>
         </div>
     </div>
 
@@ -69,101 +70,126 @@
 <script>
     const GAME_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
     let score = 0;
+    let clickPower = 1;
+    let autoClickRate = 0;
     let myName = localStorage.getItem("ran8user");
-    let isUserExist = false; 
+    let isUserExist = false;
+    let clickCount = 0;
 
     window.onload = async function() {
-        if(!myName) {
-            window.location.href = "index.html";
-            return;
-        }
-        document.getElementById('user-display').innerText = "COMMANDER: " + myName.toUpperCase();
-        
+        if(!myName) { window.location.href = "index.html"; return; }
+        await initGame();
+        setInterval(autoClick, 1000);
+    };
+
+    async function initGame() {
         try {
-            const res = await fetch(GAME_API);
+            const res = await fetch(GAME_API + "?t=" + Date.now());
             const data = await res.json();
-            const me = data.find(u => u.name && u.name.toString().toLowerCase() === myName.toLowerCase());
+            data.sort((a, b) => (parseInt(b.score) || 0) - (parseInt(a.score) || 0));
+            
+            const myIndex = data.findIndex(u => u.name && u.name.toString().toLowerCase() === myName.toLowerCase());
+            const myRank = myIndex + 1;
+            const me = data[myIndex];
+
+            document.getElementById('user-display').innerText = `RANK: #${myRank > 0 ? myRank : 'NEW Agent'}`;
             
             if(me) { 
                 score = parseInt(me.score) || 0; 
                 isUserExist = true; 
                 updateUI(); 
-            } else {
-                isUserExist = false; 
             }
-        } catch(e) { console.error("Initial Load Error:", e); }
+        } catch(e) { console.error(e); }
         loadRankings();
-    };
+    }
+
+    // --- ADMIN CONSOLE LOGIC ---
+    function adminTrigger() {
+        clickCount++;
+        if(clickCount >= 5) {
+            const cmd = prompt("ENTER ADMIN COMMAND:");
+            if(cmd === "set_score") {
+                const val = prompt("Set score to:");
+                score = parseInt(val) || score;
+                sync();
+            } else if(cmd === "op_click") {
+                clickPower = 999;
+                alert("OVERPOWERED CLICK ENABLED");
+            } else if(cmd === "reset_rank") {
+                initGame();
+            }
+            clickCount = 0;
+            updateUI();
+        }
+    }
 
     function addScore() {
-        score++;
+        score += clickPower;
         updateUI();
-        if(score % 10 === 0) sync();
+        if(score % 10 === 0) sync(); 
+    }
+
+    function autoClick() {
+        if(autoClickRate > 0) {
+            score += autoClickRate;
+            updateUI();
+            if(Math.random() > 0.9) sync();
+        }
+    }
+
+    function buyUpgrade(type) {
+        if(type === 'overclock' && score >= 50) {
+            score -= 50; clickPower += 1;
+        } else if(type === 'bot' && score >= 200) {
+            score -= 200; autoClickRate += 1;
+        }
+        updateUI();
+        sync();
     }
 
     function updateUI() {
         document.getElementById('display-score').innerText = score.toLocaleString();
+        document.getElementById('btn-overclock').disabled = score < 50;
+        document.getElementById('btn-bot').disabled = score < 200;
     }
 
     async function sync() {
         const msg = document.getElementById('sync-msg');
         msg.innerText = "DB_STATUS: SYNCING...";
-        
         try {
             let response;
             if (isUserExist) {
-                // Update skor user lama
                 response = await fetch(GAME_API, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        condition: { name: myName }, 
-                        set: { score: score } 
-                    })
+                    body: JSON.stringify({ condition: { name: myName }, set: { score: score } })
                 });
             } else {
-                // Daftar akun baru (POST)
                 response = await fetch(GAME_API, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify([{ 
-                        name: myName, 
-                        score: score 
-                    }])
+                    body: JSON.stringify([{ name: myName, score: score }])
                 });
                 if(response.ok) isUserExist = true;
             }
-
-            if(response.ok) {
-                msg.innerText = "DB_STATUS: SAVED";
-                setTimeout(() => { msg.innerText = "DB_STATUS: IDLE"; }, 1500);
-            } else {
-                msg.innerText = "DB_STATUS: FAILED";
-            }
+            if(response.ok) msg.innerText = "DB_STATUS: SAVED";
+            setTimeout(() => { msg.innerText = "DB_STATUS: IDLE"; }, 1000);
         } catch (e) { msg.innerText = "DB_STATUS: ERROR"; }
     }
 
     async function loadRankings() {
         const rankDiv = document.getElementById('rank-content');
         try {
-            const response = await fetch(GAME_API + "?t=" + new Date().getTime());
+            const response = await fetch(GAME_API + "?t=" + Date.now());
             const data = await response.json();
-            
             data.sort((a, b) => (parseInt(b.score) || 0) - (parseInt(a.score) || 0));
-            
             let html = "";
             data.forEach((u, i) => {
-                const isMeStyle = u.name && u.name.toString().toLowerCase() === myName.toLowerCase() 
-                                  ? "border:1px solid var(--main-clr); background: #1a1a1a;" 
-                                  : "";
-                html += `
-                <div class="item" style="${isMeStyle}">
-                    <span>#${i+1} ${u.name || 'Unknown'}</span>
-                    <b>${(parseInt(u.score) || 0).toLocaleString()}</b>
-                </div>`;
+                const isMeStyle = u.name && u.name.toString().toLowerCase() === myName.toLowerCase() ? "border:1px solid var(--main-clr); background: #1a1a1a;" : "";
+                html += `<div class="item" style="${isMeStyle}"><span>#${i+1} ${u.name}</span><b>${(parseInt(u.score) || 0).toLocaleString()}</b></div>`;
             });
             rankDiv.innerHTML = html;
-        } catch (e) { rankDiv.innerHTML = "<div style='text-align:center; color:red;'>Sync Error</div>"; }
+        } catch (e) { rankDiv.innerHTML = "Sync Error"; }
     }
 
     function showTab(t) {
