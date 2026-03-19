@@ -29,7 +29,7 @@
 
         .item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #0f0f0f; border-radius: 10px; margin-bottom: 8px; font-size: 13px; border: 1px solid #222; }
         .item b { color: var(--main-clr); }
-        .item button { background: #222; border: 1px solid var(--main-clr); color: var(--main-clr); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 10px; }
+        .item button { background: #222; border: 1px solid var(--main-clr); color: var(--main-clr); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 10px; width: 80px; text-align: center; }
         .item button:disabled { border-color: #444; color: #444; cursor: not-allowed; }
         
         #sync-msg { font-size: 9px; color: #444; margin-top: 10px; text-transform: uppercase; }
@@ -51,11 +51,11 @@
 
     <div id="shop-content" class="list-container">
         <div class="item">
-            <div><span>Core Overclock</span><br><small style="color:#555">Cost: 50 pts</small></div>
+            <div><span>Core Overclock</span><br><small id="price-overclock" style="color:#555">Cost: 50 pts</small></div>
             <button id="btn-overclock" onclick="buyUpgrade('overclock')">UPGRADE</button>
         </div>
         <div class="item">
-            <div><span>Auto-Bot v1</span><br><small style="color:#555">Cost: 200 pts</small></div>
+            <div><span>Auto-Bot v1</span><br><small id="price-bot" style="color:#555">Cost: 200 pts</small></div>
             <button id="btn-bot" onclick="buyUpgrade('bot')">BUY BOT</button>
         </div>
     </div>
@@ -75,6 +75,10 @@
     let myName = localStorage.getItem("ran8user");
     let isUserExist = false;
     let clickCount = 0;
+
+    // Harga Awal
+    let priceOverclock = 1000;
+    let priceBot = 20000;
 
     window.onload = async function() {
         if(!myName) { window.location.href = "index.html"; return; }
@@ -103,7 +107,6 @@
         loadRankings();
     }
 
-    // --- ADMIN CONSOLE LOGIC ---
     function adminTrigger() {
         clickCount++;
         if(clickCount >= 5) {
@@ -115,8 +118,6 @@
             } else if(cmd === "op_click") {
                 clickPower = 999;
                 alert("OVERPOWERED CLICK ENABLED");
-            } else if(cmd === "reset_rank") {
-                initGame();
             }
             clickCount = 0;
             updateUI();
@@ -138,10 +139,14 @@
     }
 
     function buyUpgrade(type) {
-        if(type === 'overclock' && score >= 50) {
-            score -= 50; clickPower += 1;
-        } else if(type === 'bot' && score >= 200) {
-            score -= 200; autoClickRate += 1;
+        if(type === 'overclock' && score >= priceOverclock) {
+            score -= priceOverclock;
+            clickPower += 1;
+            priceOverclock = Math.floor(priceOverclock * 1.5); // Harga naik 1.5x
+        } else if(type === 'bot' && score >= priceBot) {
+            score -= priceBot;
+            autoClickRate += 1;
+            priceBot = Math.floor(priceBot * 1.5); // Harga naik 1.5x
         }
         updateUI();
         sync();
@@ -149,8 +154,14 @@
 
     function updateUI() {
         document.getElementById('display-score').innerText = score.toLocaleString();
-        document.getElementById('btn-overclock').disabled = score < 50;
-        document.getElementById('btn-bot').disabled = score < 200;
+        
+        // Update Teks Harga di Shop
+        document.getElementById('price-overclock').innerText = `Cost: ${priceOverclock.toLocaleString()} pts`;
+        document.getElementById('price-bot').innerText = `Cost: ${priceBot.toLocaleString()} pts`;
+
+        // Update Status Tombol
+        document.getElementById('btn-overclock').disabled = score < priceOverclock;
+        document.getElementById('btn-bot').disabled = score < priceBot;
     }
 
     async function sync() {
