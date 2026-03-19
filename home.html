@@ -76,4 +76,134 @@
         .btn {
             padding: 15px 30px; border: 1px solid #333; border-radius: 8px;
             background: #161616; color: white; text-decoration: none;
-            font
+            font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+        }
+        .btn:hover { border-color: var(--main-blue); transform: translateY(-3px); }
+
+        .status { margin-top: 50px; font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }
+        .dot { height: 8px; width: 8px; background-color: #28a745; border-radius: 50%; }
+
+        /* Loader */
+        #loader-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #0b0b0b; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease;
+        }
+        .loader-text { color: var(--main-blue); font-family: monospace; letter-spacing: 3px; margin-bottom: 20px; font-weight: bold; }
+        .progress-container { width: 250px; height: 4px; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
+        .progress-bar {
+            width: 0%; height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+            background-size: 200% 100%;
+            animation: loadAnim 2s forwards, rainbow 2s linear infinite;
+        }
+        @keyframes rainbow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        @keyframes loadAnim { 0% { width: 0%; } 100% { width: 100%; } }
+    </style>
+</head>
+<body>
+
+<div id="loader-wrapper">
+    <div class="loader-text">INITIALIZING SYSTEM...</div>
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+</div>
+
+<div class="logout-container">
+    <a href="#" class="btn-logout" onclick="logout()">LOGOUT</a>
+</div>
+
+<div class="container">
+    <div class="profile-section">
+        <img id="profile-preview" src="#" alt="Profile">
+        <div id="default-icon">👤</div>
+        <label for="file-input" class="upload-label">Change Photo</label>
+        <input type="file" id="file-input" style="display:none" accept="image/*" onchange="previewImage(event)">
+    </div>
+
+    <h1 id="user-display">WELCOME</h1>
+    <p class="subtitle">TJKT Student & Network Enthusiast</p>
+
+    <div class="time-box">
+        <span id="day-label">DAY</span>
+        <span id="clock">00:00:00</span>
+    </div>
+
+    <div class="btn-group">
+        <a href="aboutme.html" class="btn">👤 ABOUT DEVELOPER</a>
+        <a href="projects.html" class="btn">🚀 PROJECTS</a>
+        <a href="games.html" class="btn">🎮 Play Mini Games</a>
+    </div>
+
+    <div class="status">
+        <span class="dot"></span> Network Status: Connected
+    </div>
+</div>
+
+<script>
+    // 1. UPDATE JAM & HARI
+    function updateTime() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById("clock").innerText = `${h}:${m}:${s}`;
+
+        const days = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+        document.getElementById("day-label").innerText = days[now.getDay()];
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // 2. FUNGSI PREVIEW & SIMPAN FOTO
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById('profile-preview');
+            const icon = document.getElementById('default-icon');
+            output.src = reader.result;
+            output.style.display = 'block';
+            icon.style.display = 'none';
+            localStorage.setItem("profilePic", reader.result);
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // 3. LOGIKA UTAMA (LOAD DATA) - DIJADIKAN SATU FUNGSI
+    window.onload = function() {
+        // Cek Login
+        const checkUser = localStorage.getItem("ran8user");
+        if(!checkUser) {
+            window.location.href = "index.html";
+            return;
+        }
+        document.getElementById("user-display").innerText = "WELCOME, " + checkUser.toUpperCase();
+
+        // Load Foto Profil
+        const savedPic = localStorage.getItem("profilePic");
+        if(savedPic) {
+            const img = document.getElementById('profile-preview');
+            const icon = document.getElementById('default-icon');
+            img.src = savedPic;
+            img.style.display = 'block';
+            icon.style.display = 'none';
+        }
+
+        // Matikan Loader
+        const loader = document.getElementById("loader-wrapper");
+        setTimeout(() => {
+            loader.style.opacity = "0";
+            setTimeout(() => {
+                loader.style.display = "none";
+            }, 500);
+        }, 2000);
+    };
+
+    function logout() {
+        localStorage.removeItem("ran8user");
+        window.location.href = "index.html";
+    }
+</script>
+</body>
+</html>
