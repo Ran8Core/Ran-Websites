@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAN8CORE - Project Clicker (Rental Bot)</title>
+    <title>RAN8CORE - Project Clicker (Sync Power)</title>
     <style>
         :root { --main-clr: #00d1ff; --bg-clr: #0a0a0a; --card-clr: #161616; }
         body { background-color: var(--bg-clr); color: white; font-family: 'Consolas', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; user-select: none; }
@@ -58,11 +58,11 @@
     const GAME_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
     let score = parseInt(localStorage.getItem("ran8_score")) || 0;
     let clickPower = parseInt(localStorage.getItem("ran8_power")) || 1;
-    let autoClickRate = 0; // Bot selalu mulai dari 0 setiap refresh/expire
-    let botTimeLeft = 0; // Sisa waktu bot dalam detik
-    
     let priceOverclock = parseInt(localStorage.getItem("ran8_p1")) || 50;
-    let priceBot = 200; // Harga bot bisa tetap atau naik, tapi di sini gue set 200 buat sewa
+    
+    let isBotActive = false;
+    let botTimeLeft = 0;
+    const priceBot = 200; // Harga sewa tetap
     
     let myName = localStorage.getItem("ran8user");
     let isUserExist = false;
@@ -74,22 +74,20 @@
         
         // Interval Utama 1 Detik
         setInterval(() => {
-            // Logika Bot Berjalan
             if(botTimeLeft > 0) {
                 botTimeLeft--;
-                score += autoClickRate;
+                // UPDATE: Bot nambah skor sesuai clickPower lo!
+                score += clickPower; 
                 updateUI();
                 saveLocal();
-            } else if (autoClickRate > 0) {
-                // Waktu habis
-                autoClickRate = 0;
+            } else if (isBotActive) {
+                isBotActive = false;
                 updateUI();
-                alert("Bot period expired! Buy again to continue.");
+                alert("Bot subscription ended!");
             }
         }, 1000);
 
-        // Auto Sync tiap 1 menit biar aman
-        setInterval(sync, 60000);
+        setInterval(sync, 60000); // Sync tiap menit
     };
 
     async function initGame() {
@@ -127,16 +125,12 @@
             priceOverclock = Math.floor(priceOverclock * 1.5);
             saveLocal();
         } else if(type === 'bot' && score >= priceBot) {
-            if(botTimeLeft > 0) {
-                alert("Bot is still active!"); return;
-            }
+            if(botTimeLeft > 0) return;
             score -= priceBot;
-            autoClickRate = 2; // Bot nambah 2 poin per detik
-            botTimeLeft = 300; // Aktif 5 menit (300 detik)
-            // Harga bot bisa lo naikin juga kalau mau
-            // priceBot = Math.floor(priceBot * 1.2); 
+            botTimeLeft = 300; // 5 Menit
+            isBotActive = true;
         } else {
-            alert("Points not enough!"); return;
+            return;
         }
         updateUI();
         sync();
@@ -146,7 +140,6 @@
         document.getElementById('display-score').innerText = score.toLocaleString();
         document.getElementById('price-overclock').innerText = `Cost: ${priceOverclock.toLocaleString()} pts`;
         
-        // Update Teks Tombol Bot
         const botBtn = document.getElementById('btn-bot');
         if(botTimeLeft > 0) {
             let m = Math.floor(botTimeLeft / 60);
@@ -157,7 +150,6 @@
             botBtn.innerText = "BUY BOT";
             botBtn.disabled = score < priceBot;
         }
-
         document.getElementById('btn-overclock').disabled = score < priceOverclock;
     }
 
@@ -173,10 +165,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(isUserExist ? body : [body[0]])
             });
-            if(res.ok) {
-                isUserExist = true;
-                msg.innerText = "DB_STATUS: SAVED";
-            }
+            if(res.ok) { isUserExist = true; msg.innerText = "DB_STATUS: SAVED"; }
         } catch (e) { msg.innerText = "OFFLINE"; }
     }
 
@@ -196,7 +185,7 @@
 
     function adminTrigger() {
         if(++adminClicks >= 5) {
-            score += 50000; updateUI(); sync(); adminClicks = 0;
+            score += 10000; updateUI(); sync(); adminClicks = 0;
         }
     }
     let adminClicks = 0;
