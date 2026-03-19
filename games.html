@@ -3,38 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAN8CORE - Project Clicker</title>
+    <title>RAN8CORE - Project Clicker (Rental Bot)</title>
     <style>
         :root { --main-clr: #00d1ff; --bg-clr: #0a0a0a; --card-clr: #161616; }
         body { background-color: var(--bg-clr); color: white; font-family: 'Consolas', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; user-select: none; }
-        
         .back-nav { position: absolute; top: 20px; left: 20px; text-decoration: none; color: #555; font-size: 12px; border: 1px solid #333; padding: 5px 10px; border-radius: 5px; transition: 0.3s; }
         .back-nav:hover { color: var(--main-clr); border-color: var(--main-clr); }
-
         .container { background: var(--card-clr); padding: 2rem; border-radius: 20px; width: 340px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 50px rgba(0,0,0,0.8); }
         .user-tag { border: 1px solid #444; padding: 4px 15px; border-radius: 20px; font-size: 10px; color: var(--main-clr); letter-spacing: 1px; cursor: pointer; }
-        
         h1 { font-size: 72px; margin: 20px 0; color: #fff; text-shadow: 0 0 20px rgba(0, 209, 255, 0.3); }
-        
         .btn-click { background: transparent; border: 2px solid var(--main-clr); color: var(--main-clr); width: 100%; padding: 20px; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .btn-click:active { transform: scale(0.95); background: var(--main-clr); color: #000; }
-
         .tabs { display: flex; background: #000; padding: 5px; border-radius: 12px; margin: 25px 0 15px 0; border: 1px solid #222; }
         .tab { flex: 1; padding: 10px; cursor: pointer; font-size: 12px; color: #555; transition: 0.3s; font-weight: bold; }
         .tab.active { background: #1a1a1a; color: var(--main-clr); border-radius: 8px; }
-
-        .list-container { text-align: left; max-height: 220px; overflow-y: auto; padding-right: 5px; }
-        .list-container::-webkit-scrollbar { width: 4px; }
-        .list-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-
+        .list-container { text-align: left; max-height: 220px; overflow-y: auto; }
         .item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #0f0f0f; border-radius: 10px; margin-bottom: 8px; font-size: 13px; border: 1px solid #222; }
         .item b { color: var(--main-clr); }
-        .item button { background: #222; border: 1px solid var(--main-clr); color: var(--main-clr); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 10px; width: 80px; text-align: center; }
+        .item button { background: #222; border: 1px solid var(--main-clr); color: var(--main-clr); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 10px; width: 95px; }
         .item button:disabled { border-color: #444; color: #444; cursor: not-allowed; }
-        
         #sync-msg { font-size: 9px; color: #444; margin-top: 10px; text-transform: uppercase; }
     </style>
 </head>
+<body>
+
+<a href="home.html" class="back-nav">← SYSTEM_TERMINAL</a>
+
+<div class="container">
+    <span class="user-tag" id="user-display" onclick="adminTrigger()">RANK: LOADING...</span>
+    <h1 id="display-score">0</h1>
+    <button class="btn-click" onclick="addScore()">EXECUTE CLICK</button>
+
+    <div class="tabs">
+        <div id="nav-shop" class="tab active" onclick="showTab('shop')">UPGRADES</div>
+        <div id="nav-rank" class="tab" onclick="showTab('rank')">RANKING</div>
+    </div>
+
+    <div id="shop-content" class="list-container">
+        <div class="item">
+            <div><span>Core Overclock</span><br><small id="price-overclock" style="color:#555">Cost: 50 pts</small></div>
+            <button id="btn-overclock" onclick="buyUpgrade('overclock')">UPGRADE</button>
+        </div>
+        <div class="item">
+            <div><span>Auto-Bot v1</span><br><small id="price-bot" style="color:#555">Cost: 200 pts</small></div>
+            <button id="btn-bot" onclick="buyUpgrade('bot')">BUY BOT</button>
+        </div>
+    </div>
+
+    <div id="rank-content" class="list-container" style="display:none;"></div>
+    <div id="sync-msg">LAST SYNC: LOCAL_ONLY</div>
+</div>
+
+<script>
+    const GAME_API = "https://api.steinhq.com/v1/storages/69b58629affba40a625fa191/Sheet1";
+    let score = parseInt(localStorage.getItem("ran8_score")) || 0;
+    let clickPower = parseInt(localStorage.getItem("ran8_power")) || 1;
+    let autoClickRate = 0; // Bot selalu mulai dari 0 setiap refresh/expire
+    let botTimeLeft = 0; // Sisa waktu bot dalam detik
+    
+    let priceOverclock = parseInt(localStorage.getItem("ran8_p1")) || 50;
+    let priceBot = 200; // Harga bot bisa tetap atau naik, tapi di sini gue set 200 buat sewa
+    
+    let myName = localStorage.getItem("ran8user");
+    let isUserExist = false;
+
+    window.onload = async function() {
+        if(!myName) { window.location.href = "index.html"; return; }
+        updateUI();
+        await initGame();
+        
+        // Interval Utama 1 Detik
+        setInterval(() => {
+            // Logika Bot Berjalan
+            if(botTimeLeft > 0) {
+                botTimeLeft--;
+                score += autoClickRate;
+                updateUI();
+                saveLocal();
+            } else if (autoClickRate > 0) {
+                // Waktu habis
+                autoClickRate = 0;
+                updateUI();
+                alert("Bot period expired! Buy again to continue.");
+            }
+        }, 1000);
+
+        // Auto Sync tiap 1 menit biar aman
+        setInterval(sync, 60000);
+    };
+
+    async function initGame() {
+        try {
+            const res = await fetch(GAME_API + "?t=" + Date.now());
+            const data = await res.json();
+            data.sort((a, b) => (parseInt(b.score) || 0) - (parseInt(a.score) || 0));
+            const myIdx = data.findIndex(u => u.name?.toString().toLowerCase() === myName.toLowerCase());
+            if(myIdx !== -1) {
+                isUserExist = true;
+                document.getElementById('user-display').innerText = `RANK: #${myIdx + 1}`;
+                let cloudScore = parseInt(data[myIdx].score) || 0;
+                if(cloudScore > score) score = cloudScore;
+            }
+            updateUI();
+        } catch(e) { console.log("Cloud Error."); }
+    }
+
+    function addScore() {
+        score += clickPower;
+        updateUI();
+        saveLocal();
+    }
+
+    function saveLocal() {
+        localStorage.setItem("ran8_score", score);
+        localStorage.setItem("ran8_power", clickPower);
+        localStorage.setItem("ran8_p1", priceOverclock);
+    }
+
+    function buyUpgrade(type) {
+        if(type === 'overclock' && score >= priceOverclock) {
+            score -= priceOverclock; 
+            clickPower += 1;
+            priceOverclock = Math.floor(priceOverclock * 1.5);
+            saveLocal();
+        } else if(type === 'bot' && score >= priceBot) {
+            if(botTimeLeft > 0) {
+                alert("Bot is still active!"); return;
+            }
+            score -= priceBot;
+            autoClickRate = 2; // Bot nambah 2 poin per detik
+            botTimeLeft = 300; // Aktif 5 menit (300 detik)
+            // Harga bot bisa lo naikin juga kalau mau
+            // priceBot = Math.floor(priceBot * 1.2); 
+        } else {
+            alert("Points not enough!"); return;
+        }
+        updateUI();
+        sync();
+    }
+
+    function updateUI() {
+        document.getElementById('display-score').innerText = score.toLocaleString();
+        document.getElementById('price-overclock').innerText = `Cost: ${priceOverclock.toLocaleString()} pts`;
+        
+        // Update Teks Tombol Bot
+        const botBtn = document.getElementById('btn-bot');
+        if(botTimeLeft > 0) {
+            let m = Math.floor(botTimeLeft / 60);
+            let s = botTimeLeft % 60;
+            botBtn.innerText = `${m}:${s.toString().padStart(2,'0')}`;
+            botBtn.disabled = true;
+        } else {
+            botBtn.innerText = "BUY BOT";
+            botBtn.disabled = score < priceBot;
+        }
+
+        document.getElementById('btn-overclock').disabled = score < priceOverclock;
+    }
+
+    async function sync() {
+        const msg = document.getElementById('sync-msg');
+        msg.innerText = "SYNCING...";
+        try {
+            let body = isUserExist 
+                ? { condition: { name: myName }, set: { score: score } }
+                : [{ name: myName, score: score }];
+            let res = await fetch(GAME_API, {
+                method: isUserExist ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(isUserExist ? body : [body[0]])
+            });
+            if(res.ok) {
+                isUserExist = true;
+                msg.innerText = "DB_STATUS: SAVED";
+            }
+        } catch (e) { msg.innerText = "OFFLINE"; }
+    }
+
+    async function loadRankings() {
+        const rankDiv = document.getElementById('rank-content');
+        rankDiv.innerHTML = "Fetching...";
+        try {
+            const res = await fetch(GAME_API + "?t=" + Date.now());
+            const data = await res.json();
+            data.sort((a, b) => (parseInt(b.score) || 0) - (parseInt(a.score) || 0));
+            rankDiv.innerHTML = data.map((u, i) => `
+                <div class="item" style="${u.name?.toLowerCase() === myName.toLowerCase() ? 'border:1px solid var(--main-clr);background:#1a1a1a' : ''}">
+                    <span>#${i+1} ${u.name}</span><b>${(parseInt(u.score)||0).toLocaleString()}</b>
+                </div>`).join('');
+        } catch (e) { rankDiv.innerHTML = "Sync Error"; }
+    }
+
+    function adminTrigger() {
+        if(++adminClicks >= 5) {
+            score += 50000; updateUI(); sync(); adminClicks = 0;
+        }
+    }
+    let adminClicks = 0;
+
+    function showTab(t) {
+        document.getElementById('shop-content').style.display = (t === 'shop' ? 'block' : 'none');
+        document.getElementById('rank-content').style.display = (t === 'rank' ? 'block' : 'none');
+        document.getElementById('nav-shop').classList.toggle('active', t === 'shop');
+        document.getElementById('nav-rank').classList.toggle('active', t === 'rank');
+        if(t === 'rank') loadRankings();
+    }
+</script>
+</body>
+</html></head>
 <body>
 
 <a href="home.html" class="back-nav">← SYSTEM_TERMINAL</a>
