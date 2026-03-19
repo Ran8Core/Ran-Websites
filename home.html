@@ -205,5 +205,38 @@
         window.location.href = "index.html";
     }
 </script>
+    <div id="log-container">
+    <div id="log-box"></div>
+</div>
+
+<style>
+    #log-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px; /* Bisa ganti 'left' kalau mau di kiri */
+        width: 250px;
+        height: 120px;
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 10px;
+        color: #00d1ff;
+        font-family: 'Consolas', monospace;
+        overflow: hidden;
+        pointer-events: none; /* Biar gak ganggu klik */
+        box-shadow: 0 0 15px rgba(0, 209, 255, 0.1);
+    }
+    #log-box div {
+        margin-bottom: 4px;
+        border-left: 2px solid #00d1ff;
+        padding-left: 5px;
+        animation: fadeInLog 0.3s ease;
+    }
+    @keyframes fadeInLog {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+</style>
 </body>
 </html>
