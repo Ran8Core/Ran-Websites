@@ -211,22 +211,21 @@
 
 <style>
     #log-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px; /* Bisa ganti 'left' kalau mau di kiri */
-        width: 250px;
-        height: 120px;
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid #333;
-        border-radius: 8px;
-        padding: 10px;
-        font-size: 10px;
-        color: #00d1ff;
-        font-family: 'Consolas', monospace;
-        overflow: hidden;
-        pointer-events: none; /* Biar gak ganggu klik */
-        box-shadow: 0 0 15px rgba(0, 209, 255, 0.1);
-    }
+    position: fixed;
+    top: 20px;         /* PINDAH KE ATAS */
+    left: 20px;        /* TETAP DI KIRI */
+    width: 200px;      /* Kecilin dikit biar gak menuhi layar */
+    height: 80px;
+    background: rgba(0, 0, 0, 0.4); /* Tipis aja biar makin clean */
+    border-left: 2px solid #00d1ff;
+    padding: 8px;
+    font-size: 9px;
+    color: rgba(0, 209, 255, 0.7); /* Warna agak redup biar gak distrak */
+    font-family: 'Consolas', monospace;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 10;
+}
     #log-box div {
         margin-bottom: 4px;
         border-left: 2px solid #00d1ff;
@@ -238,5 +237,50 @@
         to { opacity: 1; transform: translateX(0); }
     }
 </style>
+    <script>
+    const logs = [
+        "[INFO] Initializing RAN8_CORE...",
+        "[OK] System handshake success",
+        "[DEBUG] Fetching user_profile...",
+        "[INFO] Syncing with Stein_DB...",
+        "[WARN] Packet latency: 42ms",
+        "[OK] Encryption active (AES-256)",
+        "[INFO] Scanning for updates...",
+        "[DEBUG] Buffer cleared",
+        "[INFO] Listening on port 8080",
+        "[OK] Rank data updated",
+        "[INFO] Executing background_tasks..."
+    ];
+
+    function addLog() {
+        const logBox = document.getElementById('log-box');
+        const newLog = document.createElement('div');
+        
+        // Pilih log acak
+        const randomLog = logs[Math.floor(Math.random() * logs.length)];
+        const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        
+        newLog.innerText = `[${time}] ${randomLog}`;
+        logBox.appendChild(newLog);
+
+        // Hapus log lama biar gak numpuk kebawah
+        if (logBox.childNodes.length > 5) {
+            logBox.removeChild(logBox.childNodes[0]);
+        }
+    }
+
+    // Munculin log baru tiap 4 - 7 detik biar natural
+    function scheduleNextLog() {
+        const delay = Math.random() * (7000 - 4000) + 4000;
+        setTimeout(() => {
+            addLog();
+            scheduleNextLog();
+        }, delay);
+    }
+
+    // Jalankan
+    addLog();
+    scheduleNextLog();
+</script>
 </body>
 </html>
