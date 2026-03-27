@@ -44,6 +44,18 @@
         .btn-logout:hover { background: #ff4d4d; color: white; }
 
         .profile-section { margin-bottom: 20px; text-align: center; position: relative; }
+        /* 1. Tambahin transisi di ID yang udah ada */
+#profile-preview {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* Biar muternya lebih 'snappy' */
+    cursor: pointer;
+}
+
+/* 2. Efek pas kursor nempel */
+#profile-preview:hover {
+    transform: rotate(360deg) scale(1.1); /* Muter sekaligus nge-zoom dikit */
+    border-color: #00d1ff; /* Warna border berubah pas muter */
+    box-shadow: 0 0 20px rgba(0, 209, 255, 0.5); /* Kasih efek glow pas muter */
+}
         #profile-preview {
             width: 100px; height: 100px;
             border-radius: 50%; object-fit: cover;
@@ -168,7 +180,7 @@
             localStorage.setItem("profilePic", reader.result);
         };
         reader.readAsDataURL(event.target.files[0]);
-    }
+    }   
 
     // 3. LOGIKA UTAMA (LOAD DATA) - DIJADIKAN SATU FUNGSI
     window.onload = function() {
@@ -243,7 +255,7 @@
         "[OK] System handshake success",
         "[DEBUG] Fetching user_profile...",
         "[INFO] Syncing with Stein_DB...",
-        "[WARN] Packet latency: 42ms",
+        "[WARN] Packet latency: 2ms",
         "[OK] Encryption active (AES-256)",
         "[INFO] Scanning for updates...",
         "[DEBUG] Buffer cleared",
