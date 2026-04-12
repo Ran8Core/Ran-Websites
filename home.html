@@ -44,22 +44,17 @@
         .btn-logout:hover { background: #ff4d4d; color: white; }
 
         .profile-section { margin-bottom: 20px; text-align: center; position: relative; }
-        /* 1. Tambahin transisi di ID yang udah ada */
-#profile-preview {
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* Biar muternya lebih 'snappy' */
-    cursor: pointer;
-}
-
-/* 2. Efek pas kursor nempel */
-#profile-preview:hover {
-    transform: rotate(360deg) scale(1.1); /* Muter sekaligus nge-zoom dikit */
-    border-color: #00d1ff; /* Warna border berubah pas muter */
-    box-shadow: 0 0 20px rgba(0, 209, 255, 0.5); /* Kasih efek glow pas muter */
-}
         #profile-preview {
             width: 100px; height: 100px;
             border-radius: 50%; object-fit: cover;
             border: 2px solid var(--main-blue); display: none; margin: 0 auto 10px;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        #profile-preview:hover {
+            transform: rotate(360deg) scale(1.1);
+            border-color: #00d1ff;
+            box-shadow: 0 0 20px rgba(0, 209, 255, 0.5);
         }
         #default-icon { font-size: 60px; margin-bottom: 10px; }
         .upload-label { font-size: 11px; color: #555; cursor: pointer; text-decoration: underline; }
@@ -84,18 +79,19 @@
             -webkit-text-fill-color: var(--main-blue);
         }
 
-        .btn-group { display: flex; gap: 20px; }
+        .btn-group { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
         .btn {
             padding: 15px 30px; border: 1px solid #333; border-radius: 8px;
             background: #161616; color: white; text-decoration: none;
             font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+            cursor: pointer;
         }
-        .btn:hover { border-color: var(--main-blue); transform: translateY(-3px); }
+        .btn:hover { border-color: var(--main-blue); transform: translateY(-3px); background: #1e1e1e; }
 
         .status { margin-top: 50px; font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }
         .dot { height: 8px; width: 8px; background-color: #28a745; border-radius: 50%; }
 
-        /* Loader */
+        /* Loader & Overlay */
         #loader-wrapper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #0b0b0b; display: flex; flex-direction: column;
@@ -111,9 +107,27 @@
         }
         @keyframes rainbow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
         @keyframes loadAnim { 0% { width: 0%; } 100% { width: 100%; } }
+
+        #transition-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0b0b0b; z-index: 10001; pointer-events: none; opacity: 1; transition: opacity 0.6s ease;
+        }
+        .fade-out-active { opacity: 1 !important; pointer-events: all !important; }
+
+        /* Log System */
+        #log-container {
+            position: fixed; top: 20px; left: 20px; width: 200px; height: 80px;
+            background: rgba(0, 0, 0, 0.4); border-left: 2px solid #00d1ff;
+            padding: 8px; font-size: 9px; color: rgba(0, 209, 255, 0.7);
+            font-family: 'Consolas', monospace; overflow: hidden; pointer-events: none; z-index: 10;
+        }
+        #log-box div { margin-bottom: 4px; border-left: 2px solid #00d1ff; padding-left: 5px; animation: fadeInLog 0.3s ease; }
+        @keyframes fadeInLog { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
+
+<div id="transition-overlay"></div>
 
 <div id="loader-wrapper">
     <div class="loader-text">INITIALIZING SYSTEM...</div>
@@ -121,6 +135,12 @@
         <div class="progress-bar"></div>
     </div>
 </div>
+
+<div id="log-container">
+    <div id="log-box"></div>
+</div>
+
+<div id="particles-js" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
 
 <div class="logout-container">
     <a href="#" class="btn-logout" onclick="logout()">LOGOUT</a>
@@ -143,9 +163,10 @@
     </div>
 
     <div class="btn-group">
-        <a href="aboutme.html" class="btn">👤 ABOUT DEVELOPER</a>
-        <a href="projects.html" class="btn">🚀 PROJECTS</a>
-        <a href="games.html" class="btn">🎮 Play Mini Games</a>
+        <div class="btn" onclick="navigateTo('aboutme.html')">👤 ABOUT</div>
+        <div class="btn" onclick="navigateTo('projects.html')">🚀 PROJECTS</div>
+        <div class="btn" onclick="navigateTo('games.html')">🎮 GAMES</div>
+        <div class="btn" onclick="navigateTo('gacha.html')" style="border-color: #ffac00;">🎰 GACHA</div>
     </div>
 
     <div class="status">
@@ -153,217 +174,86 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script>
-    // 1. UPDATE JAM & HARI
+    // 1. JAM & HARI
     function updateTime() {
         const now = new Date();
         const h = String(now.getHours()).padStart(2, '0');
         const m = String(now.getMinutes()).padStart(2, '0');
         const s = String(now.getSeconds()).padStart(2, '0');
         document.getElementById("clock").innerText = `${h}:${m}:${s}`;
-
         const days = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
         document.getElementById("day-label").innerText = days[now.getDay()];
     }
     setInterval(updateTime, 1000);
     updateTime();
 
-    // 2. FUNGSI PREVIEW & SIMPAN FOTO
+    // 2. NAVIGASI & FOTO
+    function navigateTo(url) {
+        document.getElementById('transition-overlay').classList.add('fade-out-active');
+        setTimeout(() => { window.location.href = url; }, 600);
+    }
+
     function previewImage(event) {
         const reader = new FileReader();
         reader.onload = function() {
             const output = document.getElementById('profile-preview');
-            const icon = document.getElementById('default-icon');
             output.src = reader.result;
             output.style.display = 'block';
-            icon.style.display = 'none';
+            document.getElementById('default-icon').style.display = 'none';
             localStorage.setItem("profilePic", reader.result);
         };
         reader.readAsDataURL(event.target.files[0]);
-    }   
-
-    // 3. LOGIKA UTAMA (LOAD DATA) - DIJADIKAN SATU FUNGSI
-    window.onload = function() {
-        // Cek Login
-        const checkUser = localStorage.getItem("ran8user");
-        if(!checkUser) {
-            window.location.href = "index.html";
-            return;
-        }
-        document.getElementById("user-display").innerText = "WELCOME, " + checkUser.toUpperCase();
-
-        // Load Foto Profil
-        const savedPic = localStorage.getItem("profilePic");
-        if(savedPic) {
-            const img = document.getElementById('profile-preview');
-            const icon = document.getElementById('default-icon');
-            img.src = savedPic;
-            img.style.display = 'block';
-            icon.style.display = 'none';
-        }
-
-        // Matikan Loader
-        const loader = document.getElementById("loader-wrapper");
-        setTimeout(() => {
-            loader.style.opacity = "0";
-            setTimeout(() => {
-                loader.style.display = "none";
-            }, 500);
-        }, 2000);
-    };
-
-    function logout() {
-        localStorage.removeItem("ran8user");
-        window.location.href = "index.html";
     }
-</script>
-    <div id="log-container">
-    <div id="log-box"></div>
-</div>
 
-<style>
-    #log-container {
-    position: fixed;
-    top: 20px;         /* PINDAH KE ATAS */
-    left: 20px;        /* TETAP DI KIRI */
-    width: 200px;      /* Kecilin dikit biar gak menuhi layar */
-    height: 80px;
-    background: rgba(0, 0, 0, 0.4); /* Tipis aja biar makin clean */
-    border-left: 2px solid #00d1ff;
-    padding: 8px;
-    font-size: 9px;
-    color: rgba(0, 209, 255, 0.7); /* Warna agak redup biar gak distrak */
-    font-family: 'Consolas', monospace;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 10;
-}
-    #log-box div {
-        margin-bottom: 4px;
-        border-left: 2px solid #00d1ff;
-        padding-left: 5px;
-        animation: fadeInLog 0.3s ease;
-    }
-    @keyframes fadeInLog {
-        from { opacity: 0; transform: translateX(10px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-</style>
-    <script>
-    const logs = [
-        "[INFO] Initializing RAN8_CORE...",
-        "[OK] System handshake success",
-        "[DEBUG] Fetching user_profile...",
-        "[INFO] Syncing with Stein_DB...",
-        "[WARN] Packet latency: 2ms",
-        "[OK] Encryption active (AES-256)",
-        "[INFO] Scanning for updates...",
-        "[DEBUG] Buffer cleared",
-        "[INFO] Listening on port 8080",
-        "[OK] Rank data updated",
-        "[INFO] Executing background_tasks..."
-    ];
-
+    // 3. LOG SYSTEM
+    const logs = ["[INFO] Initializing...", "[OK] Handshake success", "[DEBUG] Syncing DB...", "[OK] Encryption active", "[INFO] Port 8080 active"];
     function addLog() {
         const logBox = document.getElementById('log-box');
         const newLog = document.createElement('div');
-        
-        // Pilih log acak
         const randomLog = logs[Math.floor(Math.random() * logs.length)];
-        const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         newLog.innerText = `[${time}] ${randomLog}`;
         logBox.appendChild(newLog);
-
-        // Hapus log lama biar gak numpuk kebawah
-        if (logBox.childNodes.length > 5) {
-            logBox.removeChild(logBox.childNodes[0]);
-        }
+        if (logBox.childNodes.length > 4) logBox.removeChild(logBox.childNodes[0]);
+        setTimeout(addLog, Math.random() * 3000 + 4000);
     }
-
-    // Munculin log baru tiap 4 - 7 detik biar natural
-    function scheduleNextLog() {
-        const delay = Math.random() * (7000 - 4000) + 4000;
-        setTimeout(() => {
-            addLog();
-            scheduleNextLog();
-        }, delay);
-    }
-
-    // Jalankan
     addLog();
-    scheduleNextLog();
+
+    // 4. ONLOAD LOGIC
+    window.onload = function() {
+        const checkUser = localStorage.getItem("ran8user");
+        if(!checkUser) { window.location.href = "index.html"; return; }
+        document.getElementById("user-display").innerText = "WELCOME, " + checkUser.toUpperCase();
+
+        const savedPic = localStorage.getItem("profilePic");
+        if(savedPic) {
+            const img = document.getElementById('profile-preview');
+            img.src = savedPic;
+            img.style.display = 'block';
+            document.getElementById('default-icon').style.display = 'none';
+        }
+
+        setTimeout(() => {
+            document.getElementById("loader-wrapper").style.opacity = "0";
+            document.getElementById('transition-overlay').style.opacity = "0";
+            setTimeout(() => { document.getElementById("loader-wrapper").style.display = "none"; }, 500);
+        }, 2000);
+    };
+
+    function logout() { localStorage.removeItem("ran8user"); window.location.href = "index.html"; }
+
+    // PARTICLES
+    particlesJS("particles-js", {
+        "particles": {
+            "number": { "value": 60 },
+            "color": { "value": "#00d1ff" },
+            "line_linked": { "enable": true, "color": "#00d1ff", "opacity": 0.2 },
+            "move": { "enable": true, "speed": 2 }
+        },
+        "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } } }
+    });
 </script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
-<div id="particles-js" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
-
-<script>
-particlesJS("particles-js", {
-  "particles": {
-    "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-    "color": { "value": "#00d1ff" },
-    "shape": { "type": "circle" },
-    "opacity": { "value": 0.2, "random": false },
-    "size": { "value": 3, "random": true },
-    "line_linked": { "enable": true, "distance": 150, "color": "#00d1ff", "opacity": 0.2, "width": 1 },
-    "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
-  },
-  "interactivity": {
-    "detect_on": "canvas",
-    "events": {
-      "onhover": { "enable": true, "mode": "grab" }, /* Di HP jadi mode sentuh */
-      "onclick": { "enable": true, "mode": "push" }
-    },
-    "modes": {
-      "grab": { "distance": 140, "line_linked": { "opacity": 1 } },
-      "push": { "particles_nb": 4 }
-    }
-  },
-  "retina_detect": true
-});
-    // A. Fungsi Navigasi dengan Fade Out
-function navigateTo(url) {
-    const overlay = document.getElementById('transition-overlay');
-    overlay.classList.add('fade-out-active');
-    setTimeout(() => {
-        window.location.href = url;
-    }, 600); // Durasi delay samain sama transisi CSS
-}
-
-// B. Tambahin di window.onload yang udah lo punya
-const originalOnload = window.onload;
-window.onload = function() {
-    if (originalOnload) originalOnload(); // Tetap jalankan fungsi load data lo yang lama
-
-    // Hilangkan overlay transisi (Fade In)
-    const transitionOverlay = document.getElementById('transition-overlay');
-    setTimeout(() => {
-        transitionOverlay.style.opacity = "0";
-    }, 200);
-};
-    
-</script>
-    <div id="transition-overlay"></div>
-
-<style>
-    #transition-overlay {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: #0b0b0b; /* Samain sama warna bg body */
-        z-index: 10001; /* Di atas segalanya termasuk loader */
-        pointer-events: none;
-        opacity: 1; /* Mulai dengan layar gelap */
-        transition: opacity 0.6s ease;
-    }
-    
-    /* Kelas buat nutup layar pas pindah */
-    .fade-out-active {
-        opacity: 1 !important;
-        pointer-events: all !important;
-    }
-</style>
-    
 </body>
 </html>
