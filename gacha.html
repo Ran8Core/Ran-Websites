@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoYo Gacha Simulator - PPLG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #1a1a1b;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .gacha-card {
+            background: #2d2d30;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 450px;
+            border: 1px solid #444;
+        }
+
+        .result-box {
+            height: 120px;
+            background: #1e1e1e;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border: 2px solid #3d3d3d;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .pull-button {
+            background: linear-gradient(45deg, #0078d4, #00bcf2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            width: 100%;
+        }
+
+        .pull-button:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 25px;
+            color: #0078d4;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        /* Rarity Animasi */
+        .ssr { color: #ffac00; border-color: #ffac00; box-shadow: 0 0 20px rgba(255,172,0,0.3); }
+        .sr { color: #a256ff; border-color: #a256ff; }
+        .trash { color: #888; border-color: #3d3d3d; }
+
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            50% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="gacha-card">
+        <h2 style="margin-top: 0;">HoYo Gacha <span style="color: #0078d4;">v2.1</span></h2>
+        
+        <div id="resultBox" class="result-box">
+            Siap untuk Pull?
+        </div>
+
+        <button class="pull-button" onclick="doGacha()">
+            <i class="fas fa-bolt"></i> PULL 1x
+        </button>
+
+        <div class="stats">
+            <span>Pity: <span id="pityCount">0</span>/80</span>
+            <span>Rate: 2% SSR</span>
+        </div>
+
+        <a href="home.html" class="back-link"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+    </div>
+
+    <script>
+        let pity = 0;
+
+        function doGacha() {
+            pity++;
+            const resBox = document.getElementById('resultBox');
+            const pityText = document.getElementById('pityCount');
+            
+            resBox.classList.remove('shake', 'ssr', 'sr', 'trash');
+            void resBox.offsetWidth; // Trigger reflow buat animasi
+
+            let rng = Math.random() * 100;
+            let result = "";
+            let type = "";
+
+            // Logika Pity (Pasti dapet SSR di pull ke-80) atau hoki 2%
+            if (rng <= 2 || pity >= 80) {
+                const ssrPool = ["Raiden Shogun", "Acheron", "Firefly", "Furina", "Kafka"];
+                result = "🌟 " + ssrPool[Math.floor(Math.random() * ssrPool.length)];
+                type = "ssr";
+                pity = 0; // Reset pity
+            } 
+            else if (rng <= 20) {
+                const srPool = ["March 7th", "Xiangling", "Tingyun", "Lynx"];
+                result = "🟦 " + srPool[Math.floor(Math.random() * srPool.length)];
+                type = "sr";
+            } 
+            else {
+                const trashPool = ["Trashcan 🗑️", "Old Boot 👞", "Cabbage 🥬", "Mint 🌿"];
+                result = trashPool[Math.floor(Math.random() * trashPool.length)];
+                type = "trash";
+                resBox.classList.add('shake');
+            }
+
+            resBox.innerHTML = result;
+            resBox.classList.add(type);
+            pityText.innerHTML = pity;
+        }
+    </script>
+</body>
+</html>
