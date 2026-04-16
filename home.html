@@ -1,263 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ran Website - Dashboard</title>
+    <title>Dashboard - Ran</title>
     <style>
-        :root { --main-blue: #007bff; }
         body {
-            background-color: #0b0b0b;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
             color: white;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            animation: fadeInPage 1.2s ease forwards;
+            text-align: center;
+            padding: 50px;
         }
-
-        @keyframes fadeInPage {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+        .container {
+            background-color: #2d2d2d;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            display: inline-block;
         }
-
-        .container { text-align: center; display: flex; flex-direction: column; align-items: center; width: 100%; }
-        h1 { font-size: 2.5rem; letter-spacing: 3px; margin: 10px 0 5px; text-transform: uppercase; width: 100%; }
-        .subtitle { color: #888; font-size: 14px; margin: 0 0 30px 0; width: 100%; text-align: center; }
-
-        .logout-container { position: absolute; top: 20px; right: 20px; }
-        .btn-logout {
-            padding: 8px 15px;
-            background: #161616;
-            border: 1px solid #ff4d4d;
-            color: #ff4d4d;
-            border-radius: 5px;
+        h1 { color: #00d4ff; }
+        .btn {
+            display: inline-block;
+            padding: 15px 25px;
+            margin: 10px;
             text-decoration: none;
-            font-size: 12px;
+            border-radius: 8px;
             font-weight: bold;
             transition: 0.3s;
         }
-        .btn-logout:hover { background: #ff4d4d; color: white; }
+        .btn-normal {
+            background-color: #444;
+            color: white;
+        }
+        .btn-normal:hover { background-color: #555; }
 
-        .profile-section { margin-bottom: 20px; text-align: center; position: relative; }
-        #profile-preview {
-            width: 100px; height: 100px;
-            border-radius: 50%; object-fit: cover;
-            border: 2px solid var(--main-blue); display: none; margin: 0 auto 10px;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Tombol Gacha Khusus */
+        .btn-gacha {
+            background: linear-gradient(45deg, #ff00ea, #00d4ff);
+            color: white;
+            border: none;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 0, 234, 0.4);
         }
-        #profile-preview:hover {
-            transform: rotate(360deg) scale(1.1);
-            border-color: #00d1ff;
-            box-shadow: 0 0 20px rgba(0, 209, 255, 0.5);
+        .btn-gacha:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6);
         }
-        #default-icon { font-size: 60px; margin-bottom: 10px; }
-        .upload-label { font-size: 11px; color: #555; cursor: pointer; text-decoration: underline; }
-
-        .time-box {
-            font-size: 4rem;
-            font-weight: bold;
-            background: linear-gradient(to bottom, #fff, #444);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 40px;
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            align-items: baseline;
-        }
-        #day-label {
-            font-size: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--main-blue);
-            -webkit-text-fill-color: var(--main-blue);
-        }
-
-        .btn-group { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
-        .btn {
-            padding: 15px 30px; border: 1px solid #333; border-radius: 8px;
-            background: #161616; color: white; text-decoration: none;
-            font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px;
-            cursor: pointer;
-        }
-        .btn:hover { border-color: var(--main-blue); transform: translateY(-3px); background: #1e1e1e; }
-
-        .status { margin-top: 50px; font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }
-        .dot { height: 8px; width: 8px; background-color: #28a745; border-radius: 50%; }
-
-        /* Loader & Overlay */
-        #loader-wrapper {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #0b0b0b; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease;
-        }
-        .loader-text { color: var(--main-blue); font-family: monospace; letter-spacing: 3px; margin-bottom: 20px; font-weight: bold; }
-        .progress-container { width: 250px; height: 4px; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
-        .progress-bar {
-            width: 0%; height: 100%;
-            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
-            background-size: 200% 100%;
-            animation: loadAnim 2s forwards, rainbow 2s linear infinite;
-        }
-        @keyframes rainbow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
-        @keyframes loadAnim { 0% { width: 0%; } 100% { width: 100%; } }
-
-        #transition-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0b0b0b; z-index: 10001; pointer-events: none; opacity: 1; transition: opacity 0.6s ease;
-        }
-        .fade-out-active { opacity: 1 !important; pointer-events: all !important; }
-
-        /* Log System */
-        #log-container {
-            position: fixed; top: 20px; left: 20px; width: 200px; height: 80px;
-            background: rgba(0, 0, 0, 0.4); border-left: 2px solid #00d1ff;
-            padding: 8px; font-size: 9px; color: rgba(0, 209, 255, 0.7);
-            font-family: 'Consolas', monospace; overflow: hidden; pointer-events: none; z-index: 10;
-        }
-        #log-box div { margin-bottom: 4px; border-left: 2px solid #00d1ff; padding-left: 5px; animation: fadeInLog 0.3s ease; }
-        @keyframes fadeInLog { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 
-<div id="transition-overlay"></div>
-
-<div id="loader-wrapper">
-    <div class="loader-text">INITIALIZING SYSTEM...</div>
-    <div class="progress-container">
-        <div class="progress-bar"></div>
-    </div>
-</div>
-
-<div id="log-container">
-    <div id="log-box"></div>
-</div>
-
-<div id="particles-js" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
-
-<div class="logout-container">
-    <a href="#" class="btn-logout" onclick="logout()">LOGOUT</a>
-</div>
-
-<div class="container">
-    <div class="profile-section">
-        <img id="profile-preview" src="#" alt="Profile">
-        <div id="default-icon">👤</div>
-        <label for="file-input" class="upload-label">Change Photo</label>
-        <input type="file" id="file-input" style="display:none" accept="image/*" onchange="previewImage(event)">
+    <div class="container">
+        <h1>Dashboard Jaringan & IT</h1>
+        <p>Silahkan pilih menu navigasi di bawah ini:</p>
+        
+        <nav>
+            <a href="index.html" class="btn btn-normal">Home</a>
+            <a href="aboutme.html" class="btn btn-normal">About Developer</a>
+            <a href="gacha.html" class="btn btn-gacha">🎰 Gacha Sekarang!</a>
+            <a href="games.html" class="btn btn-gacha">Game clicker</a
+        </nav>
     </div>
 
-    <h1 id="user-display">WELCOME</h1>
-    <p class="subtitle">TJKT Student & Network Enthusiast</p>
-
-    <div class="time-box">
-        <span id="day-label">DAY</span>
-        <span id="clock">00:00:00</span>
-    </div>
-
-    <div class="btn-group">
-        <div class="btn" onclick="navigateTo('aboutme.html')">👤 ABOUT</div>
-        <div class="btn" onclick="navigateTo('projects.html')">🚀 PROJECTS</div>
-        <div class="btn" onclick="navigateTo('games.html')">🎮 GAMES</div>
-        <div class="btn" onclick="navigateTo('gacha.html')" style="border-color: #ffac00;">🎰 GACHA</div>
-    </div>
-
-    <div class="status">
-        <span class="dot"></span> Network Status: Connected
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script>
-    // 1. JAM & HARI
-    function updateTime() {
-        const now = new Date();
-        const h = String(now.getHours()).padStart(2, '0');
-        const m = String(now.getMinutes()).padStart(2, '0');
-        const s = String(now.getSeconds()).padStart(2, '0');
-        document.getElementById("clock").innerText = `${h}:${m}:${s}`;
-        const days = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
-        document.getElementById("day-label").innerText = days[now.getDay()];
-    }
-    setInterval(updateTime, 1000);
-    updateTime();
-
-    // 2. NAVIGASI & FOTO
-    function navigateTo(url) {
-        document.getElementById('transition-overlay').classList.add('fade-out-active');
-        setTimeout(() => { window.location.href = url; }, 600);
-    }
-
-    function previewImage(event) {
-        const reader = new FileReader();
-        reader.onload = function() {
-            const output = document.getElementById('profile-preview');
-            output.src = reader.result;
-            output.style.display = 'block';
-            document.getElementById('default-icon').style.display = 'none';
-            localStorage.setItem("profilePic", reader.result);
-        };
-        reader.readAsDataURL(event.target.files[0]);
-    }
-
-    // 3. LOG SYSTEM
-    const logs = ["[INFO] Initializing...", "[OK] Handshake success", "[DEBUG] Syncing DB...", "[OK] Encryption active", "[INFO] Port 8080 active"];
-    function addLog() {
-        const logBox = document.getElementById('log-box');
-        const newLog = document.createElement('div');
-        const randomLog = logs[Math.floor(Math.random() * logs.length)];
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        newLog.innerText = `[${time}] ${randomLog}`;
-        logBox.appendChild(newLog);
-        if (logBox.childNodes.length > 4) logBox.removeChild(logBox.childNodes[0]);
-        setTimeout(addLog, Math.random() * 3000 + 4000);
-    }
-    addLog();
-
-    // 4. ONLOAD LOGIC
-    window.onload = function() {
-        const checkUser = localStorage.getItem("ran8user");
-        if(!checkUser) { window.location.href = "index.html"; return; }
-        document.getElementById("user-display").innerText = "WELCOME, " + checkUser.toUpperCase();
-
-        const savedPic = localStorage.getItem("profilePic");
-        if(savedPic) {
-            const img = document.getElementById('profile-preview');
-            img.src = savedPic;
-            img.style.display = 'block';
-            document.getElementById('default-icon').style.display = 'none';
-        }
-
-        setTimeout(() => {
-            document.getElementById("loader-wrapper").style.opacity = "0";
-            document.getElementById('transition-overlay').style.opacity = "0";
-            setTimeout(() => { document.getElementById("loader-wrapper").style.display = "none"; }, 500);
-        }, 2000);
-    };
-
-    function logout() { localStorage.removeItem("ran8user"); window.location.href = "index.html"; }
-
-    // PARTICLES
-    particlesJS("particles-js", {
-        "particles": {
-            "number": { "value": 60 },
-            "color": { "value": "#00d1ff" },
-            "line_linked": { "enable": true, "color": "#00d1ff", "opacity": 0.2 },
-            "move": { "enable": true, "speed": 2 }
-        },
-        "size": { 
-      "value": 3, // <--- INI KUNCINYA. Kecilin angkanya biar gak jadi polkadot raksasa
-      "random": true 
-    },
-        "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } } }
-    });
-</script>
 </body>
 </html>
