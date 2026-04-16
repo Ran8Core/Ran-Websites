@@ -1,153 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HoYo Gacha Simulator - PPLG</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Gacha System - Devin</title>
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #1a1a1b;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        .gacha-card {
-            background: #2d2d30;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-            width: 450px;
-            border: 1px solid #444;
-        }
-
-        .result-box {
-            height: 120px;
-            background: #1e1e1e;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px 0;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border: 2px solid #3d3d3d;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .pull-button {
-            background: linear-gradient(45deg, #0078d4, #00bcf2);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-            width: 100%;
-        }
-
-        .pull-button:hover {
-            transform: scale(1.02);
-            filter: brightness(1.1);
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            font-size: 0.85rem;
-            color: #aaa;
-        }
-
-        .back-link {
-            display: block;
-            margin-top: 25px;
-            color: #0078d4;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        /* Rarity Animasi */
-        .ssr { color: #ffac00; border-color: #ffac00; box-shadow: 0 0 20px rgba(255,172,0,0.3); }
-        .sr { color: #a256ff; border-color: #a256ff; }
-        .trash { color: #888; border-color: #3d3d3d; }
-
-        .shake { animation: shake 0.5s; }
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(5px); }
-            50% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
+        body { background-color: #121212; color: white; font-family: sans-serif; text-align: center; }
+        .box { border: 2px dashed #444; padding: 20px; width: 300px; margin: 20px auto; border-radius: 10px; }
+        .btn-roll { background: #ff0055; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-roll:hover { background: #ff2b70; }
+        
+        /* Section Collection */
+        #collection { margin-top: 30px; text-align: left; display: inline-block; width: 300px; }
+        .item-list { background: #1f1f1f; padding: 10px; border-radius: 5px; min-height: 50px; border: 1px solid #333; }
+        .rarity-ssr { color: #ffae00; font-weight: bold; }
+        .rarity-r { color: #00d4ff; }
+        .btn-back { display: block; margin-top: 20px; color: #888; text-decoration: none; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="gacha-card">
-        <h2 style="margin-top: 0;">HoYo Gacha <span style="color: #0078d4;">v2.1</span></h2>
-        
-        <div id="resultBox" class="result-box">
-            Siap untuk Pull?
-        </div>
-
-        <button class="pull-button" onclick="doGacha()">
-            <i class="fas fa-bolt"></i> PULL 1x
-        </button>
-
-        <div class="stats">
-            <span>Pity: <span id="pityCount">0</span>/80</span>
-            <span>Rate: 2% SSR</span>
-        </div>
-
-        <a href="home.html" class="back-link"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+    <h1>🎰 Gacha Room</h1>
+    
+    <div class="box">
+        <p id="result">Siap buat gacha?</p>
+        <button class="btn-roll" onclick="rollGacha()">Gacha (1x)</button>
     </div>
 
+    <div id="collection">
+        <h3>Inventory / Collection:</h3>
+        <div class="item-list" id="inventory">
+            </div>
+        <button onclick="clearCollection()" style="margin-top:10px; font-size: 10px; background: none; border: 1px solid #444; color: #444; cursor: pointer;">Reset Inventory</button>
+    </div>
+
+    <a href="index.html" class="btn-back">← Balik ke Dashboard</a>
+
     <script>
-        let pity = 0;
+        // List Item Receh
+        const items = [
+            { name: "Piring Hadiah Sabun", rarity: "Common" },
+            { name: "Kabel LAN Gigit Tikus", rarity: "Common" },
+            { name: "Ping 999ms", rarity: "Common" },
+            { name: "Laptop Fujitsu Mulus", rarity: "R" },
+            { name: "Kabel Fiber Optic 1km", rarity: "R" },
+            { name: "Admin Jaringan Galak", rarity: "SSR" },
+            { name: "Unlimited Kuota", rarity: "SSR" }
+        ];
 
-        function doGacha() {
-            pity++;
-            const resBox = document.getElementById('resultBox');
-            const pityText = document.getElementById('pityCount');
+        let myCollection = JSON.parse(localStorage.getItem('devin_gacha')) || [];
+        updateDisplay();
+
+        function rollGacha() {
+            const random = Math.floor(Math.random() * items.length);
+            const prize = items[random];
             
-            resBox.classList.remove('shake', 'ssr', 'sr', 'trash');
-            void resBox.offsetWidth; // Trigger reflow buat animasi
+            document.getElementById('result').innerHTML = `Dapet: <b>${prize.name}</b>`;
+            
+            // Simpan ke koleksi
+            myCollection.push(prize);
+            localStorage.setItem('devin_gacha', JSON.stringify(myCollection));
+            updateDisplay();
+        }
 
-            let rng = Math.random() * 100;
-            let result = "";
-            let type = "";
+        function updateDisplay() {
+            const list = document.getElementById('inventory');
+            list.innerHTML = myCollection.map(item => {
+                let colorClass = item.rarity === 'SSR' ? 'rarity-ssr' : (item.rarity === 'R' ? 'rarity-r' : '');
+                return `<div class="${colorClass}">• ${item.name} (${item.rarity})</div>`;
+            }).join('');
+        }
 
-            // Logika Pity (Pasti dapet SSR di pull ke-80) atau hoki 2%
-            if (rng <= 2 || pity >= 80) {
-                const ssrPool = ["Raiden Shogun", "Acheron", "Firefly", "Furina", "Kafka"];
-                result = "🌟 " + ssrPool[Math.floor(Math.random() * ssrPool.length)];
-                type = "ssr";
-                pity = 0; // Reset pity
-            } 
-            else if (rng <= 20) {
-                const srPool = ["March 7th", "Xiangling", "Tingyun", "Lynx"];
-                result = "🟦 " + srPool[Math.floor(Math.random() * srPool.length)];
-                type = "sr";
-            } 
-            else {
-                const trashPool = ["Trashcan 🗑️", "Old Boot 👞", "Cabbage 🥬", "Mint 🌿"];
-                result = trashPool[Math.floor(Math.random() * trashPool.length)];
-                type = "trash";
-                resBox.classList.add('shake');
+        function clearCollection() {
+            if(confirm("Hapus semua koleksi?")) {
+                myCollection = [];
+                localStorage.removeItem('devin_gacha');
+                updateDisplay();
             }
-
-            resBox.innerHTML = result;
-            resBox.classList.add(type);
-            pityText.innerHTML = pity;
         }
     </script>
 </body>
