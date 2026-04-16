@@ -1,81 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Gacha System - Devin</title>
-    <style>
-        body { background-color: #121212; color: white; font-family: sans-serif; text-align: center; }
-        .box { border: 2px dashed #444; padding: 20px; width: 300px; margin: 20px auto; border-radius: 10px; }
-        .btn-roll { background: #ff0055; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-roll:hover { background: #ff2b70; }
-        
-        /* Section Collection */
-        #collection { margin-top: 30px; text-align: left; display: inline-block; width: 300px; }
-        .item-list { background: #1f1f1f; padding: 10px; border-radius: 5px; min-height: 50px; border: 1px solid #333; }
-        .rarity-ssr { color: #ffae00; font-weight: bold; }
-        .rarity-r { color: #00d4ff; }
-        .btn-back { display: block; margin-top: 20px; color: #888; text-decoration: none; font-size: 12px; }
-    </style>
-</head>
-<body>
-
-    <h1>🎰 Gacha Room</h1>
+function updateDisplay() {
+    const list = document.getElementById('inventory');
     
-    <div class="box">
-        <p id="result">Siap buat gacha?</p>
-        <button class="btn-roll" onclick="rollGacha()">Gacha (1x)</button>
-    </div>
+    // Proses stacking (ngitung jumlah item yang sama)
+    const counts = {};
+    myCollection.forEach(item => {
+        counts[item.name] = (counts[item.name] || 0) + 1;
+    });
 
-    <div id="collection">
-        <h3>Inventory / Collection:</h3>
-        <div class="item-list" id="inventory">
-            </div>
-        <button onclick="clearCollection()" style="margin-top:10px; font-size: 10px; background: none; border: 1px solid #444; color: #444; cursor: pointer;">Reset Inventory</button>
-    </div>
+    // Ambil detail rarity-nya
+    const uniqueItems = Array.from(new Set(myCollection.map(i => i.name)))
+        .map(name => myCollection.find(i => i.name === name));
 
-    <a href="index.html" class="btn-back">← Balik ke Dashboard</a>
-
-    <script>
-        // List Item Receh
-        const items = [
-            { name: "Piring Hadiah Sabun", rarity: "Common" },
-            { name: "Kabel LAN Gigit Tikus", rarity: "Common" },
-            { name: "Ping 999ms", rarity: "Common" },
-            { name: "Laptop Fujitsu Mulus", rarity: "R" },
-            { name: "Kabel Fiber Optic 1km", rarity: "R" },
-            { name: "Admin Jaringan Galak", rarity: "SSR" },
-            { name: "Unlimited Kuota", rarity: "SSR" }
-        ];
-
-        let myCollection = JSON.parse(localStorage.getItem('devin_gacha')) || [];
-        updateDisplay();
-
-        function rollGacha() {
-            const random = Math.floor(Math.random() * items.length);
-            const prize = items[random];
-            
-            document.getElementById('result').innerHTML = `Dapet: <b>${prize.name}</b>`;
-            
-            // Simpan ke koleksi
-            myCollection.push(prize);
-            localStorage.setItem('devin_gacha', JSON.stringify(myCollection));
-            updateDisplay();
-        }
-
-        function updateDisplay() {
-            const list = document.getElementById('inventory');
-            list.innerHTML = myCollection.map(item => {
-                let colorClass = item.rarity === 'SSR' ? 'rarity-ssr' : (item.rarity === 'R' ? 'rarity-r' : '');
-                return `<div class="${colorClass}">• ${item.name} (${item.rarity})</div>`;
-            }).join('');
-        }
-
-        function clearCollection() {
-            if(confirm("Hapus semua koleksi?")) {
-                myCollection = [];
-                localStorage.removeItem('devin_gacha');
-                updateDisplay();
-            }
-        }
-    </script>
-</body>
-</html>
+    list.innerHTML = uniqueItems.map(item => {
+        let colorClass = item.rarity === 'SSR' ? 'rarity-ssr' : (item.rarity === 'R' ? 'rarity-r' : '');
+        return `<div class="${colorClass}">• ${item.name} (${item.rarity}) <b>x${counts[item.name]}</b></div>`;
+    }).join('');
+}
