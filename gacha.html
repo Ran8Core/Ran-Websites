@@ -1,18 +1,173 @@
-function updateDisplay() {
-    const list = document.getElementById('inventory');
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gacha Room - Devin</title>
+    <style>
+        body { 
+            background-color: #121212; 
+            color: #e0e0e0; 
+            font-family: 'Segoe UI', sans-serif; 
+            text-align: center; 
+            padding: 20px;
+        }
+        .box { 
+            border: 2px solid #333; 
+            background-color: #1f1f1f;
+            padding: 30px; 
+            width: 320px; 
+            margin: 20px auto; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .btn-roll { 
+            background: linear-gradient(45deg, #ff0055, #ff5500); 
+            color: white; 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        .btn-roll:hover { 
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+        }
+        
+        /* Area Collection/Inventory */
+        #collection { 
+            margin-top: 30px; 
+            text-align: left; 
+            display: inline-block; 
+            width: 350px; 
+        }
+        .item-list { 
+            background: #181818; 
+            padding: 15px; 
+            border-radius: 10px; 
+            height: 250px; /* Biar gak balatak ke bawah */
+            overflow-y: auto; /* Bisa di-scroll */
+            border: 1px solid #333; 
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        /* Warna Rarity */
+        .rarity-ssr { color: #ffae00; font-weight: bold; text-shadow: 0 0 5px rgba(255, 174, 0, 0.3); }
+        .rarity-r { color: #00d4ff; font-weight: bold; }
+        .rarity-common { color: #888; }
+        
+        .btn-back { display: block; margin-top: 30px; color: #555; text-decoration: none; font-size: 13px; }
+        .btn-back:hover { color: #00d4ff; }
+        
+        /* Custom Scrollbar biar makin kece */
+        .item-list::-webkit-scrollbar { width: 5px; }
+        .item-list::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>🎰 GACHA ROOM</h1>
+    <p style="color: #666;">Hoki lo hari ini sampai mana?</p>
     
-    // Proses stacking (ngitung jumlah item yang sama)
-    const counts = {};
-    myCollection.forEach(item => {
-        counts[item.name] = (counts[item.name] || 0) + 1;
-    });
+    <div class="box">
+        <p id="result" style="font-size: 18px; min-height: 25px;">Klik tombol di bawah!</p>
+        <button class="btn-roll" onclick="rollGacha()">GACHA (1x)</button>
+    </div>
 
-    // Ambil detail rarity-nya
-    const uniqueItems = Array.from(new Set(myCollection.map(i => i.name)))
-        .map(name => myCollection.find(i => i.name === name));
+    <div id="collection">
+        <h3 style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+            Inventory 
+            <span id="total-count" style="font-size: 12px; color: #555;">Total: 0</span>
+        </h3>
+        <div class="item-list" id="inventory">
+            <p style="color: #444; text-align: center; margin-top: 100px;">Belum ada item...</p>
+        </div>
+        <button onclick="clearCollection()" style="margin-top:10px; background: none; border: none; color: #444; cursor: pointer; font-size: 11px;">[ Reset Data ]</button>
+    </div>
 
-    list.innerHTML = uniqueItems.map(item => {
-        let colorClass = item.rarity === 'SSR' ? 'rarity-ssr' : (item.rarity === 'R' ? 'rarity-r' : '');
-        return `<div class="${colorClass}">• ${item.name} (${item.rarity}) <b>x${counts[item.name]}</b></div>`;
-    }).join('');
-}
+    <a href="index.html" class="btn-back">← Back to Dashboard</a>
+
+    <script>
+        // Database Item & Rarity
+        const items = [
+            { name: "Piring Hadiah Sabun", rarity: "Common" },
+            { name: "Kabel LAN Gigit Tikus", rarity: "Common" },
+            { name: "Ping 999ms", rarity: "Common" },
+            { name: "Sinyal E", rarity: "Common" },
+            { name: "Laptop Fujitsu Mulus", rarity: "R" },
+            { name: "Kabel Fiber Optic 1km", rarity: "R" },
+            { name: "SSD 1TB", rarity: "R" },
+            { name: "Admin Jaringan Galak", rarity: "SSR" },
+            { name: "Unlimited Kuota", rarity: "SSR" },
+            { name: "Tugas Canva Selesai Sendiri", rarity: "SSR" }
+        ];
+
+        // Load data dari LocalStorage
+        let myCollection = JSON.parse(localStorage.getItem('devin_gacha')) || [];
+        updateDisplay();
+
+        function rollGacha() {
+            // Animasi nunggu dikit
+            document.getElementById('result').innerText = "Rolling...";
+            
+            setTimeout(() => {
+                const random = Math.floor(Math.random() * items.length);
+                const prize = items[random];
+                
+                document.getElementById('result').innerHTML = `Dapet: <span class="rarity-${prize.rarity.toLowerCase()}">${prize.name}</span>`;
+                
+                myCollection.push(prize);
+                localStorage.setItem('devin_gacha', JSON.stringify(myCollection));
+                updateDisplay();
+            }, 300);
+        }
+
+        function updateDisplay() {
+            const list = document.getElementById('inventory');
+            const totalText = document.getElementById('total-count');
+            
+            if (myCollection.length === 0) {
+                list.innerHTML = `<p style="color: #444; text-align: center; margin-top: 100px;">Belum ada item...</p>`;
+                totalText.innerText = "Total: 0";
+                return;
+            }
+
+            // Logika Stacking
+            const counts = {};
+            myCollection.forEach(item => {
+                counts[item.name] = (counts[item.name] || 0) + 1;
+            });
+
+            // Ambil data unik untuk ditampilkan
+            const uniqueItems = Array.from(new Set(myCollection.map(i => i.name)))
+                .map(name => myCollection.find(i => i.name === name));
+
+            // Sorting: SSR di paling atas biar bangga
+            uniqueItems.sort((a, b) => {
+                const r = { "SSR": 1, "R": 2, "Common": 3 };
+                return r[a.rarity] - r[b.rarity];
+            });
+
+            list.innerHTML = uniqueItems.map(item => {
+                let colorClass = `rarity-${item.rarity.toLowerCase()}`;
+                return `<div class="${colorClass}">• ${item.name} <span style="color: #555; font-size: 11px;">x${counts[item.name]}</span></div>`;
+            }).join('');
+
+            totalText.innerText = `Total: ${myCollection.length}`;
+        }
+
+        function clearCollection() {
+            if(confirm("Beneran mau buang semua koleksi lo?")) {
+                myCollection = [];
+                localStorage.removeItem('devin_gacha');
+                updateDisplay();
+                document.getElementById('result').innerText = "Siap buat gacha?";
+            }
+        }
+    </script>
+</body>
+</html>
